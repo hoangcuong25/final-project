@@ -10,6 +10,7 @@ const fadeUp = {
 };
 
 import banner from "@public/badminton-court.png"
+import Link from "next/link";
 
 const Home = () => {
     return (
@@ -88,7 +89,9 @@ const Home = () => {
                                         whileTap={{ scale: 0.95 }}
                                         className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
                                     >
-                                        Đặt ngay
+                                        <Link href={`/court/${court}`}>
+                                            Xem chi tiết
+                                        </Link>
                                     </motion.button>
                                 </div>
                             </div>
