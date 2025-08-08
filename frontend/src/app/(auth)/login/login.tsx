@@ -1,15 +1,27 @@
+"use client";
 
 import React from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function LoginPage() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
-            <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 via-white to-green-50 p-6 my-3 rounded-2xl">
+            <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8"
+            >
                 {/* Title */}
-                <h2 className="text-2xl font-bold text-center text-green-600 mb-6">
+                <motion.h2
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="text-3xl font-bold text-center text-green-600 mb-6"
+                >
                     Đăng nhập
-                </h2>
+                </motion.h2>
 
                 {/* Form */}
                 <form className="space-y-5">
@@ -21,7 +33,9 @@ export default function LoginPage() {
                         <input
                             type="email"
                             placeholder="Nhập email"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+                                       focus:ring-2 focus:ring-green-500 focus:outline-none
+                                       transition-all duration-200 hover:border-green-400"
                         />
                     </div>
 
@@ -33,7 +47,9 @@ export default function LoginPage() {
                         <input
                             type="password"
                             placeholder="Nhập mật khẩu"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+                                       focus:ring-2 focus:ring-green-500 focus:outline-none
+                                       transition-all duration-200 hover:border-green-400"
                         />
                     </div>
 
@@ -41,19 +57,22 @@ export default function LoginPage() {
                     <div className="flex justify-end">
                         <Link
                             href="/forgot-password"
-                            className="text-sm text-green-600 hover:underline"
+                            className="text-sm text-green-600 hover:underline transition"
                         >
                             Quên mật khẩu?
                         </Link>
                     </div>
 
                     {/* Button */}
-                    <button
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         type="submit"
-                        className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition"
+                        className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold
+                                   hover:bg-green-700 shadow-md transition"
                     >
                         Đăng nhập
-                    </button>
+                    </motion.button>
                 </form>
 
                 {/* Divider */}
@@ -64,12 +83,14 @@ export default function LoginPage() {
                 </div>
 
                 {/* Social login */}
-                <div className="space-y-3">
-                    <button className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition">
-                        <img src="/google.svg" alt="Google" className="w-5 h-5" />
-                        Đăng nhập với Google
-                    </button>
-                </div>
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition"
+                >
+                    <img src="/google.svg" alt="Google" className="w-5 h-5" />
+                    Đăng nhập với Google
+                </motion.button>
 
                 {/* Register */}
                 <p className="mt-6 text-center text-sm text-gray-600">
@@ -78,7 +99,7 @@ export default function LoginPage() {
                         Đăng ký ngay
                     </Link>
                 </p>
-            </div>
+            </motion.div>
         </div>
     );
 }
