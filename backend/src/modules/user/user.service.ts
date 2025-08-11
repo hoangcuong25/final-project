@@ -7,76 +7,99 @@ import dayjs from 'dayjs';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-
+    private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
     private readonly cloudinaryService: CloudinaryService,
   ) { }
 
   async isEmailExist(email: string) {
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.prisma.user.findUnique({ where: { email } });
     return !!user;
   }
 
-  async updateCodeActive(id: string, codeId: string) {
-    await this.userRepository.update(id, {
-      verificationOtp: codeId,
-      verificationOtpExpires: new Date(Date.now() + 5 * 60 * 1000),
+  async updateCodeActive(id: number, codeId: string) {
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        verificationOtp: codeId,
+        verificationOtpExpires: new Date(Date.now() + 5 * 60 * 1000),
+      },
     });
   }
 
-  async activeAccount(id: string) {
-    await this.userRepository.update(id, {
-      isVerified: true,
-      verificationOtp: null,
-      verificationOtpExpires: null,
+  async activeAccount(id: number) {
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        isVerified: true,
+        verificationOtp: null,
+        verificationOtpExpires: null,
+      },
     });
   }
 
-  async updateOptReset(id: number, otp: string) {
-    await this.userRepository.update(id, {
-      resetOtp: otp,
-      resetOtpExpires: new Date(Date.now() + 5 * 60 * 1000),
-    });
-  }
+  // async updateOptReset(id: number, otp: string) {
+  //   await this.prisma.user.update({
+  //     where: { id },
+  //     data: {
+  //       resetOtp: otp,
+  //       resetOtpExpires: new Date(Date.now() + 5 * 60 * 1000),
+  //     },
+  //   });
+  // }
+
+  // async updateOptReset(id: number, otp: string) {
+  //   await this.prisma.user.update({
+  //     where: { id },
+  //     data: {
+  //       resetOtp: otp,
+  //       resetOtpExpires: new Date(Date.now() + 5 * 60 * 1000),
+  //     },
+  //   });
+  // }
 
   async resetPassword(id: number, password: string) {
-    await this.userRepository.update(id, {
-      password,
-      resetOtp: null,
-      resetOtpExpires: null,
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        password,
+        resetOtp: null,
+        resetOtpExpires: null,
+      },
     });
   }
 
-  async createWithGoole(userData: Partial<User>) {
-    const newUser = this.userRepository.create(userData);
-    return await this.userRepository.save(newUser);
-  }
+  // async createWithGoogle(userData: Partial<User>) {
+  //   const newUser = this.prisma.user.create({
+  //     data: userData,
+  //   });
+  //   return await newUser;
+  // }
 
   async create(createUserDto: CreateUserDto) {
     try {
-      const { name, email, password1, password2 } = createUserDto;
+      const { fullname, email, password1, password2 } = createUserDto;
 
       if (await this.isEmailExist(email)) throw new BadRequestException('Email already exists');
       if (password1 !== password2) throw new BadRequestException('Password not match');
 
       const hashPassword = await hashPasswordHelper(password1);
 
-      const user = this.userRepository.create({
-        name,
-        email,
-        password: hashPassword,
-        isVerified: false,
-        // codeExpired: dayjs().add(5, 'minute').toDate(),
+      const savedUser = await this.prisma.user.create({
+        data: {
+          fullname,
+          email,
+          password: hashPassword,
+          isVerified: false,
+          // codeExpired: dayjs().add(5, 'minute').toDate(),
+        },
       });
 
-      const savedUser = await this.userRepository.save(user);
       return { id: savedUser.id };
     } catch (error) {
       console.log(error);
@@ -85,77 +108,77 @@ export class UserService {
   }
 
   async findByEmail(email: string) {
-    return await this.userRepository.findOne({ where: { email } });
+    return await this.prisma.user.findUnique({ where: { email } });
   }
 
   async findById(id: number) {
-    return await this.userRepository.findOne({ where: { id } });
+    return await this.prisma.user.findUnique({ where: { id } });
   }
 
   async handleRegister(registerDto: CreateAuthDto) {
-    const { name, email, password1, password2 } = registerDto;
+    const { fullname, email, password1, password2 } = registerDto;
 
     if (await this.isEmailExist(email)) throw new BadRequestException('Email already exists!');
     if (password1 !== password2) throw new BadRequestException('Password not match');
 
     const hashPassword = await hashPasswordHelper(password1);
 
-    const user = this.userRepository.create({
-      name,
-      email,
-      password: hashPassword,
-      isVerified: false,
+    const savedUser = await this.prisma.user.create({
+      data: {
+        fullname,
+        email,
+        password: hashPassword,
+        isVerified: false,
+      },
     });
-
-    const savedUser = await this.userRepository.save(user);
     return { id: savedUser.id };
   }
 
   async findAll() {
-    return await this.userRepository.find();
+    return await this.prisma.user.findMany();
   }
 
   async getProfile(req: { _id: number }) {
     return await this.findById(req._id);
   }
 
-  async updateProfile(req: { _id: number }, updateUserDto: any, image?: Express.Multer.File) {
-    const user = await this.findById(req._id);
-    if (!user) throw new BadRequestException('User not found');
+  // async updateProfile(req: { _id: number }, updateUserDto: any, image?: Express.Multer.File) {
+  //   const user = await this.findById(req._id);
+  //   if (!user) throw new BadRequestException('User not found');
 
-    const updateData = { ...updateUserDto };
+  //   const updateData = { ...updateUserDto };
 
-    if (image) {
-      const imageUpload = await this.cloudinaryService.uploadFile(image);
-      updateData['image'] = imageUpload.url;
-    }
+  //   if (image) {
+  //     const imageUpload = await this.cloudinaryService.uploadFile(image);
+  //     updateData['image'] = imageUpload.url;
+  //   }
 
-    await this.userRepository.update(req._id, updateData);
-    return 'ok';
-  }
+  //   await this.userRepository.update(req._id, updateData);
+  //   return 'ok';
+  // }
 
-  async updatePhone(req: { _id: string }, phone: string) {
-    await this.userRepository.update(req._id, { phone });
-    return 'ok';
-  }
+  // async updatePhone(req: { _id: string }, phone: string) {
+  //   await this.userRepository.update(req._id, { phone });
+  //   return 'ok';
+  // }
 
-  async updatePassword(req: { _id: number }, reqBody: any) {
-    const { newPassword1, newPassword2, oldPassword } = reqBody;
-    const user = await this.findById(req._id);
-    if (!user) throw new BadRequestException('User not found');
+  // async updatePassword(req: { _id: number }, reqBody: any) {
+  //   const { newPassword1, newPassword2, oldPassword } = reqBody;
+  //   const user = await this.findById(req._id);
+  //   if (!user) throw new BadRequestException('User not found');
 
-    const isOldPasswordValid = await comparePasswordHelper(oldPassword, user.password);
-    if (!isOldPasswordValid) throw new BadRequestException('Incorrect old password');
-    if (newPassword1 !== newPassword2) throw new BadRequestException('New passwords do not match');
+  //   const isOldPasswordValid = await comparePasswordHelper(oldPassword, user.password);
+  //   if (!isOldPasswordValid) throw new BadRequestException('Incorrect old password');
+  //   if (newPassword1 !== newPassword2) throw new BadRequestException('New passwords do not match');
 
-    const hashedPassword = await hashPasswordHelper(newPassword1);
-    await this.userRepository.update(req._id, { password: hashedPassword });
+  //   const hashedPassword = await hashPasswordHelper(newPassword1);
+  //   await this.userRepository.update(req._id, { password: hashedPassword });
 
-    return 'ok';
-  }
+  //   return 'ok';
+  // }
 
-  async deleteUser(userId: string) {
-    await this.userRepository.delete(userId);
-    return 'ok';
-  }
+  // async deleteUser(userId: string) {
+  //   await this.userRepository.delete(userId);
+  //   return 'ok';
+  // }
 }

@@ -51,12 +51,12 @@ export class AuthController {
     return this.authService.comfirmActive(req.user, body.codeId)
   }
 
-  @Post('send-reset-otp')
-  @Public()
-  @ResponseMessage('send reset otp password')
-  sendResetOtp(@Body() body) {
-    return this.authService.sendResetOtp(body.email)
-  }
+  // @Post('send-reset-otp')
+  // @Public()
+  // @ResponseMessage('send reset otp password')
+  // sendResetOtp(@Body() body) {
+  //   return this.authService.sendResetOtp(body.email)
+  // }
 
   @Post('reset-password')
   @Public()
@@ -65,12 +65,12 @@ export class AuthController {
     return this.authService.resetPassword(body.email, body.otp, body.newPassword)
   }
 
-  @Post('login-google')
-  @Public()
-  @ResponseMessage('login with goole')
-  loginGoole(@Body() body) {
-    return this.authService.loginGoole(body.firstName, body.lastName, body.email, body.image)
-  }
+  // @Post('login-google')
+  // @Public()
+  // @ResponseMessage('login with goole')
+  // loginGoole(@Body() body) {
+  //   return this.authService.loginGoole(body.firstName, body.lastName, body.email, body.image)
+  // }
 
   @Post('logout')
   @ResponseMessage('logout')

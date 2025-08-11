@@ -18,7 +18,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private readonly mailerService: MailerService,
-    @InjectRedis() private readonly redis: Redis
+    // @InjectRedis() private readonly redis: Redis
   ) { }
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -45,9 +45,9 @@ export class AuthService {
     return refresh_token;
   }
 
-  async storeRefreshToken(userId, refresh_token) {
-    await this.redis.set(`refresh_token:${userId}`, refresh_token, "EX", 1 * 24 * 60 * 60); // 7days
-  }
+  // async storeRefreshToken(userId, refresh_token) {
+  //   await this.redis.set(`refresh_token:${userId}`, refresh_token, "EX", 1 * 24 * 60 * 60); // 7days
+  // }
 
   async login(user: any, response: Response) {
 
@@ -62,7 +62,7 @@ export class AuthService {
 
     const refresh_token = this.createRefreshToken(payload);
 
-    await this.storeRefreshToken(user._id, refresh_token)
+    // await this.storeRefreshToken(user._id, refresh_token)
 
     // Đặt cookie refresh_token
     response.cookie('refresh_token', refresh_token, {
@@ -88,7 +88,7 @@ export class AuthService {
 
       if (access_token) {
         const decoded = this.jwtService.verify(access_token, { secret: this.configService.get<string>("JWT_ACCESS_TOKEN_SECRET") })
-        await this.redis.del(`refresh_token:${decoded._id}`);
+        // await this.redis.del(`refresh_token:${decoded._id}`);
       }
 
       return 'ok'
@@ -106,11 +106,11 @@ export class AuthService {
     }
 
     const decoded = this.jwtService.verify(refreshToken, { secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET") })
-    const storedToken = await this.redis.get(`refresh_token:${decoded._id}`);
+    // const storedToken = await this.redis.get(`refresh_token:${decoded._id}`);
 
-    if (storedToken !== refreshToken) {
-      throw new UnauthorizedException('Invalid refresh token')
-    }
+    // if (storedToken !== refreshToken) {
+    //   throw new UnauthorizedException('Invalid refresh token')
+    // }
 
     const user = await this.userService.findById(decoded._id)
 
@@ -136,7 +136,7 @@ export class AuthService {
         text: 'welcome', // plaintext body
         template: "register",
         context: {
-          name: user?.name,
+          name: user?.fullname,
           activationCode: codeId
         }
       })
@@ -162,35 +162,35 @@ export class AuthService {
     return 'ok'
   }
 
-  async sendResetOtp(email) {
-    if (!email) {
-      throw new BadRequestException('Email is required')
-    }
+  // async sendResetOtp(email) {
+  //   if (!email) {
+  //     throw new BadRequestException('Email is required')
+  //   }
 
-    const user = await this.userService.findByEmail(email)
+  //   const user = await this.userService.findByEmail(email)
 
-    if (!user) {
-      throw new BadRequestException('User not found')
-    }
+  //   if (!user) {
+  //     throw new BadRequestException('User not found')
+  //   }
 
-    const otp = Math.random().toString(36).substring(2, 8);
+  //   const otp = Math.random().toString(36).substring(2, 8);
 
-    await this.userService.updateOptReset(user.id, otp)
+  //   await this.userService.updateOptReset(user.id, otp)
 
-    this.mailerService
-      .sendMail({
-        to: user?.email, // list of receivers
-        subject: 'Reset Password', // Subject line
-        text: 'Reset Your Password', // plaintext body
-        template: "resetPassword",
-        context: {
-          name: user?.name,
-          activationCode: otp
-        }
-      })
+  //   this.mailerService
+  //     .sendMail({
+  //       to: user?.email, // list of receivers
+  //       subject: 'Reset Password', // Subject line
+  //       text: 'Reset Your Password', // plaintext body
+  //       template: "resetPassword",
+  //       context: {
+  //         name: user?.name,
+  //         activationCode: otp
+  //       }
+  //     })
 
-    return 'ok'
-  }
+  //   return 'ok'
+  // }
 
   async resetPassword(email, otp, newPassword) {
     if (!email || !otp || !newPassword) {
@@ -218,63 +218,63 @@ export class AuthService {
     return 'ok'
   }
 
-  async loginGoole(firstName, lastName, email, image) {
-    if (!firstName || !lastName || !email || !image) {
-      throw new BadRequestException("Please Fill In All Information")
-    }
+  // async loginGoole(firstName, lastName, email, image) {
+  //   if (!firstName || !lastName || !email || !image) {
+  //     throw new BadRequestException("Please Fill In All Information")
+  //   }
 
-    const user = await this.userService.findByEmail(email)
+  //   const user = await this.userService.findByEmail(email)
 
-    if (user) {
-      const payload = {
-        sub: user.email,
-        iss: 'from server',
-        _id: user.id,
-        role: user.role
-      };
+  //   if (user) {
+  //     const payload = {
+  //       sub: user.email,
+  //       iss: 'from server',
+  //       _id: user.id,
+  //       role: user.role
+  //     };
 
-      const access_token = this.jwtService.sign(payload);
-      const refresh_token = this.createRefreshToken(payload);
+  //     const access_token = this.jwtService.sign(payload);
+  //     const refresh_token = this.createRefreshToken(payload);
 
-      await this.storeRefreshToken(user.id, refresh_token)
+  //     await this.storeRefreshToken(user.id, refresh_token)
 
-      return {
-        access_token,
-        refresh_token
-      }
-    } else {
-      const generatedPassword = Math.random().toString(36).slice(-8)
-      const hashedPassword = await hashPasswordHelper(generatedPassword)
+  //     return {
+  //       access_token,
+  //       refresh_token
+  //     }
+  //   } else {
+  //     const generatedPassword = Math.random().toString(36).slice(-8)
+  //     const hashedPassword = await hashPasswordHelper(generatedPassword)
 
-      const userData = {
-        firstName,
-        lastName,
-        email,
-        phone: "Unknown",
-        password: hashedPassword,
-        dob: "Unknown",
-        image,
-        isActive: true
-      }
+  //     const userData = {
+  //       firstName,
+  //       lastName,
+  //       email,
+  //       phone: "Unknown",
+  //       password: hashedPassword,
+  //       dob: "Unknown",
+  //       image,
+  //       isActive: true
+  //     }
 
-      const user = await this.userService.createWithGoole(userData)
+  //     const user = await this.userService.createWithGoole(userData)
 
-      const payload = {
-        sub: user.email,
-        iss: 'from server',
-        _id: user.id,
-        role: user.role
-      };
+  //     const payload = {
+  //       sub: user.email,
+  //       iss: 'from server',
+  //       _id: user.id,
+  //       role: user.role
+  //     };
 
-      const access_token = this.jwtService.sign(payload);
-      const refresh_token = this.createRefreshToken(payload);
+  //     const access_token = this.jwtService.sign(payload);
+  //     const refresh_token = this.createRefreshToken(payload);
 
-      await this.storeRefreshToken(user.id, refresh_token)
+  //     await this.storeRefreshToken(user.id, refresh_token)
 
-      return {
-        access_token,
-        refresh_token
-      }
-    }
-  }
+  //     return {
+  //       access_token,
+  //       refresh_token
+  //     }
+  //   }
+  // }
 }

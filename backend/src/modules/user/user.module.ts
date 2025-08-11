@@ -3,12 +3,12 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
     CloudinaryModule,
+    PrismaModule,
   ],
   controllers: [UserController],
   providers: [UserService],

@@ -33,41 +33,40 @@ export class UserController {
     return this.userService.getProfile(req.user)
   }
 
-  @Patch('update-profile')
-  @ResponseMessage('update profile')
-  @UseInterceptors(FileInterceptor('image'))
-  updateProfile(
-    @Req() req,
-    @Body() updateUserDto: UpdateUserDto,
-    @UploadedFile() image: Express.Multer.File
-  ) {
-    return this.userService.updateProfile(req.user, updateUserDto, image)
-  }
+  // @Patch('update-profile')
+  // @ResponseMessage('update profile')
+  // @UseInterceptors(FileInterceptor('image'))
+  // updateProfile(
+  //   @Req() req,
+  //   @Body() updateUserDto: UpdateUserDto,
+  //   @UploadedFile() image: Express.Multer.File
+  // ) {
+  //   return this.userService.updateProfile(req.user, updateUserDto, image)
+  // }
 
-  @Patch('update-phone')
-  updatePhone(
-    @Req() req,
-    @Body() reqBody: { phone: string }
-  ) {
-    return this.userService.updatePhone(req.user, reqBody.phone)
-  }
+  // @Patch('update-phone')
+  // updatePhone(
+  //   @Req() req,
+  //   @Body() reqBody: { phone: string }
+  // ) {
+  //   return this.userService.updatePhone(req.user, reqBody.phone)
+  // }
 
-  @Patch('update-password')
-  updatePassword(
-    @Req() req,
-    @Body() reqBody: {
-      newPassword1: string,
-      newPassword2: string,
-      oldPassword: string
-    }
-  ) {
-    return this.userService.updatePassword(req.user, reqBody)
-  }
+  // @Patch('update-password')
+  // updatePassword(
+  //   @Req() req,
+  //   @Body() reqBody: {
+  //     newPassword1: string,
+  //     newPassword2: string,
+  //     oldPassword: string
+  //   }
+  // ) {
+  //   return this.userService.updatePassword(req.user, reqBody)
+  // }
 
-  @Delete('delete-user/:id')
-  @Roles('admin')
-  deleteUser(@Param('id') userId: string) {
-    return this.userService.deleteUser(userId)
-  }
-
+  // @Delete('delete-user/:id')
+  // @Roles('admin')
+  // deleteUser(@Param('id') userId: string) {
+  //   return this.userService.deleteUser(userId)
+  // }
 }

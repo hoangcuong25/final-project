@@ -8,21 +8,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { RedisModule, RedisModuleOptions } from '@nestjs-modules/ioredis';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
 
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '123123123',
-      database: 'airbnb',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'], // <-- Load tất cả entity
-      synchronize: true, // chỉ bật khi dev
-    }),
+    PrismaModule,
 
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -53,14 +45,14 @@ import { RedisModule, RedisModuleOptions } from '@nestjs-modules/ioredis';
       inject: [ConfigService],
     }),
 
-    RedisModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService): Promise<RedisModuleOptions> => ({
-        type: 'single',
-        url: configService.get<string>('UPSTASH_REDIS_URL') || '',
-      }),
-      inject: [ConfigService],
-    }),
+    // RedisModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   useFactory: async (configService: ConfigService): Promise<RedisModuleOptions> => ({
+    //     type: 'single',
+    //     url: configService.get<string>('UPSTASH_REDIS_URL') || '',
+    //   }),
+    //   inject: [ConfigService],
+    // }),
 
     UserModule,
     AuthModule
