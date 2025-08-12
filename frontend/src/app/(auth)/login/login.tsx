@@ -3,8 +3,35 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LoginFormData, loginSchema } from "@/hook/zod-schema/UserSchema";
+import { LoginApi } from "@/api/auth.api";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+
+    const router = useRouter();
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema),
+        mode: "onBlur", // validate khi blur ra khỏi field
+        reValidateMode: "onChange", // validate lại khi user thay đổi input
+    });
+
+    const onSubmit = async (data: LoginFormData) => {
+        try {
+            await LoginApi(data);
+            router.push("/");
+        } catch (err: any) {
+            alert(err.response?.data?.message || err.message || "Đăng nhập thất bại");
+        }
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 via-white to-green-50 p-6 my-3 rounded-2xl">
             <motion.div
@@ -24,7 +51,7 @@ export default function LoginPage() {
                 </motion.h2>
 
                 {/* Form */}
-                <form className="space-y-5">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     {/* Email */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -33,10 +60,14 @@ export default function LoginPage() {
                         <input
                             type="email"
                             placeholder="Nhập email"
+                            {...register("email")}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-                                       focus:ring-2 focus:ring-green-500 focus:outline-none
-                                       transition-all duration-200 hover:border-green-400"
+                         focus:ring-2 focus:ring-green-500 focus:outline-none
+                         transition-all duration-200 hover:border-green-400"
                         />
+                        {errors.email && (
+                            <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+                        )}
                     </div>
 
                     {/* Password */}
@@ -47,10 +78,14 @@ export default function LoginPage() {
                         <input
                             type="password"
                             placeholder="Nhập mật khẩu"
+                            {...register("password")}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-                                       focus:ring-2 focus:ring-green-500 focus:outline-none
-                                       transition-all duration-200 hover:border-green-400"
+                         focus:ring-2 focus:ring-green-500 focus:outline-none
+                         transition-all duration-200 hover:border-green-400"
                         />
+                        {errors.password && (
+                            <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
+                        )}
                     </div>
 
                     {/* Forgot password */}
@@ -68,10 +103,11 @@ export default function LoginPage() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         type="submit"
+                        disabled={isSubmitting}
                         className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold
-                                   hover:bg-green-700 shadow-md transition"
+                       hover:bg-green-700 shadow-md transition disabled:opacity-50"
                     >
-                        Đăng nhập
+                        {isSubmitting ? "Đang xử lý..." : "Đăng nhập"}
                     </motion.button>
                 </form>
 

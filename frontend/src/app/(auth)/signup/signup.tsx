@@ -7,10 +7,7 @@ import { RegisterApi } from "@/api/auth.api";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerSchema } from "@/hook/zod-schema/UserSchema";
-
-// Kiểu dữ liệu từ schema
-type RegisterFormData = z.infer<typeof registerSchema>;
+import { RegisterFormData, registerSchema } from "@/hook/zod-schema/UserSchema";
 
 export default function SignupPage() {
     const router = useRouter();

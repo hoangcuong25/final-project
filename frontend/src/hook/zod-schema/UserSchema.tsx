@@ -12,3 +12,12 @@ export const registerSchema = z
         message: "Mật khẩu không khớp",
         path: ["password2"], // báo lỗi ở field password2
     });
+
+export type RegisterFormData = z.infer<typeof registerSchema>;
+
+export const loginSchema = z.object({
+    email: z.string().email("Email không hợp lệ"),
+    password: z.string().min(6, "Mật khẩu phải ít nhất 6 ký tự"),
+});
+
+export type LoginFormData = z.infer<typeof loginSchema>;

@@ -45,10 +45,6 @@ export class AuthService {
     return refresh_token;
   }
 
-  // async storeRefreshToken(userId, refresh_token) {
-  //   await this.redis.set(`refresh_token:${userId}`, refresh_token, "EX", 1 * 24 * 60 * 60); // 7days
-  // }
-
   async login(user: any, response: Response) {
 
     const userLogin = await this.userService.findById(user.id)
@@ -61,8 +57,7 @@ export class AuthService {
     };
 
     const refresh_token = this.createRefreshToken(payload);
-
-    // await this.storeRefreshToken(user._id, refresh_token)
+    await this.userService.storeRefreshToken(user._id, refresh_token);
 
     // Đặt cookie refresh_token
     response.cookie('refresh_token', refresh_token, {
@@ -88,7 +83,6 @@ export class AuthService {
 
       if (access_token) {
         const decoded = this.jwtService.verify(access_token, { secret: this.configService.get<string>("JWT_ACCESS_TOKEN_SECRET") })
-        // await this.redis.del(`refresh_token:${decoded._id}`);
       }
 
       return 'ok'

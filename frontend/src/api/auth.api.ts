@@ -27,7 +27,7 @@ export type LoginPayload = {
 
 export const LoginApi = async (payload: LoginPayload) => {
     try {
-        const response = await axiosClient.post('/api/v1/auth/login', payload)
+        const response = await axiosClient.post('/auth/login', payload)
         return response.data
 
     } catch (error) {

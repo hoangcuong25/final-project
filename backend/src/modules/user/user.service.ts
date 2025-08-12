@@ -181,4 +181,15 @@ export class UserService {
   //   await this.userRepository.delete(userId);
   //   return 'ok';
   // }
+
+  async storeRefreshToken(userId: number, refreshToken: string) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        refreshToken,
+        refreshTokenExpires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      },
+    });
+  }
+
 }
