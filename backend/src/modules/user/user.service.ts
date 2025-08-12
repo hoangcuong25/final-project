@@ -1,21 +1,21 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { CreateAuthDto } from '../auth/dto/create-auth.dto';
-import { comparePasswordHelper, hashPasswordHelper } from 'src/helpers/util';
-import { MailerService } from '@nestjs-modules/mailer';
-import dayjs from 'dayjs';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { CreateAuthDto } from "../auth/dto/create-auth.dto";
+import { comparePasswordHelper, hashPasswordHelper } from "src/helpers/util";
+import { MailerService } from "@nestjs-modules/mailer";
+import dayjs from "dayjs";
+import { CloudinaryService } from "src/cloudinary/cloudinary.service";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
-    private readonly cloudinaryService: CloudinaryService,
-  ) { }
+    private readonly cloudinaryService: CloudinaryService
+  ) {}
 
   async isEmailExist(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
@@ -85,8 +85,10 @@ export class UserService {
     try {
       const { fullname, email, password1, password2 } = createUserDto;
 
-      if (await this.isEmailExist(email)) throw new BadRequestException('Email already exists');
-      if (password1 !== password2) throw new BadRequestException('Password not match');
+      if (await this.isEmailExist(email))
+        throw new BadRequestException("Email already exists");
+      if (password1 !== password2)
+        throw new BadRequestException("Password not match");
 
       const hashPassword = await hashPasswordHelper(password1);
 
@@ -103,7 +105,7 @@ export class UserService {
       return { id: savedUser.id };
     } catch (error) {
       console.log(error);
-      throw new BadRequestException('Internal server error');
+      throw new BadRequestException("Internal server error");
     }
   }
 
@@ -118,8 +120,10 @@ export class UserService {
   async handleRegister(registerDto: CreateAuthDto) {
     const { fullname, email, password1, password2 } = registerDto;
 
-    if (await this.isEmailExist(email)) throw new BadRequestException('Email already exists!');
-    if (password1 !== password2) throw new BadRequestException('Password not match');
+    if (await this.isEmailExist(email))
+      throw new BadRequestException("Email already exists!");
+    if (password1 !== password2)
+      throw new BadRequestException("Password not match");
 
     const hashPassword = await hashPasswordHelper(password1);
 
@@ -191,5 +195,4 @@ export class UserService {
       },
     });
   }
-
 }

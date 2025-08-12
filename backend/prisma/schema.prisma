@@ -44,7 +44,7 @@ model User {
   verificationOtp        String?
   verificationOtpExpires DateTime?
 
-  refreshToken           String?
+  refreshToken           String?   @db.Text
   refreshTokenExpires    DateTime?
 
   createdAt              DateTime  @default(now())
