@@ -142,8 +142,8 @@ export class UserService {
     return await this.prisma.user.findMany();
   }
 
-  async getProfile(req: { _id: number }) {
-    return await this.findById(req._id);
+  async getProfile(userId: number) {
+    return await this.findById(userId);
   }
 
   // async updateProfile(req: { _id: number }, updateUserDto: any, image?: Express.Multer.File) {

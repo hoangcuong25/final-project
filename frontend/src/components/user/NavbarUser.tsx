@@ -101,25 +101,41 @@ const NavbarUser = () => {
 
           {/* User Actions */}
           <div className="mt-6 flex flex-col gap-3">
+            {/* Đăng nhập */}
             <motion.button
               whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-full hover:bg-green-100 transition duration-200"
+              className="flex items-center gap-2 px-3 py-2 backdrop-blur-md bg-emerald-300/20 border border-white/20 rounded-full hover:bg-emerald-300/30 transition duration-200"
             >
-              <User className="w-5 h-5 text-green-600" />
+              <User className="w-5 h-5 text-emerald-600" />
               <Link
                 href={"/login"}
-                className="text-green-600 text-sm font-medium"
+                className="text-emerald-600 text-sm font-medium"
               >
-                Tài khoản
+                Đăng nhập
               </Link>
             </motion.button>
+
+            {/* Thông báo */}
             <motion.button
               whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-full hover:bg-red-100 transition duration-200"
+              className="flex items-center gap-2 px-3 py-2 backdrop-blur-md bg-indigo-300/20 border border-white/20 rounded-full hover:bg-indigo-300/30 transition duration-200"
             >
-              <LogOut className="w-5 h-5 text-red-500" />
-              <span className="text-red-500 text-sm font-medium">
-                Đăng xuất
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-5 h-5 text-indigo-600"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M14.25 18.75a1.5 1.5 0 11-3 0m6-6V9a6 6 0 10-12 0v3l-1.5 3h15l-1.5-3z"
+                />
+              </svg>
+              <span className="text-indigo-600 text-sm font-medium">
+                Thông báo
               </span>
             </motion.button>
           </div>
@@ -128,21 +144,46 @@ const NavbarUser = () => {
 
       {/* User Section - Desktop */}
       <div className="hidden lg:flex items-center gap-5">
+        {/* Đăng nhập */}
         <motion.button
           whileHover={{ scale: 1.05 }}
-          className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full hover:bg-green-100 transition duration-200"
+          className="flex items-center gap-2 px-3 py-1.5 backdrop-blur-md bg-emerald-300/20 border border-white/20 rounded-full hover:bg-emerald-300/30 transition duration-200"
         >
-          <User className="w-5 h-5 text-green-600" />
-          <Link href={"/login"} className="text-green-600 text-sm font-medium">
-            Tài khoản
+          <User className="w-5 h-5 text-emerald-600" />
+          <Link
+            href={"/login"}
+            className="text-emerald-600 text-sm font-medium"
+          >
+            Đăng nhập
           </Link>
         </motion.button>
+
+        {/* Thông báo */}
         <motion.button
           whileHover={{ scale: 1.05 }}
-          className="flex items-center gap-2 px-3 py-1.5 bg-red-50 border border-red-200 rounded-full hover:bg-red-100 transition duration-200"
+          className="relative flex items-center gap-2 px-3 py-1.5 backdrop-blur-md bg-indigo-300/20 border border-white/20 rounded-full hover:bg-indigo-300/30 transition duration-200"
         >
-          <LogOut className="w-5 h-5 text-red-500" />
-          <span className="text-red-500 text-sm font-medium">Đăng xuất</span>
+          {/* Icon */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-5 h-5 text-indigo-600"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M14.25 18.75a1.5 1.5 0 11-3 0m6-6V9a6 6 0 10-12 0v3l-1.5 3h15l-1.5-3z"
+            />
+          </svg>
+          <span className="text-indigo-600 text-sm font-medium">Thông báo</span>
+
+          {/* Badge số lượng */}
+          <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
+            3
+          </span>
         </motion.button>
       </div>
     </motion.nav>
