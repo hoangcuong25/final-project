@@ -164,35 +164,35 @@ export class AuthService {
     return "ok";
   }
 
-  // async sendResetOtp(email) {
-  //   if (!email) {
-  //     throw new BadRequestException('Email is required')
-  //   }
+  async sendResetOtp(email) {
+    if (!email) {
+      throw new BadRequestException('Email is required')
+    }
 
-  //   const user = await this.userService.findByEmail(email)
+    const user = await this.userService.findByEmail(email)
 
-  //   if (!user) {
-  //     throw new BadRequestException('User not found')
-  //   }
+    if (!user) {
+      throw new BadRequestException('Người dùng này không tồn tại')
+    }
 
-  //   const otp = Math.random().toString(36).substring(2, 8);
+    const otp = Math.random().toString(36).substring(2, 8);
 
-  //   await this.userService.updateOptReset(user.id, otp)
+    await this.userService.updateOptReset(user.id, otp)
 
-  //   this.mailerService
-  //     .sendMail({
-  //       to: user?.email, // list of receivers
-  //       subject: 'Reset Password', // Subject line
-  //       text: 'Reset Your Password', // plaintext body
-  //       template: "resetPassword",
-  //       context: {
-  //         name: user?.name,
-  //         activationCode: otp
-  //       }
-  //     })
+    this.mailerService
+      .sendMail({
+        to: user?.email, // list of receivers
+        subject: 'Reset Password', // Subject line
+        text: 'Reset Your Password', // plaintext body
+        template: "resetPassword",
+        context: {
+          name: user?.fullname,
+          activationCode: otp
+        }
+      })
 
-  //   return 'ok'
-  // }
+    return 'ok'
+  }
 
   async resetPassword(email, otp, newPassword) {
     if (!email || !otp || !newPassword) {

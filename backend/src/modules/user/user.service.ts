@@ -15,7 +15,7 @@ export class UserService {
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
     private readonly cloudinaryService: CloudinaryService
-  ) {}
+  ) { }
 
   async isEmailExist(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
@@ -43,25 +43,15 @@ export class UserService {
     });
   }
 
-  // async updateOptReset(id: number, otp: string) {
-  //   await this.prisma.user.update({
-  //     where: { id },
-  //     data: {
-  //       resetOtp: otp,
-  //       resetOtpExpires: new Date(Date.now() + 5 * 60 * 1000),
-  //     },
-  //   });
-  // }
-
-  // async updateOptReset(id: number, otp: string) {
-  //   await this.prisma.user.update({
-  //     where: { id },
-  //     data: {
-  //       resetOtp: otp,
-  //       resetOtpExpires: new Date(Date.now() + 5 * 60 * 1000),
-  //     },
-  //   });
-  // }
+  async updateOptReset(id: number, otp: string) {
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        resetOtp: otp,
+        resetOtpExpires: new Date(Date.now() + 5 * 60 * 1000),
+      },
+    });
+  }
 
   async resetPassword(id: number, password: string) {
     await this.prisma.user.update({
