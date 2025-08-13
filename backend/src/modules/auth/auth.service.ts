@@ -13,6 +13,7 @@ import { InjectRedis } from "@nestjs-modules/ioredis";
 import Redis from "ioredis";
 import { MailerService } from "@nestjs-modules/mailer";
 import { v4 as uuidv4 } from "uuid";
+import { console } from "inspector";
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,7 @@ export class AuthService {
     private configService: ConfigService,
     private readonly mailerService: MailerService
     // @InjectRedis() private readonly redis: Redis
-  ) {}
+  ) { }
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
@@ -97,28 +98,25 @@ export class AuthService {
   }
 
   async refreshToken(req) {
-    const refreshToken = req.headers.refreshtoken;
+    const refreshToken = req.cookies.refresh_token;
 
-    if (!refreshToken) {
-      throw new UnauthorizedException("No refresh token provided!!!");
-    }
+    if (!refreshToken) throw new UnauthorizedException('Không tìm thấy refresh token');
 
     const decoded = this.jwtService.verify(refreshToken, {
-      secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET"),
+      secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
     });
-    // const storedToken = await this.redis.get(`refresh_token:${decoded._id}`);
 
-    // if (storedToken !== refreshToken) {
-    //   throw new UnauthorizedException('Invalid refresh token')
-    // }
+    const storedToken = await this.userService.getRefreshTokenByUserId(decoded.id);
 
-    const user = await this.userService.findById(decoded._id);
+    if (storedToken !== refreshToken) throw new UnauthorizedException('Refresh token không hợp lệ');
+
+    const user = await this.userService.findById(decoded.id);
 
     const payload = {
       sub: user.email,
-      iss: "from server",
-      id: decoded.id,
-      role: user?.role,
+      iss: 'from server',
+      id: user.id,
+      role: user.role,
     };
 
     return this.jwtService.sign(payload);

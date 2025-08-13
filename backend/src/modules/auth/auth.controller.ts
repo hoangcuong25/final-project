@@ -29,7 +29,7 @@ export class AuthController {
     return this.authService.handleRegister(registerDto);
   }
 
-  @Post('refresh-token')
+  @Get('refresh-token')
   @Public()
   @ResponseMessage('refresh token')
   refreshToken(@Req() req) {

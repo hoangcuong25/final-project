@@ -71,6 +71,13 @@ export class UserService {
   //   return await newUser;
   // }
 
+  async getRefreshTokenByUserId(userId: number) {
+    return await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { refreshToken: true },
+    });
+  }
+
   async create(createUserDto: CreateUserDto) {
     try {
       const { fullname, email, password1, password2 } = createUserDto;

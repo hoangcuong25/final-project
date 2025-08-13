@@ -16,40 +16,39 @@ axiosClient.interceptors.request.use((config) => {
     return config;
 }, (error) => Promise.reject(error));
 
-// axiosClient.interceptors.response.use(
-//     response => response,
-//     async error => {
-//         const originalRequest = error.config;
+axiosClient.interceptors.response.use(
+    response => response,
+    async error => {
+        const originalRequest = error.config;
 
-//         if (error.response?.status === 401 && !originalRequest._retry) {
-//             originalRequest._retry = true;
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
 
-//             try {
-//                 const response = await axios.get(
-//                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/refresh-token`,
-//                     { withCredentials: true }
-//                 );
+            try {
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/refresh-token`,
+                    { withCredentials: true }
+                );
 
-//                 const newAccessToken = response.data.data;
+                const newAccessToken = response.data.data;
 
-//                 console.log('newAccessToken', newAccessToken);
-//                 if (newAccessToken) {
-//                     localStorage.setItem('access_token', newAccessToken);
-//                     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                console.log('newAccessToken', newAccessToken);
+                if (newAccessToken) {
+                    localStorage.setItem('access_token', newAccessToken);
+                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-//                     return axiosClient(originalRequest);
-//                 }
-//             } catch (refreshError) {
-//                 console.error('Token refresh failed');
-//                 localStorage.removeItem('access_token');
+                    return axiosClient(originalRequest);
+                }
+            } catch (refreshError) {
+                console.error('Token refresh failed');
+                localStorage.removeItem('access_token');
 
-//                 return Promise.reject(refreshError);
-//             }
-//         }
+                return Promise.reject(refreshError);
+            }
+        }
 
-//         return Promise.reject(error);
-//     }
-// );
-
+        return Promise.reject(error);
+    }
+);
 
 export default axiosClient;
