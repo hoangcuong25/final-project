@@ -23,7 +23,7 @@ export class AuthService {
     private configService: ConfigService,
     private readonly mailerService: MailerService
     // @InjectRedis() private readonly redis: Redis
-  ) { }
+  ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
@@ -100,21 +100,29 @@ export class AuthService {
   async refreshToken(req) {
     const refreshToken = req.cookies.refresh_token;
 
-    if (!refreshToken) throw new UnauthorizedException('Không tìm thấy refresh token');
+    if (!refreshToken)
+      throw new UnauthorizedException("Không tìm thấy refresh token");
 
     const decoded = this.jwtService.verify(refreshToken, {
-      secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
+      secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET"),
     });
 
-    const storedToken = await this.userService.getRefreshTokenByUserId(decoded.id);
+    const storedToken = await this.userService.getRefreshTokenByUserId(
+      decoded.id
+    );
 
-    if (storedToken !== refreshToken) throw new UnauthorizedException('Refresh token không hợp lệ');
+    console.log("Stored Token:", storedToken);
+    console.log("refreshToken:", refreshToken);
+    console.log("ss", storedToken === refreshToken);
+
+    if (storedToken.refreshToken !== refreshToken)
+      throw new UnauthorizedException("Refresh token không hợp lệ");
 
     const user = await this.userService.findById(decoded.id);
 
     const payload = {
       sub: user.email,
-      iss: 'from server',
+      iss: "from server",
       id: user.id,
       role: user.role,
     };
@@ -164,32 +172,31 @@ export class AuthService {
 
   async sendResetOtp(email) {
     if (!email) {
-      throw new BadRequestException('Email is required')
+      throw new BadRequestException("Email is required");
     }
 
-    const user = await this.userService.findByEmail(email)
+    const user = await this.userService.findByEmail(email);
 
     if (!user) {
-      throw new BadRequestException('Người dùng này không tồn tại')
+      throw new BadRequestException("Người dùng này không tồn tại");
     }
 
     const otp = Math.random().toString(36).substring(2, 8);
 
-    await this.userService.updateOptReset(user.id, otp)
+    await this.userService.updateOptReset(user.id, otp);
 
-    this.mailerService
-      .sendMail({
-        to: user?.email, // list of receivers
-        subject: 'Reset Password', // Subject line
-        text: 'Reset Your Password', // plaintext body
-        template: "resetPassword",
-        context: {
-          name: user?.fullname,
-          activationCode: otp
-        }
-      })
+    this.mailerService.sendMail({
+      to: user?.email, // list of receivers
+      subject: "Reset Password", // Subject line
+      text: "Reset Your Password", // plaintext body
+      template: "resetPassword",
+      context: {
+        name: user?.fullname,
+        activationCode: otp,
+      },
+    });
 
-    return 'ok'
+    return "ok";
   }
 
   async resetPassword(email, otp, newPassword) {
