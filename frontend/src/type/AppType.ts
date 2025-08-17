@@ -3,7 +3,7 @@ export { };
 declare global {
     type UserType = {
         id: number;
-        name: string;
+        fullname: string;
         email: string;
         avatar: string;
         age: number;
@@ -21,7 +21,7 @@ declare global {
 
     type UserUpdateResponseType = {
         id: string;
-        name: string;
+        fullname: string;
         avatar: string;
         age: string;
         gender: genderEnum;

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useContext } from "react";
 import { Menu, User, LogOut } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -13,8 +13,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import Link from "next/link";
+import { AppContext } from "@/context/AppContext";
 
 const NavbarUser = () => {
+
+  const { user } = useContext(AppContext);
+
   return (
     <motion.nav
       initial={{ y: -60, opacity: 0 }}
@@ -102,18 +106,33 @@ const NavbarUser = () => {
           {/* User Actions */}
           <div className="mt-6 flex flex-col gap-3">
             {/* Đăng nhập */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-2 px-3 py-2 backdrop-blur-md bg-emerald-300/20 border border-white/20 rounded-full hover:bg-emerald-300/30 transition duration-200"
-            >
-              <User className="w-5 h-5 text-emerald-600" />
-              <Link
-                href={"/login"}
-                className="text-emerald-600 text-sm font-medium"
-              >
-                Đăng nhập
-              </Link>
-            </motion.button>
+            {
+              user ? (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  className="flex items-center gap-2 px-3 py-2 backdrop-blur-md bg-white/10 border border-white/20 rounded-full hover:bg-white/20 transition duration-200"
+                >
+                  <img
+                    src={user.avatar || "/default-avatar.png"}
+                    alt={user.fullname}
+                    className="w-7 h-7 rounded-full object-cover border border-emerald-400/40"
+                  />
+                  <span className="text-sm font-medium text-emerald-500">
+                    {user.fullname}
+                  </span>
+                </motion.button>
+              ) : (
+                <motion.div whileHover={{ scale: 1.05 }}>
+                  <Link
+                    href="/login"
+                    className="flex items-center gap-2 px-4 py-2 backdrop-blur-md bg-emerald-500/10 border border-emerald-400/30 rounded-full hover:bg-emerald-500/20 transition duration-200"
+                  >
+                    <User className="w-5 h-5 text-emerald-500" />
+                    <span className="text-emerald-500 text-sm font-semibold">Đăng nhập</span>
+                  </Link>
+                </motion.div>
+              )
+            }
 
             {/* Thông báo */}
             <motion.button
@@ -145,18 +164,34 @@ const NavbarUser = () => {
       {/* User Section - Desktop */}
       <div className="hidden lg:flex items-center gap-5">
         {/* Đăng nhập */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          className="flex items-center gap-2 px-3 py-1.5 backdrop-blur-md bg-emerald-300/20 border border-white/20 rounded-full hover:bg-emerald-300/30 transition duration-200"
-        >
-          <User className="w-5 h-5 text-emerald-600" />
-          <Link
-            href={"/login"}
-            className="text-emerald-600 text-sm font-medium"
+        {user ? (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            className="flex items-center gap-2 px-3 py-1.5 backdrop-blur-md bg-white/10 border border-white/20 rounded-full hover:bg-white/20 transition duration-200"
           >
-            Đăng nhập
-          </Link>
-        </motion.button>
+            <img
+              src={user.avatar || "/default-avatar.png"}
+              alt={user.fullname}
+              className="w-6 h-6 rounded-full object-cover"
+            />
+            <span className="text-sm font-medium text-emerald-500">
+              {user.fullname}
+            </span>
+          </motion.button>
+        ) : (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            className="flex items-center gap-2 px-4 py-2 backdrop-blur-md bg-emerald-500/10 border border-emerald-400/30 rounded-full hover:bg-emerald-500/20 transition duration-200"
+          >
+            <User className="w-5 h-5 text-emerald-500" />
+            <Link
+              href="/login"
+              className="text-emerald-500 text-sm font-semibold"
+            >
+              Đăng nhập
+            </Link>
+          </motion.button>
+        )}
 
         {/* Thông báo */}
         <motion.button
@@ -186,7 +221,7 @@ const NavbarUser = () => {
           </span>
         </motion.button>
       </div>
-    </motion.nav>
+    </motion.nav >
   );
 };
 

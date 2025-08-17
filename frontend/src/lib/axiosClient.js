@@ -32,7 +32,6 @@ axiosClient.interceptors.response.use(
 
                 const newAccessToken = response.data.data;
 
-                console.log('newAccessToken', newAccessToken);
                 if (newAccessToken) {
                     localStorage.setItem('access_token', newAccessToken);
                     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
