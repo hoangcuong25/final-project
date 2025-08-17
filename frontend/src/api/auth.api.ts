@@ -49,11 +49,11 @@ export const LoginApi = async (payload: LoginPayload) => {
 //     }
 // }
 
-// export const LogoutApi = async () => {
-//     try {
-//         await axiosClient.post('/api/v1/auth/logout')
+export const LogoutApi = async () => {
+    try {
+        await axiosClient.post('/auth/logout')
 
-//     } catch (error) {
-//         throw error;
-//     }
-// }
+    } catch (error) {
+        throw error;
+    }
+}

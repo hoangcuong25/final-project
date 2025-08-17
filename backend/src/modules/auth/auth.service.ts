@@ -23,7 +23,7 @@ export class AuthService {
     private configService: ConfigService,
     private readonly mailerService: MailerService
     // @InjectRedis() private readonly redis: Redis
-  ) {}
+  ) { }
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
@@ -85,11 +85,15 @@ export class AuthService {
     try {
       const access_token = req.headers.authorization?.split(" ")[1];
 
-      if (access_token) {
-        const decoded = this.jwtService.verify(access_token, {
-          secret: this.configService.get<string>("JWT_ACCESS_TOKEN_SECRET"),
-        });
+      if (!access_token) {
+        throw new UnauthorizedException();
       }
+
+      const decoded = this.jwtService.verify(access_token, {
+        secret: this.configService.get<string>("JWT_ACCESS_TOKEN_SECRET"),
+      });
+
+      this.userService.clearRefreshTokenInDatabase(decoded.id);
 
       return "ok";
     } catch {

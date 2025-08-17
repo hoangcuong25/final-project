@@ -17,6 +17,16 @@ export class UserService {
     private readonly cloudinaryService: CloudinaryService
   ) { }
 
+  async clearRefreshTokenInDatabase(userId: number) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        refreshToken: null,
+        refreshTokenExpires: null
+      },
+    });
+  }
+
   async isEmailExist(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     return !!user;

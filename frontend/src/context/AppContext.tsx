@@ -3,6 +3,7 @@
 
 "use client";
 
+import { LogoutApi } from "@/api/auth.api";
 import { getUser } from "@/api/user.api";
 import { useRouter } from "next/navigation";
 import React, { createContext, ReactNode, useEffect, useState } from "react";
@@ -11,12 +12,14 @@ interface AppContextType {
   user: UserType | null;
   setUser: React.Dispatch<React.SetStateAction<UserType | null>>;
   fetchUser: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 export const AppContext = createContext<AppContextType>({
   user: null,
-  setUser: () => {},
-  fetchUser: async () => {},
+  setUser: () => { },
+  fetchUser: async () => { },
+  logout: async () => { },
 });
 
 interface AppContextProviderProps {
@@ -40,23 +43,24 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
     }
   };
 
-  // const logout = async () => {
-  //   try {
-  //     localStorage.removeItem("access_token");
-  //     setUser(null);
-  //     route.push("/login");
+  const logout = async () => {
+    try {
+      localStorage.removeItem("access_token");
+      setUser(null);
+      route.push("/login");
 
-  //     await LogoutApi();
-  //   } catch (error) {
-  //     console.error("Error during logout:", error);
-  //   }
-  // };
+      await LogoutApi();
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
 
 
   const value = {
     user,
     setUser,
     fetchUser,
+    logout
   };
 
   useEffect(() => {

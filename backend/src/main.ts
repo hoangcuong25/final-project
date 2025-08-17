@@ -38,6 +38,7 @@ async function bootstrap() {
   // app.setGlobalPrefix('api/v1', { exclude: [''] })
 
   // Swagger config
+  // http://localhost:4000/api-docs
   const config = new DocumentBuilder()
     .setTitle('Booking App API')
     .setDescription('API docs for Booking App')
