@@ -16,14 +16,17 @@ import { LocalAuthGuard } from "./passport/local-auth.guard";
 import { CreateAuthDto } from "./dto/create-auth.dto";
 import { Public, ResponseMessage } from "src/decorator/customize";
 import { Response } from "express";
+import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
 
+@ApiTags('auth')
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post("login")
   @Public()
-  @ResponseMessage("login")
+  @ApiResponse({ status: 200, description: "Users login successfully" })
+  @ResponseMessage("User login")
   @UseGuards(LocalAuthGuard)
   async login(@Req() req, @Res({ passthrough: true }) response: Response) {
     return this.authService.login(req.user, response);
@@ -31,6 +34,7 @@ export class AuthController {
 
   @Post("register")
   @ResponseMessage("register")
+  @ApiResponse({ status: 200, description: "Users register successfully" })
   @Public()
   register(@Body() registerDto: CreateAuthDto) {
     return this.authService.handleRegister(registerDto);
@@ -38,12 +42,14 @@ export class AuthController {
 
   @Get("refresh-token")
   @Public()
+  @ApiResponse({ status: 200, description: "Users refresh token successfully" })
   @ResponseMessage("refresh token")
   refreshToken(@Req() req) {
     return this.authService.refreshToken(req);
   }
 
   @Post("send-email-active")
+  
   @ResponseMessage("send mail active account")
   sendMail(@Req() req) {
     return this.authService.sendEmailActive(req.user);

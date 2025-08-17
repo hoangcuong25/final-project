@@ -6,6 +6,7 @@ import { ValidationPipe } from "@nestjs/common";
 import { JwtAuthGuard } from "./modules/auth/passport/jwt-auth.guard";
 import { TransformInterceptor } from "./core/transform.interceptor";
 import * as cookieParser from 'cookie-parser';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -35,6 +36,19 @@ async function bootstrap() {
   });
 
   // app.setGlobalPrefix('api/v1', { exclude: [''] })
+
+  // Swagger config
+  const config = new DocumentBuilder()
+    .setTitle('Booking App API')
+    .setDescription('API docs for Booking App')
+    .setVersion('1.0')
+    .addBearerAuth() // nếu có JWT
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs', app, document, {
+    swaggerOptions: { persistAuthorization: true }, // giữ token khi reload
+  });
 
   await app.listen(port, "0.0.0.0");
 }
