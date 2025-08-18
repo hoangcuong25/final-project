@@ -32,32 +32,37 @@ const NavbarUser = () => {
         transition={{ type: "spring", stiffness: 300 }}
         className="flex items-center gap-3 cursor-pointer"
       >
-        <Image
-          src={logo}
-          alt="Logo"
-          width={45}
-          height={45}
-          className="rounded-full"
-        />
-        <span className="hidden md:block text-xl font-bold text-green-600 tracking-wide">
-          Badminton Booking
-        </span>
+        <Link href="/">
+          <Image
+            src={logo}
+            alt="Logo"
+            width={45}
+            height={45}
+            className="rounded-full"
+          />
+          <span className="hidden md:block text-xl font-bold text-green-600 tracking-wide">
+            Badminton Booking
+          </span>
+        </Link >
       </motion.div>
 
       {/* Menu Links - Desktop */}
       <ul className="hidden lg:flex items-center gap-8 text-sm font-medium">
-        {["Trang chủ", "Đặt sân", "Lịch sử đặt", "Liên hệ"].map(
-          (item, index) => (
-            <motion.li
-              key={index}
-              whileHover={{ scale: 1.1, color: "#16a34a" }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className="text-gray-700 cursor-pointer"
-            >
-              {item}
-            </motion.li>
-          )
-        )}
+        {[
+          { label: "Trang chủ", path: "/" },
+          { label: "Đặt sân", path: "booking" },
+          { label: "Lịch sử đặt", path: "booking-history" },
+          { label: "Liên hệ", path: "contact" },
+        ].map((item, index) => (
+          <motion.li
+            key={index}
+            whileHover={{ scale: 1.1, color: "#16a34a" }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="text-gray-700 cursor-pointer"
+          >
+            <Link href={`/${item.path}`}>{item.label}</Link>
+          </motion.li>
+        ))}
       </ul>
 
       {/* Mobile Menu */}
@@ -89,18 +94,21 @@ const NavbarUser = () => {
 
           {/* Menu Items */}
           <nav className="flex flex-col gap-4 text-gray-700 font-medium">
-            {["Trang chủ", "Đặt sân", "Lịch sử đặt", "Liên hệ"].map(
-              (item, index) => (
-                <motion.span
-                  key={index}
-                  whileHover={{ x: 5, color: "#16a34a" }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="cursor-pointer"
-                >
-                  {item}
-                </motion.span>
-              )
-            )}
+            {[
+              { label: "Trang chủ", path: "/" },
+              { label: "Đặt sân", path: "booking" },
+              { label: "Lịch sử đặt", path: "booking-history" },
+              { label: "Liên hệ", path: "contact" },
+            ].map((item, index) => (
+              <motion.span
+                key={index}
+                whileHover={{ x: 5, color: "#16a34a" }}
+                transition={{ type: "spring", stiffness: 300 }}
+                className="cursor-pointer"
+              >
+                <Link href={`/${item.path}`}>{item.label}</Link>
+              </motion.span>
+            ))}
           </nav>
 
           {/* User Actions */}
