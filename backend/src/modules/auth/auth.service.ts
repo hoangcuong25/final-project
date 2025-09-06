@@ -284,9 +284,9 @@ export class AuthService {
         email,
         phone: "Unknown",
         password: hashedPassword,
-        dob: "Unknown",
-        image: picture,
-        isActive: true,
+        dob: null,
+        avatar: picture,
+        isVerified: true,
       };
 
       const user = await this.userService.createWithGoogle(userData);
