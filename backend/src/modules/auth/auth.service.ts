@@ -243,7 +243,7 @@ export class AuthService {
     return res.data;
   }
 
-  async loginGoogle(googleToken: string) {
+  async loginGoogle(googleToken: string, response: Response) {
     if (!googleToken) {
       throw new BadRequestException("Something wrong!");
     }
@@ -270,9 +270,17 @@ export class AuthService {
 
       await this.userService.storeRefreshToken(user.id, refresh_token);
 
+      // Đặt cookie refresh_token
+      response.cookie("refresh_token", refresh_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Dev thì false
+        sameSite: "lax", // Hoặc "none" nếu cần cross-site + secure: true
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: "/",
+      });
+
       return {
         access_token,
-        refresh_token,
         user,
       };
     } else {
@@ -303,9 +311,17 @@ export class AuthService {
 
       await this.userService.storeRefreshToken(user.id, refresh_token);
 
+      // Đặt cookie refresh_token
+      response.cookie("refresh_token", refresh_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Dev thì false
+        sameSite: "lax", // Hoặc "none" nếu cần cross-site + secure: true
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: "/",
+      });
+
       return {
         access_token,
-        refresh_token,
         user,
       };
     }
