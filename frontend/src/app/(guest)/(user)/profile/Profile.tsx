@@ -1,10 +1,12 @@
 "use client";
 
 import { AppContext } from "@/context/AppContext";
+import { Edit } from "lucide-react";
 import React, { useContext } from "react";
+import EditProfile from "./components/EditProfile";
 
 const Profile = () => {
-  const { user } = useContext(AppContext)
+  const { user } = useContext(AppContext);
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4 my-3 rounded-2xl">
@@ -24,9 +26,7 @@ const Profile = () => {
               Thành viên từ:{" "}
               {user?.createdAt ? new Date(user.createdAt).getFullYear() : "N/A"}
             </p>
-            <button className="mt-3 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">
-              Chỉnh sửa hồ sơ
-            </button>
+            <EditProfile />
           </div>
         </div>
 

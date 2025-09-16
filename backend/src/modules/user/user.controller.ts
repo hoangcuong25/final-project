@@ -50,15 +50,15 @@ export class UserController {
     return this.userService.getProfile(req.user.id);
   }
 
-  @Patch('update-profile')
+  @Patch('profile')
   @ResponseMessage('update profile')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('avatar'))
   updateProfile(
     @Req() req,
-    @Body() updateUserDto: UpdateUserDto,
-    @UploadedFile() image: Express.Multer.File
+    @Body() updateUserDto,
+    @UploadedFile() avatar: Express.Multer.File
   ) {
-    return this.userService.updateProfile(req.user, updateUserDto, image)
+    return this.userService.updateProfile(req.user.id, updateUserDto, avatar)
   }
 
   // @Patch('update-phone')
