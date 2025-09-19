@@ -52,3 +52,11 @@ export const LogoutApi = async () => {
     throw error;
   }
 };
+
+export const SendEmailActiveApi = async () => {
+  try {
+    await axiosClient.post("/auth/send-email-active");
+  } catch (error) {
+    throw error;
+  }
+};

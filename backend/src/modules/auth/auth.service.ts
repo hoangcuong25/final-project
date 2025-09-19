@@ -135,10 +135,10 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async sendEmailActive(req) {
+  async sendEmailActive(userId) {
     const codeId = Math.random().toString(36).substring(2, 8);
 
-    const user = await this.userService.findById(req._id);
+    const user = await this.userService.findById(userId);
 
     this.mailerService.sendMail({
       to: user?.email, // list of receivers
@@ -151,7 +151,7 @@ export class AuthService {
       },
     });
 
-    await this.userService.updateCodeActive(req._id, codeId);
+    await this.userService.updateCodeActive(userId, codeId);
 
     return "ok";
   }

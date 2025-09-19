@@ -52,7 +52,7 @@ export class AuthController {
   @Post("send-email-active")
   @ResponseMessage("send mail active account")
   sendMail(@Req() req) {
-    return this.authService.sendEmailActive(req.user);
+    return this.authService.sendEmailActive(req.user.id);
   }
 
   @Post("comfirm-active")

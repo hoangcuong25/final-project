@@ -66,14 +66,6 @@ export class UserController {
     return this.userService.updateProfile(req.user.id, updateUserDto, avatar);
   }
 
-  // @Patch('update-phone')
-  // updatePhone(
-  //   @Req() req,
-  //   @Body() reqBody: { phone: string }
-  // ) {
-  //   return this.userService.updatePhone(req.user, reqBody.phone)
-  // }
-
   @Patch("change-password")
   updatePassword(
     @Req() req,

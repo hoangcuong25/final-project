@@ -1,12 +1,12 @@
 "use client";
 
 import { AppContext } from "@/context/AppContext";
-import { Edit, Lock, ShieldCheck } from "lucide-react";
 import React, { useContext } from "react";
 import EditProfile from "./components/EditProfile";
 import { GenderEnum, GenderLabel } from "@/constants/Gender";
 import { Button } from "@/components/ui/button";
 import ChangePassword from "./components/ChangePassword";
+import VerifyAccount from "./components/VerifyAccount";
 
 const Profile = () => {
   const { user } = useContext(AppContext);
@@ -39,15 +39,7 @@ const Profile = () => {
             <div className="flex flex-wrap gap-3 mt-3">
               <EditProfile />
               <ChangePassword />
-              {!user?.isVerified && (
-                <Button
-                  className="bg-emerald-500 hover:bg-emerald-600 flex items-center gap-2"
-                  onClick={handleVerifyAccount}
-                >
-                  <ShieldCheck className="w-4 h-4" />
-                  Xác thực tài khoản
-                </Button>
-              )}
+              {!user?.isVerified && <VerifyAccount />}
             </div>
           </div>
         </div>
