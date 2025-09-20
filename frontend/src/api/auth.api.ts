@@ -60,3 +60,12 @@ export const SendEmailActiveApi = async () => {
     throw error;
   }
 };
+
+export const ActiveAccountApi = async (otp: string) => {
+  try {
+    const response = await axiosClient.post("/auth/active-account", { otp });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

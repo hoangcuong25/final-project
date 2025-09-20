@@ -156,10 +156,10 @@ export class AuthService {
     return "ok";
   }
 
-  async comfirmActive(req, codeId) {
-    const user = await this.userService.findById(req._id);
+  async comfirmActive(userId, otp) {
+    const user = await this.userService.findById(userId);
 
-    if (user?.verificationOtp !== codeId) {
+    if (user?.verificationOtp !== otp) {
       throw new BadRequestException("Invalid activation code");
     }
 
@@ -170,7 +170,7 @@ export class AuthService {
       throw new BadRequestException("Activation code has expired");
     }
 
-    await this.userService.activeAccount(req._id);
+    await this.userService.activeAccount(userId);
 
     return "ok";
   }

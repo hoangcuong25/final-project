@@ -55,10 +55,10 @@ export class AuthController {
     return this.authService.sendEmailActive(req.user.id);
   }
 
-  @Post("comfirm-active")
+  @Post("active-account")
   @ResponseMessage("comfirm active account")
   comfirmActive(@Req() req, @Body() body) {
-    return this.authService.comfirmActive(req.user, body.codeId);
+    return this.authService.comfirmActive(req.user.id, body.otp);
   }
 
   @Post("send-reset-otp")
