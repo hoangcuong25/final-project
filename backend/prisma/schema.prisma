@@ -16,7 +16,7 @@ datasource db {
 enum UserRole {
   USER
   ADMIN
-  HOST
+  INSTRUCTOR
 }
 
 enum Gender {
