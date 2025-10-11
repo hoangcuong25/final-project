@@ -18,7 +18,6 @@ import { AppDispatch, RootState } from "@/store";
 import { useRouter } from "next/navigation";
 import { fetchUser, logoutUser } from "@/store/user/userSlice";
 
-
 const NavbarUser = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -66,7 +65,7 @@ const NavbarUser = () => {
       <ul className="hidden lg:flex items-center gap-8 text-sm font-medium">
         {[
           { label: "Trang chủ", path: "/" },
-          { label: "Đặt sân", path: "booking" },
+          { label: "Đặt sân", path: "courts" },
           { label: "Lịch sử đặt", path: "booking-history" },
           { label: "Liên hệ", path: "contact-us" },
         ].map((item, index) => (

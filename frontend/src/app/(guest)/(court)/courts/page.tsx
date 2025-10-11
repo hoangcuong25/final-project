@@ -1,11 +1,12 @@
-import React from 'react'
+import React from "react";
+import Courts from "./courts";
 
 const page = () => {
-    return (
-        <div>
+  return (
+    <div>
+      <Courts />
+    </div>
+  );
+};
 
-        </div>
-    )
-}
-
-export default page
+export default page;
