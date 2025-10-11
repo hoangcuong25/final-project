@@ -66,7 +66,6 @@ const NavbarUser = () => {
         {[
           { label: "Trang chủ", path: "/" },
           { label: "Khóa học", path: "courses" },
-          { label: "Giảng viên", path: "instructors" },
           { label: "Lộ trình học", path: "my-learning" },
           { label: "Liên hệ", path: "contact-us" },
         ].map((item, index) => (
@@ -113,7 +112,6 @@ const NavbarUser = () => {
             {[
               { label: "Trang chủ", path: "/" },
               { label: "Khóa học", path: "courses" },
-              { label: "Giảng viên", path: "instructors" },
               { label: "Lộ trình học", path: "my-learning" },
               { label: "Liên hệ", path: "contact" },
             ].map((item, index) => (
@@ -136,9 +134,11 @@ const NavbarUser = () => {
                 whileHover={{ scale: 1.05 }}
                 className="flex items-center gap-2 px-3 py-2 bg-indigo-50 border border-indigo-100 rounded-full hover:bg-indigo-100 transition duration-200"
               >
-                <img
+                <Image
                   src={user.avatar || "/default-avatar.png"}
                   alt={user.fullname}
+                  width={28}
+                  height={28}
                   className="w-7 h-7 rounded-full object-cover border border-indigo-400/40"
                 />
                 <span className="text-sm font-medium text-indigo-600">
@@ -191,9 +191,11 @@ const NavbarUser = () => {
         {user ? (
           <div className="relative group inline-block">
             <button className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full hover:bg-indigo-100 transition duration-200">
-              <img
+              <Image
                 src={user.avatar || "/default-avatar.png"}
                 alt={user.fullname}
+                width={24}
+                height={24}
                 className="w-6 h-6 rounded-full object-cover"
               />
               <span className="text-sm font-medium text-indigo-600">

@@ -18,28 +18,47 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
 import Image from "next/image";
-import { updateUser } from "@/api/user.api";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { GenderEnum, GenderLabel } from "@/constants/Gender";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
+import { fetchUser } from "@/store/user/userSlice";
+import { updateUser } from "@/api/user.api";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ProfileFormValues,
+  profileSchema,
+} from "@/hook/zod-schema/ProfileSchema";
 
 const EditProfile = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.user);
-
-  const [updateInfo, setUpdateInfo] = useState({
-    fullname: "",
-    phone: "",
-    address: "",
-    dob: "",
-    gender: "",
-  });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("");
 
+  const dispatch = useDispatch<AppDispatch>();
+
+  // 🔧 react-hook-form + zod
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      fullname: "",
+      phone: "",
+      address: "",
+      dob: "",
+      gender: "" as GenderEnum,
+    },
+  });
+
+  // 📷 Upload avatar preview
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -49,18 +68,17 @@ const EditProfile = () => {
     }
   };
 
-  const updateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // 📦 Submit form
+  const onSubmit = async (data: ProfileFormValues) => {
     try {
       const formData = new FormData();
-      formData.append("fullname", updateInfo.fullname);
-      formData.append("phone", updateInfo.phone);
-      formData.append("address", updateInfo.address);
-      formData.append("dob", updateInfo.dob);
-      formData.append("gender", updateInfo.gender);
+      Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
       if (avatarFile) formData.append("avatar", avatarFile);
 
       await updateUser(formData);
+      await dispatch(fetchUser());
       toast.success("Cập nhật hồ sơ thành công 🎉");
     } catch (error) {
       console.error(error);
@@ -68,18 +86,20 @@ const EditProfile = () => {
     }
   };
 
+  // 🪄 Load dữ liệu user hiện tại
   useEffect(() => {
     if (user) {
-      setUpdateInfo({
-        fullname: user.fullname || "",
-        phone: user.phone || "",
-        address: user.address || "",
-        dob: user.dob ? new Date(user.dob).toISOString().split("T")[0] : "",
-        gender: user.gender || "",
-      });
+      setValue("fullname", user.fullname || "");
+      setValue("phone", user.phone || "");
+      setValue("address", user.address || "");
+      setValue(
+        "dob",
+        user.dob ? new Date(user.dob).toISOString().split("T")[0] : ""
+      );
+      setValue("gender", (user.gender as GenderEnum) || "");
       setPreview(user.avatar || "");
     }
-  }, [user]);
+  }, [user, setValue]);
 
   return (
     <Dialog>
@@ -96,12 +116,10 @@ const EditProfile = () => {
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={updateProfile} className="space-y-5 py-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-2">
           {/* Avatar */}
           <div className="space-y-2">
-            <Label htmlFor="avatar" className="text-blue-700 font-medium">
-              Ảnh đại diện
-            </Label>
+            <Label className="text-blue-700 font-medium">Ảnh đại diện</Label>
             <div className="flex items-center gap-4">
               <Image
                 src={preview || "/default-avatar.png"}
@@ -129,20 +147,19 @@ const EditProfile = () => {
           </div>
 
           {/* Fullname */}
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Label htmlFor="fullname" className="text-blue-700 font-medium">
-              Họ và tên
+              Họ và tên <span className="text-red-500">*</span>
             </Label>
             <Input
               id="fullname"
-              type="text"
               placeholder="Nhập họ và tên"
-              className="focus-visible:ring-blue-500 border-blue-300 rounded-lg"
-              value={updateInfo.fullname}
-              onChange={(e) =>
-                setUpdateInfo({ ...updateInfo, fullname: e.target.value })
-              }
+              className="border-blue-300 rounded-lg"
+              {...register("fullname")}
             />
+            {errors.fullname && (
+              <p className="text-sm text-red-500">{errors.fullname.message}</p>
+            )}
           </div>
 
           {/* Email (readonly) */}
@@ -160,49 +177,47 @@ const EditProfile = () => {
           </div>
 
           {/* Phone */}
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Label htmlFor="phone" className="text-blue-700 font-medium">
-              Số điện thoại
+              Số điện thoại <span className="text-red-500">*</span>
             </Label>
             <Input
               id="phone"
-              type="text"
               placeholder="Nhập số điện thoại"
-              className="focus-visible:ring-blue-500 border-blue-300 rounded-lg"
-              value={updateInfo.phone}
-              onChange={(e) =>
-                setUpdateInfo({ ...updateInfo, phone: e.target.value })
-              }
+              className="border-blue-300 rounded-lg"
+              {...register("phone")}
             />
+            {errors.phone && (
+              <p className="text-sm text-red-500">{errors.phone.message}</p>
+            )}
           </div>
 
           {/* Address */}
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Label htmlFor="address" className="text-blue-700 font-medium">
-              Địa chỉ
+              Địa chỉ <span className="text-red-500">*</span>
             </Label>
             <Input
               id="address"
-              type="text"
               placeholder="Nhập địa chỉ"
-              className="focus-visible:ring-blue-500 border-blue-300 rounded-lg"
-              value={updateInfo.address}
-              onChange={(e) =>
-                setUpdateInfo({ ...updateInfo, address: e.target.value })
-              }
+              className="border-blue-300 rounded-lg"
+              {...register("address")}
             />
+            {errors.address && (
+              <p className="text-sm text-red-500">{errors.address.message}</p>
+            )}
           </div>
 
           {/* Gender */}
-          <div className="space-y-2">
-            <Label className="text-blue-700 font-medium">Giới tính</Label>
+          <div className="space-y-1">
+            <Label className="text-blue-700 font-medium">
+              Giới tính <span className="text-red-500">*</span>
+            </Label>
             <Select
-              value={updateInfo.gender}
-              onValueChange={(val) =>
-                setUpdateInfo({ ...updateInfo, gender: val as GenderEnum })
-              }
+              value={watch("gender")}
+              onValueChange={(val) => setValue("gender", val as GenderEnum)}
             >
-              <SelectTrigger className="border-blue-300 focus:ring-blue-500 rounded-lg">
+              <SelectTrigger className="border-blue-300 rounded-lg">
                 <SelectValue placeholder="Chọn giới tính" />
               </SelectTrigger>
               <SelectContent>
@@ -217,30 +232,34 @@ const EditProfile = () => {
                 </SelectItem>
               </SelectContent>
             </Select>
+            {errors.gender && (
+              <p className="text-sm text-red-500">{errors.gender.message}</p>
+            )}
           </div>
 
-          {/* Date of Birth */}
-          <div className="space-y-2">
+          {/* DOB */}
+          <div className="space-y-1">
             <Label htmlFor="dob" className="text-blue-700 font-medium">
-              Ngày sinh
+              Ngày sinh <span className="text-red-500">*</span>
             </Label>
             <Input
               id="dob"
               type="date"
-              className="focus-visible:ring-blue-500 border-blue-300 rounded-lg"
-              value={updateInfo.dob}
-              onChange={(e) =>
-                setUpdateInfo({ ...updateInfo, dob: e.target.value })
-              }
+              className="border-blue-300 rounded-lg"
+              {...register("dob")}
             />
+            {errors.dob && (
+              <p className="text-sm text-red-500">{errors.dob.message}</p>
+            )}
           </div>
 
           <DialogFooter>
             <Button
               type="submit"
+              disabled={isSubmitting}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg py-2.5 shadow-md transition-all duration-200"
             >
-              Lưu thay đổi
+              {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </DialogFooter>
         </form>

@@ -6,6 +6,7 @@ import VerifyAccount from "./components/VerifyAccount";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { GenderEnum, GenderLabel } from "@/constants/Gender";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const { user } = useSelector((state: RootState) => state.user);
@@ -15,9 +16,11 @@ export default function ProfilePage() {
       <div className="max-w-5xl mx-auto bg-white shadow-2xl rounded-2xl p-8 animate-fadeInUp">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 border-b border-gray-200 pb-6">
-          <img
+          <Image
             src={user?.avatar || "/default-avatar.png"}
             alt="avatar"
+            width={112}
+            height={112}
             className="w-28 h-28 rounded-full border-4 border-primary object-cover shadow-md"
           />
           <div className="text-center md:text-left">
@@ -67,10 +70,6 @@ export default function ProfilePage() {
                 {user?.dob
                   ? new Date(user.dob).toLocaleDateString("vi-VN")
                   : "Chưa cập nhật"}
-              </li>
-              <li>
-                <span className="font-medium">Tuổi:</span>{" "}
-                {user?.age || "Chưa cập nhật"}
               </li>
               <li>
                 <span className="font-medium">Trạng thái xác thực:</span>{" "}

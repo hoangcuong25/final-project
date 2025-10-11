@@ -5,7 +5,6 @@ CREATE TABLE `User` (
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(100) NOT NULL,
     `avatar` VARCHAR(191) NOT NULL DEFAULT 'https://res.cloudinary.com/dtaawt3ej/image/upload/v1747292486/q9lmgugyqgrm7q5voatw.jpg',
-    `age` INTEGER NULL,
     `gender` ENUM('MALE', 'FEMALE', 'OTHER') NULL,
     `dob` DATE NULL,
     `address` VARCHAR(191) NULL,
