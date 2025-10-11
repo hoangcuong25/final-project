@@ -22,6 +22,8 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { UserRole } from "@prisma/client";
+import { ApplyInstructorDto } from "../instructor/dto/apply-instructor.dto";
 
 @ApiBearerAuth()
 @ApiTags("user")
@@ -81,7 +83,7 @@ export class UserController {
 
   @Delete("delete-user/:id")
   @Roles("admin")
-  deleteUser(@Param("id") userId: string) {
-    return this.userService.deleteUser(Number(userId));
+  deleteUser(@Param("id") userId: number) {
+    return this.userService.deleteUser(userId);
   }
 }

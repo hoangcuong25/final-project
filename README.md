@@ -6,14 +6,15 @@ Một hệ thống học trực tuyến (E-Learning) được xây dựng với 
 
 ## 🧭 TỔNG QUAN MODULES
 
-Dự án gồm **6 module chính**:
+Dự án gồm **7 module chính**:
 
 1. 👤 **Auth & User Management**
-2. 🎓 **Courses & Lessons**
-3. 💬 **Learning Interaction** (Comment, Progress, Quiz)
-4. 💳 **Payment / Subscription**
-5. 📊 **Analytics & Tracking**
-6. ⚙️ **Admin Dashboard**
+2. 🎓 **INSTRUCTOR APPLICATION**
+3. 🎓 **Courses & Lessons**
+4. 💬 **Learning Interaction** (Comment, Progress, Quiz)
+5. 💳 **Payment / Subscription**
+6. 📊 **Analytics & Tracking**
+7. ⚙️ **Admin Dashboard**
 
 ---
 
@@ -44,7 +45,32 @@ Dự án gồm **6 module chính**:
 
 ---
 
-## 2️⃣ COURSE MODULE (Khoá học & Bài học)
+## 2️⃣ INSTRUCTOR APPLICATION
+
+### ✅ Backend
+#### 🧩 Chức năng chính
+- Cho phép **người dùng gửi đơn đăng ký** để trở thành giảng viên.  
+- Hỗ trợ **nhiều chuyên ngành (Specializations)** cho một người dùng.  
+- Admin có thể **duyệt hoặc từ chối đơn**.  
+- Gửi **email tự động** khi người dùng apply hoặc khi admin thay đổi trạng thái.  
+### ✅ Web
+- Trang **Apply Instructor**:
+  - Form gồm: \`specialization[]\`, \`experience\`, \`bio\`
+  - Gọi API apply instructor
+  - Nếu chưa đăng nhập → chuyển đến \`/login\`
+- Trang **Application Status**:
+  - Hiển thị trạng thái: 🟡 Pending / ✅ Approved / ❌ Rejected
+  - Cho phép **gửi lại đơn** nếu bị từ chối
+
+---
+
+### ✅ Mobile
+- Màn hình **Apply Instructor** tương tự web  
+- Dùng **Axios + SecureStore** để gửi API  
+- Hiển thị **toast / modal** khi gửi đơn thành công 
+
+---
+## 3️⃣ COURSE MODULE (Khoá học & Bài học)
 
 ### ✅ Backend
 
@@ -72,7 +98,7 @@ Dự án gồm **6 module chính**:
 
 ---
 
-## 3️⃣ LEARNING INTERACTION (Tương tác học tập)
+## 4️⃣ LEARNING INTERACTION (Tương tác học tập)
 
 ### ✅ Backend
 
@@ -96,7 +122,7 @@ Dự án gồm **6 module chính**:
 
 ---
 
-## 4️⃣ PAYMENT / SUBSCRIPTION (Thanh toán)
+## 5️⃣ PAYMENT / SUBSCRIPTION (Thanh toán)
 
 ### ✅ Backend
 
@@ -119,7 +145,7 @@ Dự án gồm **6 module chính**:
 
 ---
 
-## 5️⃣ ANALYTICS & TRACKING (Phân tích & Theo dõi)
+## 6️⃣ ANALYTICS & TRACKING (Phân tích & Theo dõi)
 
 ### ✅ Backend
 
@@ -139,7 +165,7 @@ Dự án gồm **6 module chính**:
 
 ---
 
-## 6️⃣ ADMIN DASHBOARD
+## 7️⃣ ADMIN DASHBOARD
 
 ### ✅ Backend
 
@@ -164,8 +190,8 @@ Dự án gồm **6 module chính**:
 | **Mobile**       | React Native, Expo, SecureStore                  |
 | **Backend**      | NestJS, Prisma ORM, MySQL                        |
 | **Auth**         | JWT (Access & Refresh Token), bcrypt, Email OTP  |
-| **Storage**      | Cloudinary / Supabase Storage                    |
-| **Payment**      | Sepay / Stripe (Webhook xác nhận giao dịch)      |
+| **Storage**      | Cloudinary                 |
+| **Payment**      | Sepay (Webhook xác nhận giao dịch)      |
 
 ---
 
@@ -189,3 +215,25 @@ Dự án gồm **6 module chính**:
 🚀 _Backend Developer | Fullstack Learner_
 
 ---
+
+:todo
+1. hoàn thiện tính năng become instructor
+2. trang apply và status bắt người dùng phải đăng nhập trước
+3. gửi email : 
+Khi nào nên gửi email
+
+Ngay sau khi submit đơn:
+
+Email xác nhận nộp đơn.
+
+Nội dung: “Cảm ơn bạn đã đăng ký trở thành giảng viên, chúng tôi sẽ xem xét trong 1-3 ngày.”
+
+Khi admin thay đổi trạng thái:
+
+Email khi approved: “Chúc mừng bạn đã trở thành giảng viên!”
+
+Email khi rejected: “Đơn của bạn chưa được chấp thuận, vui lòng kiểm tra và chỉnh sửa.”
+
+Nhắc nhở (optional):
+
+Nếu đơn đang pending > 3 ngày, gửi email nhắc nhở hoặc cập nhật trạng thái.

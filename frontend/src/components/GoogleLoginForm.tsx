@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useGoogleLogin } from "@react-oauth/google";
 import { LoginWithGoogle } from "@/api/auth.api";
-import { fetchUser } from "@/store/user/userSlice";
+import { fetchUser } from "@/store/userSlice";
 
 const GoogleLoginForm = () => {
   const router = useRouter();

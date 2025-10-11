@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import GoogleLoginForm from "@/components/GoogleLoginForm";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchUser } from "@/store/user/userSlice";
+import { fetchUser } from "@/store/userSlice";
 import banner from "@public/elearning-banner.png";
 
 export default function LoginPage() {

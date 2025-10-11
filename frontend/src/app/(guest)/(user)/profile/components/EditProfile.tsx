@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import { GenderEnum, GenderLabel } from "@/constants/Gender";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchUser } from "@/store/user/userSlice";
+import { fetchUser } from "@/store/userSlice";
 import { updateUser } from "@/api/user.api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
