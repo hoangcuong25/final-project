@@ -18,15 +18,17 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { useContext, useEffect, useState } from "react";
-import { AppContext } from "@/context/AppContext";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { updateUser } from "@/api/user.api";
 import { toast } from "sonner";
 import { GenderEnum, GenderLabel } from "@/constants/Gender";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
 
 const EditProfile = () => {
-  const { user } = useContext(AppContext);
+  const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.user);
 
   const [updateInfo, setUpdateInfo] = useState({
     fullname: "",

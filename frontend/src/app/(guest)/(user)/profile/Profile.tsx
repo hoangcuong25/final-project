@@ -1,20 +1,15 @@
 "use client";
 
-import { AppContext } from "@/context/AppContext";
-import React, { useContext } from "react";
 import EditProfile from "./components/EditProfile";
 import { GenderEnum, GenderLabel } from "@/constants/Gender";
-import { Button } from "@/components/ui/button";
 import ChangePassword from "./components/ChangePassword";
 import VerifyAccount from "./components/VerifyAccount";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
 
 const Profile = () => {
-  const { user } = useContext(AppContext);
-
-  const handleVerifyAccount = () => {
-    // 👉 Ở đây bạn gọi API gửi email xác thực hoặc mở modal xác thực
-    console.log("Verify account clicked");
-  };
+  const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.user);
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4 my-3 rounded-2xl">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext } from "react";
+import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -8,13 +8,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormData, loginSchema } from "@/hook/zod-schema/UserSchema";
 import { LoginApi } from "@/api/auth.api";
 import { useRouter } from "next/navigation";
-import { AppContext } from "@/context/AppContext";
 import GoogleLoginForm from "@/components/GoogleLoginForm";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { fetchUser } from "@/store/user/userSlice";
 
 export default function LoginPage() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.user);
   const router = useRouter();
-
-  const { fetchUser } = useContext(AppContext);
 
   const {
     register,
@@ -22,15 +24,21 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    mode: "onBlur", // validate khi blur ra khỏi field
-    reValidateMode: "onChange", // validate lại khi user thay đổi input
+    mode: "onBlur",
+    reValidateMode: "onChange",
   });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
       const res = await LoginApi(data);
+
+      // Lưu token vào localStorage
       localStorage.setItem("access_token", res.access_token);
-      await fetchUser();
+
+      // Gọi redux fetchUser để lấy thông tin user
+      await dispatch(fetchUser());
+
+      // Chuyển hướng
       router.push("/");
     } catch (err: any) {
       alert(err.response?.data?.message || err.message || "Đăng nhập thất bại");
@@ -45,7 +53,6 @@ export default function LoginPage() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8"
       >
-        {/* Title */}
         <motion.h2
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -55,7 +62,6 @@ export default function LoginPage() {
           Đăng nhập
         </motion.h2>
 
-        {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Email */}
           <div>
@@ -112,11 +118,11 @@ export default function LoginPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || loading}
             className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold
                        hover:bg-green-700 shadow-md transition disabled:opacity-50"
           >
-            {isSubmitting ? "Đang xử lý..." : "Đăng nhập"}
+            {isSubmitting || loading ? "Đang xử lý..." : "Đăng nhập"}
           </motion.button>
         </form>
 
@@ -127,10 +133,9 @@ export default function LoginPage() {
           <div className="flex-1 h-px bg-gray-300"></div>
         </div>
 
-        {/* Social login */}
+        {/* Google login */}
         <GoogleLoginForm />
 
-        {/* Register */}
         <p className="mt-6 text-center text-sm text-gray-600">
           Chưa có tài khoản?{" "}
           <Link href="/signup" className="text-green-600 hover:underline">
