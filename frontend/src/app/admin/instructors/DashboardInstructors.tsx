@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,10 @@ import {
   Plus,
   MoreHorizontal,
 } from "lucide-react";
-
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { useRouter, usePathname } from "next/navigation";
+import { fetchAllApplications } from "@/store/instructorSlice";
 /**
  * Mock data — thay bằng data thật từ API khi tích hợp
  */
@@ -43,36 +46,15 @@ const MOCK_INSTRUCTORS = [
   },
 ];
 
-const MOCK_APPLICATIONS = [
-  {
-    id: 101,
-    userFullname: "Phạm D",
-    userEmail: "pham.d@example.com",
-    experience: "4 năm giảng dạy, chuyên JavaScript & React.",
-    bio: "Tôi muốn chia sẻ kinh nghiệm lập trình web cho cộng đồng.",
-    specializations: ["Frontend", "React"],
-    createdAt: "2025-08-02",
-    status: "PENDING",
-  },
-  {
-    id: 102,
-    userFullname: "Hoàng E",
-    userEmail: "hoang.e@example.com",
-    experience: "2 năm giảng dạy offline tại trung tâm.",
-    bio: "Tập trung về UX/UI và design thinking.",
-    specializations: ["UI/UX"],
-    createdAt: "2025-07-28",
-    status: "PENDING",
-  },
-];
+export default function AdminDashboardInstructorsPage() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { applications } = useSelector((state: RootState) => state.instructor);
 
-export default function AdminInstructorsPage() {
   const [tab, setTab] = useState<"overview" | "instructors" | "applications">(
     "overview"
   );
   const [query, setQuery] = useState("");
   const [instructors] = useState(MOCK_INSTRUCTORS);
-  const [applications, setApplications] = useState(MOCK_APPLICATIONS);
 
   // filter instructors by search
   const filteredInstructors = useMemo(() => {
@@ -89,15 +71,21 @@ export default function AdminInstructorsPage() {
 
   // handlers (mock)
   const handleApproveApp = (id: number) => {
-    setApplications((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: "APPROVED" } : a))
-    );
+    // TODO: Dispatch an action to approve the application in the Redux store
+    // Example: dispatch(approveApplication(id));
+    // For now, just log for demonstration
+    console.log("Approve application", id);
   };
   const handleRejectApp = (id: number) => {
-    setApplications((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: "REJECTED" } : a))
-    );
+    // TODO: Dispatch an action to reject the application in the Redux store
+    // Example: dispatch(rejectApplication(id));
+    // For now, just log for demonstration
+    console.log("Reject application", id);
   };
+
+  useEffect(() => {
+    dispatch(fetchAllApplications());
+  }, [dispatch]);
 
   return (
     <div className="p-6 bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
@@ -304,9 +292,11 @@ export default function AdminInstructorsPage() {
                 <CardTitle className="flex items-center justify-between">
                   <div>
                     <div className="text-lg font-semibold text-gray-800">
-                      {app.userFullname}
+                      {/* {app.userFullname} */} app.userFullname
                     </div>
-                    <div className="text-sm text-gray-500">{app.userEmail}</div>
+                    <div className="text-sm text-gray-500">
+                      {/* {app.userEmail} */} app.userEmail
+                    </div>
                   </div>
                   <div className="text-sm text-gray-500">{app.createdAt}</div>
                 </CardTitle>
@@ -321,7 +311,8 @@ export default function AdminInstructorsPage() {
                 </p>
                 <p>
                   <strong>Chuyên ngành:</strong>{" "}
-                  {app.specializations.join(", ")}
+                  {/* {app.specializations.join(", ")} */}
+                  app.specializations.join(", ")
                 </p>
 
                 <div className="flex items-center justify-between pt-2">

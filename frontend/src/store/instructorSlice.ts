@@ -34,7 +34,7 @@ export const applyInstructor = createAsyncThunk(
   }
 );
 
-// 🧾 Lấy danh sách đơn (admin)
+// 🧾 Lấy danh sách applications (admin)
 export const fetchAllApplications = createAsyncThunk(
   "instructor/fetchAllApplications",
   async () => {
@@ -43,8 +43,8 @@ export const fetchAllApplications = createAsyncThunk(
   }
 );
 
-// 🔍 Lấy chi tiết đơn theo ID
-export const fetchApplicationById = createAsyncThunk(
+// 🔍 Lấy chi tiết đơn theo User ID
+export const fetchApplicationByUserId = createAsyncThunk(
   "instructor/fetchApplicationById",
   async (id: number) => {
     const response = await getInstructorApplicationByUserIdApi(id);
@@ -111,14 +111,14 @@ const instructorSlice = createSlice({
       })
 
       // Fetch single application
-      .addCase(fetchApplicationById.pending, (state) => {
+      .addCase(fetchApplicationByUserId.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchApplicationById.fulfilled, (state, action) => {
+      .addCase(fetchApplicationByUserId.fulfilled, (state, action) => {
         state.loading = false;
         state.currentApplication = action.payload;
       })
-      .addCase(fetchApplicationById.rejected, (state, action) => {
+      .addCase(fetchApplicationByUserId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Không thể lấy chi tiết đơn";
       })

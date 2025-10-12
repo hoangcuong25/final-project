@@ -19,7 +19,7 @@ export class SpecializationController {
   constructor(private readonly specializationService: SpecializationService) {}
 
   @Post()
-  @Roles("admin")
+  @Roles("ADMIN")
   @ApiOperation({ summary: "Tạo chuyên ngành mới" })
   @ResponseMessage("Tạo chuyên ngành thành công")
   create(@Body() createSpecializationDto: CreateSpecializationDto) {
@@ -41,7 +41,7 @@ export class SpecializationController {
   }
 
   @Patch(":id")
-  @Roles("admin")
+  @Roles("ADMIN")
   @ApiOperation({ summary: "Cập nhật chuyên ngành" })
   @ResponseMessage("Cập nhật chuyên ngành thành công")
   update(
@@ -52,7 +52,7 @@ export class SpecializationController {
   }
 
   @Delete(":id")
-  @Roles("admin")
+  @Roles("ADMIN")
   @ApiOperation({ summary: "Xóa chuyên ngành" })
   @ResponseMessage("Xóa chuyên ngành thành công")
   remove(@Param("id") id: string) {

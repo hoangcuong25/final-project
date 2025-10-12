@@ -1,8 +1,8 @@
 import React from "react";
-import InstructorsPage from "./Instructors";
+import AdminDashboardInstructorsPage from "./DashboardInstructors";
 
 const page = () => {
-  return <InstructorsPage />;
+  return <AdminDashboardInstructorsPage />;
 };
 
 export default page;

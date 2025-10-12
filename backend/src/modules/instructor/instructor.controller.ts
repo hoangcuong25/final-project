@@ -27,7 +27,7 @@ export class InstructorController {
   }
 
   @Patch("approve-instructor/:id")
-  @Roles("admin")
+  @Roles("ADMIN")
   @ApiOperation({ summary: "Approve instructor" })
   @ResponseMessage("approve instructor")
   approveInstructor(
@@ -38,7 +38,7 @@ export class InstructorController {
   }
 
   @Get("instructor-applications")
-  @Roles("admin")
+  @Roles("ADMIN")
   @ApiOperation({ summary: "Get all instructor applications" })
   @ResponseMessage("get all instructor applications")
   getAllInstructorApplications() {
@@ -46,7 +46,7 @@ export class InstructorController {
   }
 
   @Get("instructor-application/:id")
-  @Roles("admin")
+  @Roles("ADMIN")
   @ApiOperation({ summary: "Get instructor application by user ID" })
   @ResponseMessage("get instructor application by user ID")
   getInstructorApplicationByUserId(@Param("id") userId: number) {

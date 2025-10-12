@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   BookOpen,
@@ -14,9 +14,22 @@ import {
   LogOut,
   Home,
 } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
+import { logoutUser, fetchUser } from "@/store/userSlice";
+import { toast } from "sonner";
 
 const SidebarAdmin = () => {
   const pathname = usePathname();
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    dispatch(logoutUser());
+
+    router.push("/login");
+    toast.success("Đăng xuất thành công");
+  };
 
   const navItems = [
     { href: "/admin/dashboard", label: "Trang chủ", icon: Home },
@@ -65,6 +78,7 @@ const SidebarAdmin = () => {
         <Button
           variant="outline"
           className="w-full text-blue-700 bg-white hover:bg-blue-50 font-medium flex items-center justify-center gap-2"
+          onClick={handleLogout}
         >
           <LogOut className="w-4 h-4" />
           Đăng xuất

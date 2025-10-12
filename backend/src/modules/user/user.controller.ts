@@ -37,7 +37,7 @@ export class UserController {
   @Post()
   @ResponseMessage("create user")
   @ApiResponse({ status: 201, description: "User created successfully" })
-  @Roles("admin")
+  @Roles("ADMIN")
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
@@ -45,7 +45,7 @@ export class UserController {
   @Get("get-all-user")
   @ResponseMessage("get all user")
   @ApiResponse({ status: 200, description: "Users retrieved successfully" })
-  @Roles("admin")
+  @Roles("ADMIN")
   findAll() {
     return this.userService.findAll();
   }
@@ -82,7 +82,7 @@ export class UserController {
   }
 
   @Delete("delete-user/:id")
-  @Roles("admin")
+  @Roles("ADMIN")
   deleteUser(@Param("id") userId: number) {
     return this.userService.deleteUser(userId);
   }
