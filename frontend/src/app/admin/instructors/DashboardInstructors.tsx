@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useRouter, usePathname } from "next/navigation";
 import { fetchAllApplications } from "@/store/instructorSlice";
+import Applications from "@/components/instructor/Applications";
 /**
  * Mock data — thay bằng data thật từ API khi tích hợp
  */
@@ -68,20 +69,6 @@ export default function AdminDashboardInstructorsPage() {
   }, [instructors, query]);
 
   const pendingApps = applications.filter((a) => a.status === "PENDING");
-
-  // handlers (mock)
-  const handleApproveApp = (id: number) => {
-    // TODO: Dispatch an action to approve the application in the Redux store
-    // Example: dispatch(approveApplication(id));
-    // For now, just log for demonstration
-    console.log("Approve application", id);
-  };
-  const handleRejectApp = (id: number) => {
-    // TODO: Dispatch an action to reject the application in the Redux store
-    // Example: dispatch(rejectApplication(id));
-    // For now, just log for demonstration
-    console.log("Reject application", id);
-  };
 
   useEffect(() => {
     dispatch(fetchAllApplications());
@@ -281,68 +268,7 @@ export default function AdminDashboardInstructorsPage() {
         </section>
       )}
 
-      {tab === "applications" && (
-        <section className="mt-6 grid md:grid-cols-2 gap-6">
-          {applications.map((app) => (
-            <Card
-              key={app.id}
-              className="rounded-2xl border border-indigo-100 shadow-sm"
-            >
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div>
-                    <div className="text-lg font-semibold text-gray-800">
-                      {/* {app.userFullname} */} app.userFullname
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {/* {app.userEmail} */} app.userEmail
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-500">{app.createdAt}</div>
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="space-y-3 text-sm text-gray-700">
-                <p>
-                  <strong>Kinh nghiệm:</strong> {app.experience}
-                </p>
-                <p>
-                  <strong>Giới thiệu:</strong> {app.bio}
-                </p>
-                <p>
-                  <strong>Chuyên ngành:</strong>{" "}
-                  {/* {app.specializations.join(", ")} */}
-                  app.specializations.join(", ")
-                </p>
-
-                <div className="flex items-center justify-between pt-2">
-                  <div>
-                    <Badge className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-md">
-                      {app.status}
-                    </Badge>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleApproveApp(app.id)}
-                      className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
-                    >
-                      <Check className="w-4 h-4" /> Duyệt
-                    </Button>
-                    <Button
-                      onClick={() => handleRejectApp(app.id)}
-                      variant="destructive"
-                      className="flex items-center gap-2"
-                    >
-                      <X className="w-4 h-4" /> Từ chối
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </section>
-      )}
+      {tab === "applications" && <Applications applications={applications} />}
     </div>
   );
 }
