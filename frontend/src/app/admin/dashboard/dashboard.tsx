@@ -5,14 +5,10 @@ import { motion } from "framer-motion";
 import { BookOpen, Users, DollarSign, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import SidebarAdmin from "./components/Sidebar";
 
 const DashboardPage = () => {
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-blue-50 via-white to-indigo-100">
-      {/* Sidebar */}
-      <SidebarAdmin />
-
       {/* Main content */}
       <main className="flex-1 p-8 overflow-y-auto">
         {/* Header */}
