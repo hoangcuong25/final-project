@@ -60,13 +60,16 @@ const InstructorApplyPage = () => {
 
   const onSubmit = async (data: ApplyInstructorPayload) => {
     try {
-      if (!user) throw new Error("Bạn chưa đăng nhập");
+      if (!user) {
+        toast.error("Bạn cần đăng nhập để gửi đơn đăng ký.");
+        return;
+      }
       await applyInstructorApi(user.id, data);
       router.push("/instructor/status");
 
       toast.success("Đơn đăng ký đã được gửi thành công!");
-    } catch (err) {
-      console.error("Error submitting form:", err);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Có lỗi đã xảy ra" );
     }
   };
 

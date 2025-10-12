@@ -49,12 +49,12 @@ declare global {
       specialization: {
         id: number;
         name: string;
-        description?: string;
+        desc?: string;
       };
     }[];
     user?: {
       id: number;
-      name: string;
+      fullname: string;
       email: string;
     };
   };

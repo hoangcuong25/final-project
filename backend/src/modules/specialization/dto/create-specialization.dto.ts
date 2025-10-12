@@ -14,5 +14,5 @@ export class CreateSpecializationDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  description?: string;
+  desc?: string;
 }

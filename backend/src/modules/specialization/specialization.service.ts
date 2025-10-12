@@ -12,7 +12,7 @@ export class SpecializationService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createSpecializationDto: CreateSpecializationDto) {
-    const { name, description } = createSpecializationDto;
+    const { name, desc } = createSpecializationDto;
 
     // Kiểm tra trùng tên
     const existing = await this.prisma.specialization.findUnique({

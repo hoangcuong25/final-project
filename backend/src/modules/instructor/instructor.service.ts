@@ -3,10 +3,14 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { ApplyInstructorDto } from "./dto/apply-instructor.dto";
 import { ApplicationStatus, UserRole } from "@prisma/client";
+import { MailerService } from "@nestjs-modules/mailer";
 
 @Injectable()
 export class InstructorService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailerService: MailerService
+  ) {}
 
   async applyInstructor(userId: number, body: ApplyInstructorDto) {
     const { specializationIds, experience, bio } = body;
@@ -27,7 +31,7 @@ export class InstructorService {
 
     if (existingPending) {
       throw new BadRequestException(
-        "Bạn đã có một đơn đăng ký đang chờ duyệt. Vui lòng chờ phản hồi trước khi gửi lại."
+        "Bạn đã có một đơn đăng ký đang chờ duyệt. Vui lòng chờ phản hồi."
       );
     }
 
@@ -58,6 +62,21 @@ export class InstructorService {
         applicationSpecializations: {
           include: { specialization: true },
         },
+      },
+    });
+
+    // 5️. Gửi email xác nhận
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: "Xác nhận gửi đơn ứng tuyển Giảng viên",
+      template: "./applicationConfirmation", // không cần đuôi .hbs
+      context: {
+        user,
+        application,
+        specializations: application.applicationSpecializations.map(
+          (item) => item.specialization.name
+        ),
+        platformName: "EduConnect",
       },
     });
 

@@ -72,7 +72,7 @@ model InstructorApplication {
   reviewedBy      Int?
 
   // Relations
-  user            User               @relation(fields: [userId], references: [id])
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   applicationSpecializations ApplicationSpecializations[]
 
   createdAt DateTime @default(now())
@@ -96,8 +96,8 @@ model ApplicationSpecializations {
   specializationId  Int
 
   // Relations
-  application       InstructorApplication @relation(fields: [applicationId], references: [id])
-  specialization    Specialization        @relation(fields: [specializationId], references: [id])
+  application       InstructorApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  specialization    Specialization        @relation(fields: [specializationId], references: [id], onDelete: Cascade)
 
   @@id([applicationId, specializationId])
 }
