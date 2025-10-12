@@ -21,8 +21,12 @@ import { BookOpenCheck } from "lucide-react";
 import { ActiveAccountApi, SendEmailActiveApi } from "@/api/auth.api";
 import { toast } from "sonner";
 import { useState } from "react";
+import { fetchUser } from "@/store/userSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
 
 const VerifyAccount = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const [otp, setOtp] = useState("");
 
   const handleSendEmailActive = async () => {
@@ -30,16 +34,18 @@ const VerifyAccount = () => {
       await SendEmailActiveApi();
       toast.success("📘 Mã OTP đã được gửi đến email của bạn.");
     } catch (error) {
-      toast.error("❌ Gửi mã OTP thất bại. Vui lòng thử lại.");
+      toast.error("Gửi mã OTP thất bại. Vui lòng thử lại.");
     }
   };
 
   const handleVerifyAccount = async () => {
     try {
       await ActiveAccountApi(otp);
+      dispatch(fetchUser());
+
       toast.success("🎓 Xác thực tài khoản e-Learning thành công!");
     } catch (error) {
-      toast.error("❌ Mã OTP không hợp lệ. Vui lòng thử lại.");
+      toast.error("Mã OTP không hợp lệ. Vui lòng thử lại.");
     }
   };
 

@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useRouter, usePathname } from "next/navigation";
 import { fetchUser, logoutUser } from "@/store/userSlice";
+import { toast } from "sonner";
 
 const NavbarUser = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,8 +29,11 @@ const NavbarUser = () => {
     if (token) dispatch(fetchUser());
   }, [dispatch]);
 
-  const handleLogout = () => {
-    dispatch(logoutUser(router));
+  const handleLogout = async () => {
+    dispatch(logoutUser());
+
+    router.push("/login");
+    toast.success("Đăng xuất thành công");
   };
 
   if (loading) return <p>Loading...</p>;

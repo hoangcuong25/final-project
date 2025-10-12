@@ -2,7 +2,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getUser } from "@/api/user.api";
 import { LogoutApi } from "@/api/auth.api";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { setLoggingOut } from "@/lib/axiosClient";
+import axios from "axios";
 
 // 🧠 Type cho user
 interface UserState {
@@ -24,14 +25,16 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
 });
 
 // 🚪 Async action: Logout
-export const logoutUser = createAsyncThunk(
-  "user/logoutUser",
-  async (router: AppRouterInstance) => {
-    localStorage.removeItem("access_token");
+export const logoutUser = createAsyncThunk("user/logoutUser", async () => {
+  setLoggingOut(true); // 🧠 Ngăn interceptor refresh token
+  localStorage.removeItem("access_token");
+  delete axios.defaults.headers.common["Authorization"];
+  try {
     await LogoutApi();
-    router.push("/login");
+  } finally {
+    setLoggingOut(false); // reset lại để tránh ảnh hưởng request khác
   }
-);
+});
 
 // 🧩 Slice
 const userSlice = createSlice({

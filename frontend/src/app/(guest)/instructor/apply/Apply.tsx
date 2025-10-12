@@ -19,6 +19,7 @@ import {
   applyInstructorApi,
   ApplyInstructorPayload,
 } from "@/api/instructor.api";
+import { toast } from "sonner";
 
 const InstructorApplyPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -59,9 +60,11 @@ const InstructorApplyPage = () => {
 
   const onSubmit = async (data: ApplyInstructorPayload) => {
     try {
-      if (!user) throw new Error("User not found. Please log in.");
+      if (!user) throw new Error("Bạn chưa đăng nhập");
       await applyInstructorApi(user.id, data);
       router.push("/instructor/status");
+
+      toast.success("Đơn đăng ký đã được gửi thành công!");
     } catch (err) {
       console.error("Error submitting form:", err);
     }
