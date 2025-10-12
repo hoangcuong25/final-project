@@ -35,6 +35,13 @@ export default function LoginPage() {
       const res = await LoginApi(data);
       localStorage.setItem("access_token", res.access_token);
       await dispatch(fetchUser());
+
+      if (res.role === "ADMIN") {
+        router.push("/admin/dashboard");
+        toast.success("Đăng nhập thành công - Chuyển đến trang quản trị");
+        return;
+      }
+
       router.push("/");
 
       toast.success("Đăng nhập thành công");
