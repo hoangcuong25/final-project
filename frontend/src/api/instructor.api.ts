@@ -15,7 +15,7 @@ export const applyInstructorApi = async (
 ) => {
   try {
     const response = await axiosClient.post(
-      `/instructor/instructor-application/${userId}`,
+      `/instructor/instructor-application`,
       payload
     );
     return response.data;

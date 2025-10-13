@@ -86,18 +86,131 @@ export class InstructorService {
     };
   }
 
-  async approveInstructor(userId: number, role: UserRole) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+  async approveInstructor(userId: number, applicationId: number) {
+    // 1️. Tìm user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        instructorApplications: {
+          include: {
+            applicationSpecializations: {
+              include: { specialization: true },
+            },
+          },
+        },
+      },
+    });
+
     if (!user) throw new BadRequestException("User not found");
 
-    return await this.prisma.user.update({
+    // 2. Cập nhật trạng thái đơn đăng ký
+    const application = await this.prisma.instructorApplication.findUnique({
+      where: { id: applicationId, userId },
+      include: {
+        applicationSpecializations: {
+          include: { specialization: true },
+        },
+      },
+    });
+
+    if (!application)
+      throw new BadRequestException("Instructor application not found");
+
+    if (application.status !== ApplicationStatus.PENDING)
+      throw new BadRequestException(
+        "Only pending applications can be approved"
+      );
+
+    await this.prisma.instructorApplication.update({
+      where: { id: applicationId },
+      data: { status: ApplicationStatus.APPROVED },
+    });
+
+    // 3. Cập nhật vai trò (role)
+    const updatedUser = await this.prisma.user.update({
       where: { id: userId },
-      data: { role },
+      data: { role: UserRole.INSTRUCTOR },
+    });
+
+    // 4. Gửi email thông báo phê duyệt
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: "Đơn ứng tuyển Giảng viên đã được phê duyệt",
+      template: "./applicationApproved", // không cần .hbs
+      context: {
+        user,
+        application,
+        specializations: application.applicationSpecializations.map(
+          (item) => item.specialization.name
+        ),
+        platformName: "EduConnect",
+        loginUrl: "https://educonnect.com/login",
+      },
+    });
+
+    return updatedUser;
+  }
+
+  async rejectInstructor(userId: number, applicationId: number) {
+    // 1️. Tìm user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        instructorApplications: {
+          include: {
+            applicationSpecializations: {
+              include: { specialization: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) throw new BadRequestException("User not found");
+
+    // 2. Cập nhật trạng thái đơn đăng ký
+    const application = await this.prisma.instructorApplication.findUnique({
+      where: { id: applicationId, userId },
+      include: {
+        applicationSpecializations: {
+          include: { specialization: true },
+        },
+      },
+    });
+
+    if (!application)
+      throw new BadRequestException("Instructor application not found");
+
+    if (application.status !== ApplicationStatus.PENDING)
+      throw new BadRequestException(
+        "Only pending applications can be approved"
+      );
+
+    await this.prisma.instructorApplication.update({
+      where: { id: applicationId },
+      data: { status: ApplicationStatus.APPROVED },
+    });
+
+    // 3. Gửi email thông báo từ chối
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: "Đơn ứng tuyển Giảng viên đã được phê duyệt",
+      template: "./applicationRejected", // không cần .hbs
+      context: {
+        user,
+        application,
+        specializations: application.applicationSpecializations.map(
+          (item) => item.specialization.name
+        ),
+        platformName: "EduConnect",
+        loginUrl: "https://educonnect.com/login",
+      },
     });
   }
 
   async getAllInstructorApplications() {
     const applications = await this.prisma.instructorApplication.findMany({
+      where: { status: ApplicationStatus.PENDING },
       include: {
         user: {
           select: { id: true, email: true },

@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from "@nestjs/common";
 import { InstructorService } from "./instructor.service";
 import { ResponseMessage, Roles } from "src/decorator/customize";
@@ -17,13 +18,14 @@ import { UserRole } from "@prisma/client";
 export class InstructorController {
   constructor(private readonly instructorService: InstructorService) {}
 
-  @Post("instructor-application/:id")
+  @Post("instructor-application")
+  @ApiOperation({ summary: "Apply to be an instructor" })
   @ResponseMessage("apply instructor")
   applyInstructor(
-    @Param("id") userId: number,
+    @Req() req,
     @Body() body: ApplyInstructorDto
   ) {
-    return this.instructorService.applyInstructor(userId, body);
+    return this.instructorService.applyInstructor(req.user.id, body);
   }
 
   @Patch("approve-instructor/:id")
@@ -32,15 +34,26 @@ export class InstructorController {
   @ResponseMessage("approve instructor")
   approveInstructor(
     @Param("id") userId: number,
-    @Body() body: { role: UserRole }
+    @Body() body: { applicationId: number }
   ) {
-    return this.instructorService.approveInstructor(userId, body.role);
+    return this.instructorService.approveInstructor(userId, body.applicationId);
+  }
+
+  @Patch("reject-instructor/:id")
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "Reject instructor" })
+  @ResponseMessage("reject instructor")
+  rejectInstructor(
+    @Param("id") userId: number,
+    @Body() body: { applicationId: number }
+  ) {
+    return this.instructorService.rejectInstructor(userId, body.applicationId);
   }
 
   @Get("instructor-applications")
   @Roles("ADMIN")
   @ApiOperation({ summary: "Get all instructor applications" })
-  @ResponseMessage("get all instructor applications")
+  @ResponseMessage("get all instructor applications pending")
   getAllInstructorApplications() {
     return this.instructorService.getAllInstructorApplications();
   }
