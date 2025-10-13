@@ -1,7 +1,8 @@
 import React from "react";
+import InstructorDashboard from "./Dashboard";
 
 const page = () => {
-  return <div>page</div>;
+  return <InstructorDashboard />;
 };
 
 export default page;
