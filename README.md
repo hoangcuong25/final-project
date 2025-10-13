@@ -10,11 +10,11 @@ Dự án gồm **7 module chính**:
 
 1. 👤 **Auth & User Management**
 2. 🎓 **INSTRUCTOR APPLICATION**
-3. 🎓 **Courses & Lessons**
-4. 💬 **Learning Interaction** (Comment, Progress, Quiz)
-5. 💳 **Payment / Subscription**
-6. 📊 **Analytics & Tracking**
-7. ⚙️ **Admin Dashboard**
+3. 🎓 **Courses & Lessons**  dl:18/10
+4. 💬 **Learning Interaction** (Comment, Progress, Quiz) dl:23/10
+5. 💳 **Payment** dl: 25/10
+6. 📊 **Analytics & Tracking**  dl:5/11
+7. ⚙️ **Admin Dashboard** dl:31/10
 
 ---
 

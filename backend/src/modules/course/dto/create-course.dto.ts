@@ -4,9 +4,9 @@ import {
   IsOptional,
   IsBoolean,
   IsNumber,
-  IsUrl,
   MinLength,
 } from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateCourseDto {
   @ApiProperty({ example: "React for Beginners", description: "Course title" })
@@ -14,22 +14,22 @@ export class CreateCourseDto {
   @MinLength(3)
   title: string;
 
-  @ApiPropertyOptional({ example: "Learn the basics of React step by step" })
+  @ApiPropertyOptional({ example: "Learn React step by step" })
   @IsOptional()
   @IsString()
   description?: string;
 
   @ApiPropertyOptional({
-    example:
-      "https://res.cloudinary.com/demo/image/upload/course_thumbnail.jpg",
-    description: "Cloudinary thumbnail URL",
+    type: "string",
+    format: "binary",
+    description: "Thumbnail image file",
   })
   @IsOptional()
-  @IsUrl()
-  thumbnail: string;
+  thumbnail?: any;
 
-  @ApiPropertyOptional({ example: 49.99, description: "Course price (USD)" })
+  @ApiPropertyOptional({ example: 499000, description: "Course price (VNĐ)" })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   price?: number;
 
@@ -42,6 +42,7 @@ export class CreateCourseDto {
     example: 1,
     description: "Instructor ID who owns this course",
   })
+  @Type(() => Number)
   @IsNumber()
   instructorId: number;
 }

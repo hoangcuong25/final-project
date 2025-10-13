@@ -1,6 +1,6 @@
 import InstructorSidebar from "@/components/instructor/InstructorSidebar";
 
-export default function GuestLayout({
+export default function InstructorLayout({
   children,
 }: {
   children: React.ReactNode;

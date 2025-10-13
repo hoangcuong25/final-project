@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  Req,
 } from "@nestjs/common";
 import { CourseService } from "./course.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
@@ -21,10 +22,14 @@ export class CourseController {
 
   @Post()
   @Roles("INSTRUCTOR", "ADMIN")
-  @ApiOperation({ summary: "" })
-  @ResponseMessage("create course")
-  create(@Body() createCourseDto: CreateCourseDto) {
-    return this.courseService.create(createCourseDto);
+  @ApiConsumes("multipart/form-data")
+  @ApiOperation({ summary: "Create new course" })
+  @UseInterceptors(FileInterceptor("thumbnail"))
+  create(
+    @Body() dto: CreateCourseDto,
+    @UploadedFile() thumbnail?: Express.Multer.File
+  ) {
+    return this.courseService.create(dto, thumbnail);
   }
 
   @Get()
@@ -41,6 +46,15 @@ export class CourseController {
   @ResponseMessage("Get course detail")
   findOne(@Param("id") id: string) {
     return this.courseService.findOne(+id);
+  }
+
+  @Get("instructors/me/courses")
+  @Roles("INSTRUCTOR")
+  @ApiOperation({ summary: "Get all courses by instructor ID" })
+  @ResponseMessage("Get courses by instructor")
+  getCoursesByInstructor(@Req() req) {
+    const instructorId = req.user.id;
+    return this.courseService.getCoursesByInstructor(+instructorId);
   }
 
   @Patch(":id")

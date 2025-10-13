@@ -24,7 +24,7 @@ export class CourseService {
     thumbnailUrl = uploaded.url;
 
     // Tạo course trong DB
-    const course = await this.prisma.course.create({
+    return await this.prisma.course.create({
       data: {
         title,
         description,
@@ -39,11 +39,6 @@ export class CourseService {
         },
       },
     });
-
-    return {
-      message: "Course created successfully",
-      data: course,
-    };
   }
 
   async findAll() {
@@ -95,11 +90,7 @@ export class CourseService {
     };
   }
 
-  async update(
-    id: number,
-    updateCourseDto,
-    thumbnail?: Express.Multer.File
-  ) {
+  async update(id: number, updateCourseDto, thumbnail?: Express.Multer.File) {
     const existing = await this.prisma.course.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException("Course not found");
 
@@ -135,5 +126,12 @@ export class CourseService {
       message: "Course deleted successfully",
       data: { id },
     };
+  }
+
+  async getCoursesByInstructor(instructorId: number) {
+    return this.prisma.course.findMany({
+      where: { instructorId }, // Lấy tất cả khóa học của instructor
+      orderBy: { createdAt: "desc" }, // tuỳ chọn
+    });
   }
 }

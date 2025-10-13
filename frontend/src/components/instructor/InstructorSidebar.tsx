@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { logoutUser } from "@/store/userSlice";
+import { fetchUser, logoutUser } from "@/store/userSlice";
 import { toast } from "sonner";
 import Image from "next/image";
 import logo from "@public/logo.png";
@@ -46,6 +46,11 @@ const InstructorSidebar = () => {
     { href: "/instructor/earnings", label: "Thu nhập", icon: DollarSign },
     { href: "/instructor/settings", label: "Cài đặt", icon: Settings },
   ];
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) dispatch(fetchUser());
+  }, [dispatch]);
 
   if (loading) return <LoadingScreen />;
 

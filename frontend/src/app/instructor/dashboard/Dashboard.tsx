@@ -1,26 +1,15 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
 import {
-  Home,
   BookOpen,
   Users,
-  FileText,
   DollarSign,
-  Settings,
-  LogOut,
+
   Star,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
-import { logoutUser } from "@/store/userSlice";
 import {
   ResponsiveContainer,
   LineChart,
@@ -30,7 +19,6 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
-import logo from "@public/logo.png";
 
 // =============================
 // DUMMY DATA
@@ -75,16 +63,6 @@ const recentCourses = [
 // DASHBOARD PAGE
 // =============================
 export default function InstructorDashboard() {
-  const pathname = usePathname();
-  const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
-
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    router.push("/login");
-    toast.success("Đăng xuất thành công");
-  };
-
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* MAIN CONTENT */}
