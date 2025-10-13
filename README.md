@@ -76,7 +76,7 @@ Dự án gồm **7 module chính**:
 
 - CRUD **Course** (title, description, thumbnail, price)
 - CRUD **Lesson** (video URL, nội dung HTML)
-- Phân loại (**Category / Tag**)
+- Phân loại (**Specialization**)
 - Gắn bài học vào khoá học (1-n)
 - Upload video lên **Cloudinary** hoặc storage
 - Endpoint xem danh sách khoá học public
