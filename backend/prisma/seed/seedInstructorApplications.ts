@@ -46,7 +46,7 @@ export const seedInstructorApplications = async () => {
     const user = users[i];
 
     // Kiểm tra nếu user đã có application
-    const existing = await prisma.instructorApplication.findUnique({
+    const existing = await prisma.instructorApplication.findFirst({
       where: { userId: user.id },
     });
     if (existing) continue;

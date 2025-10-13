@@ -215,25 +215,3 @@ Dự án gồm **7 module chính**:
 🚀 _Backend Developer | Fullstack Learner_
 
 ---
-
-:todo
-1. hoàn thiện tính năng become instructor
-2. trang apply và status bắt người dùng phải đăng nhập trước
-3. gửi email : 
-Khi nào nên gửi email
-
-Ngay sau khi submit đơn:
-
-Email xác nhận nộp đơn.
-
-Nội dung: “Cảm ơn bạn đã đăng ký trở thành giảng viên, chúng tôi sẽ xem xét trong 1-3 ngày.”
-
-Khi admin thay đổi trạng thái:
-
-Email khi approved: “Chúc mừng bạn đã trở thành giảng viên!”
-
-Email khi rejected: “Đơn của bạn chưa được chấp thuận, vui lòng kiểm tra và chỉnh sửa.”
-
-Nhắc nhở (optional):
-
-Nếu đơn đang pending > 3 ngày, gửi email nhắc nhở hoặc cập nhật trạng thái.

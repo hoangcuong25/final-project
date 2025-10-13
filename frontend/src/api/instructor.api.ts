@@ -29,7 +29,9 @@ export const applyInstructorApi = async (
  */
 export const getAllInstructorApplicationsApi = async () => {
   try {
-    const response = await axiosClient.get(`/instructor/instructor-applications`);
+    const response = await axiosClient.get(
+      `/instructor/instructor-applications`
+    );
     return response.data.data;
   } catch (error) {
     throw error;
@@ -53,14 +55,15 @@ export const getInstructorApplicationByUserIdApi = async (userId: number) => {
 /**
  * ✅ Admin duyệt đơn đăng ký giảng viên
  */
-export const approveInstructorApi = async (userId: number) => {
+export const approveInstructorApi = async (
+  userId: number,
+  applicationId: number
+) => {
   try {
-    const response = await axiosClient.patch(
-      `/instructor/approve-instructor/${userId}`,
-      {
-        role: "INSTRUCTOR",
-      }
-    );
+    const response = await axiosClient.patch(`/instructor/approve-instructor`, {
+      applicationId,
+      userId,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -70,11 +73,15 @@ export const approveInstructorApi = async (userId: number) => {
 /**
  * ❌ Admin từ chối đơn đăng ký giảng viên
  */
-export const rejectInstructorApi = async (applicationId: number) => {
+export const rejectInstructorApi = async (
+  userId: number,
+  applicationId: number
+) => {
   try {
-    const response = await axiosClient.patch(
-      `/instructor/reject-instructor/${applicationId}`
-    );
+    const response = await axiosClient.patch(`/instructor/reject-instructor`, {
+      userId,
+      applicationId,
+    });
     return response.data;
   } catch (error) {
     throw error;

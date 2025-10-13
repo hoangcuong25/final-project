@@ -64,7 +64,7 @@ model User {
 
 model InstructorApplication {
   id             Int                @id @default(autoincrement())
-  userId         Int                @unique
+  userId         Int                
   experience      String?            @db.Text
   bio             String?            @db.Text
   status          ApplicationStatus  @default(PENDING)

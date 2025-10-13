@@ -21,33 +21,30 @@ export class InstructorController {
   @Post("instructor-application")
   @ApiOperation({ summary: "Apply to be an instructor" })
   @ResponseMessage("apply instructor")
-  applyInstructor(
-    @Req() req,
-    @Body() body: ApplyInstructorDto
-  ) {
+  applyInstructor(@Req() req, @Body() body: ApplyInstructorDto) {
     return this.instructorService.applyInstructor(req.user.id, body);
   }
 
-  @Patch("approve-instructor/:id")
+  @Patch("approve-instructor")
   @Roles("ADMIN")
   @ApiOperation({ summary: "Approve instructor" })
   @ResponseMessage("approve instructor")
-  approveInstructor(
-    @Param("id") userId: number,
-    @Body() body: { applicationId: number }
-  ) {
-    return this.instructorService.approveInstructor(userId, body.applicationId);
+  approveInstructor(@Body() body: { applicationId: number; userId: number }) {
+    return this.instructorService.approveInstructor(
+      body.userId,
+      body.applicationId
+    );
   }
 
-  @Patch("reject-instructor/:id")
+  @Patch("reject-instructor")
   @Roles("ADMIN")
   @ApiOperation({ summary: "Reject instructor" })
   @ResponseMessage("reject instructor")
-  rejectInstructor(
-    @Param("id") userId: number,
-    @Body() body: { applicationId: number }
-  ) {
-    return this.instructorService.rejectInstructor(userId, body.applicationId);
+  rejectInstructor(@Body() body: { applicationId: number; userId: number }) {
+    return this.instructorService.rejectInstructor(
+      body.userId,
+      body.applicationId
+    );
   }
 
   @Get("instructor-applications")

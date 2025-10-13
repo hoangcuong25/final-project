@@ -47,25 +47,37 @@ export const fetchAllApplications = createAsyncThunk(
 export const fetchApplicationByUserId = createAsyncThunk(
   "instructor/fetchApplicationById",
   async (id: number) => {
-    const response = await getInstructorApplicationByUserIdApi(id);
-    return response;
+    await getInstructorApplicationByUserIdApi(id);
+    return;
   }
 );
 
 // ✅ Duyệt đơn giảng viên (Admin)
 export const approveInstructor = createAsyncThunk(
   "instructor/approveInstructor",
-  async (userId: number) => {
-    const response = await approveInstructorApi(userId);
-    return response;
+  async ({
+    userId,
+    applicationId,
+  }: {
+    userId: number;
+    applicationId: number;
+  }) => {
+    await approveInstructorApi(userId, applicationId);
+    return;
   }
 );
 
 // ❌ Từ chối đơn giảng viên (Admin)
 export const rejectInstructor = createAsyncThunk(
   "instructor/rejectInstructor",
-  async (applicationId: number) => {
-    const response = await rejectInstructorApi(applicationId);
+  async ({
+    userId,
+    applicationId,
+  }: {
+    userId: number;
+    applicationId: number;
+  }) => {
+    const response = await rejectInstructorApi(userId, applicationId);
     return response;
   }
 );
@@ -116,7 +128,6 @@ const instructorSlice = createSlice({
       })
       .addCase(fetchApplicationByUserId.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentApplication = action.payload;
       })
       .addCase(fetchApplicationByUserId.rejected, (state, action) => {
         state.loading = false;
@@ -124,10 +135,7 @@ const instructorSlice = createSlice({
       })
 
       // Approve
-      .addCase(approveInstructor.fulfilled, (state, action) => {
-        state.successMessage =
-          action.payload.message ?? "Đã duyệt đơn thành công";
-      })
+      .addCase(approveInstructor.fulfilled, (state, action) => {})
       .addCase(approveInstructor.rejected, (state, action) => {
         state.error = action.error.message ?? "Lỗi khi duyệt đơn";
       })

@@ -203,7 +203,6 @@ export class InstructorService {
           (item) => item.specialization.name
         ),
         platformName: "EduConnect",
-        loginUrl: "https://educonnect.com/login",
       },
     });
   }
@@ -224,8 +223,8 @@ export class InstructorService {
   }
 
   async getInstructorApplicationByUserId(userId: number) {
-    return await this.prisma.instructorApplication.findUnique({
-      where: { userId },
+    return await this.prisma.instructorApplication.findFirst({
+      where: { userId, status: ApplicationStatus.PENDING },
       include: {
         user: {
           select: { id: true, email: true },

@@ -3,18 +3,44 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Check, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
+import {
+  approveInstructor,
+  fetchAllApplications,
+  rejectInstructor,
+} from "@/store/instructorSlice";
 
 interface ApplicationsProps {
   applications: InstructorApplicationType[];
 }
 
 const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
-  const handleApproveApp = (id: number) => {
-    console.log("Approve application", id);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleApproveApp = async (userId: number, applicationId: number) => {
+    try {
+      await dispatch(approveInstructor({ userId, applicationId })).unwrap();
+      await dispatch(fetchAllApplications()).unwrap();
+
+      toast.success("Đơn đã được chấp thuận thành công!");
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || "Lỗi khi phê duyệt đơn đăng ký"
+      );
+    }
   };
 
-  const handleRejectApp = (id: number) => {
-    console.log("Reject application", id);
+  const handleRejectApp = async (userId: number, applicationId: number) => {
+    try {
+      await dispatch(rejectInstructor({ userId, applicationId })).unwrap();
+      await dispatch(fetchAllApplications()).unwrap();
+
+      toast.success("Đơn đã bị từ chối thành công!");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Lỗi từ chối đơn đăng ký");
+    }
   };
 
   if (!applications || applications.length === 0) {
@@ -68,15 +94,25 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
 
               <div className="flex gap-2">
                 <Button
-                  onClick={() => handleApproveApp(app.id)}
+                  onClick={() => {
+                    if (app.user?.id !== undefined) {
+                      handleApproveApp(app.user.id, app.id);
+                    }
+                  }}
                   className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+                  disabled={app.user?.id === undefined}
                 >
                   <Check className="w-4 h-4" /> Duyệt
                 </Button>
                 <Button
-                  onClick={() => handleRejectApp(app.id)}
+                  onClick={() => {
+                    if (app.user?.id !== undefined) {
+                      handleRejectApp(app.user.id, app.id);
+                    }
+                  }}
                   variant="destructive"
                   className="flex items-center gap-2"
+                  disabled={app.user?.id === undefined}
                 >
                   <X className="w-4 h-4" /> Từ chối
                 </Button>
