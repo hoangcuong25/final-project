@@ -65,11 +65,11 @@ const InstructorApplyPage = () => {
         return;
       }
       await applyInstructorApi(user.id, data);
-      router.push("/instructor/status");
+      router.push("/status-instructor");
 
       toast.success("Đơn đăng ký đã được gửi thành công!");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Có lỗi đã xảy ra" );
+      toast.error(err.response?.data?.message || "Có lỗi đã xảy ra");
     }
   };
 

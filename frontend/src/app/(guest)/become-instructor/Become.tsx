@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import NavbarUser from "@/components/user/NavbarUser";
 
 export default function BecomeInstructorPage() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function BecomeInstructorPage() {
   return (
     <div className="min-h-screen bg-white mt-4">
       {/* 🌟 HERO SECTION */}
-      <section className="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-24 px-6 rounded-2xl">
+      <section className="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-24 px-6 rounded-2xl mt-4">
         <div className="max-w-5xl mx-auto text-center">
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -34,7 +35,7 @@ export default function BecomeInstructorPage() {
           <Button
             size="lg"
             className="bg-white text-indigo-600 font-semibold hover:bg-gray-100"
-            onClick={() => router.push("/instructor/apply")}
+            onClick={() => router.push("/apply-instructor")}
           >
             Bắt đầu ngay <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
@@ -136,7 +137,7 @@ export default function BecomeInstructorPage() {
         <Button
           size="lg"
           className="bg-white text-indigo-600 hover:bg-gray-100 font-semibold"
-          onClick={() => router.push("/instructor/apply")}
+          onClick={() => router.push("/apply-instructor")}
         >
           Trở thành giảng viên ngay <ArrowRight className="ml-2 w-5 h-5" />
         </Button>

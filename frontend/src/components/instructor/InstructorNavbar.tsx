@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Menu, User, Bell } from "lucide-react";
+import { Menu, LogOut, LayoutDashboard, BookOpen, Bell } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import logo from "@public/logo.png";
@@ -17,9 +17,8 @@ import { AppDispatch, RootState } from "@/store";
 import { useRouter, usePathname } from "next/navigation";
 import { fetchUser, logoutUser } from "@/store/userSlice";
 import { toast } from "sonner";
-import LoadingScreen from "../LoadingScreen";
 
-const NavbarUser = () => {
+const InstructorNavbar = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const pathname = usePathname();
@@ -30,20 +29,19 @@ const NavbarUser = () => {
     if (token) dispatch(fetchUser());
   }, [dispatch]);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     dispatch(logoutUser());
-
     router.push("/login");
     toast.success("Đăng xuất thành công");
   };
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return <p>Loading...</p>;
 
   const menuItems = [
-    { label: "Trang chủ", path: "/" },
-    { label: "Khóa học", path: "/courses" },
-    { label: "Lộ trình học", path: "/my-learning" },
-    { label: "Liên hệ", path: "/contact-us" },
+    { label: "Trang chủ giảng viên", path: "/instructor/dashboard" },
+    { label: "Khóa học của tôi", path: "/instructor/courses" },
+    { label: "Đơn ứng tuyển", path: "/instructor/applications" },
+    { label: "Trung tâm trợ giúp", path: "/instructor/support" },
   ];
 
   return (
@@ -53,27 +51,26 @@ const NavbarUser = () => {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="bg-white/80 backdrop-blur-md shadow-xl border border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-50 max-w-[1700px] mx-auto rounded-2xl"
     >
-      {/* Logo + Name */}
+      {/* Logo */}
       <motion.div
         whileHover={{ scale: 1.05 }}
         transition={{ type: "spring", stiffness: 300 }}
         className="flex items-center gap-3 cursor-pointer"
+        onClick={() => router.push("/instructor/dashboard")}
       >
-        <Link href="/">
-          <Image
-            src={logo}
-            alt="EduSmart Logo"
-            width={45}
-            height={45}
-            className="rounded-full"
-          />
-        </Link>
+        <Image
+          src={logo}
+          alt="EduSmart Logo"
+          width={45}
+          height={45}
+          className="rounded-full"
+        />
         <span className="hidden md:block text-xl font-bold text-indigo-600 tracking-wide">
-          EduSmart
+          EduSmart Instructor
         </span>
       </motion.div>
 
-      {/* Menu Links - Desktop */}
+      {/* Desktop Menu */}
       <ul className="hidden lg:flex items-center gap-8 text-sm font-medium">
         {menuItems.map((item, index) => {
           const isActive =
@@ -120,12 +117,12 @@ const NavbarUser = () => {
                 className="rounded-full"
               />
               <span className="text-lg font-bold text-indigo-600">
-                EduSmart
+                EduSmart Instructor
               </span>
             </motion.div>
           </SheetHeader>
 
-          {/* Menu Items - Mobile */}
+          {/* Menu Items */}
           <nav className="flex flex-col gap-4 text-gray-700 font-medium">
             {menuItems.map((item, index) => {
               const isActive =
@@ -150,19 +147,6 @@ const NavbarUser = () => {
 
           {/* User Actions */}
           <div className="mt-6 flex flex-col gap-3">
-            {/* 🔹 Giảng dạy */}
-            <motion.div whileHover={{ scale: 1.05 }}>
-              <Link
-                href="/instructor/become"
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 transition"
-              >
-                <span className="text-sm font-semibold text-indigo-700">
-                  Giảng dạy trên EduSmart
-                </span>
-              </Link>
-            </motion.div>
-
-            {/* 🔹 Thông báo */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="flex items-center gap-2 px-3 py-2 bg-indigo-100/50 border border-indigo-200 rounded-full hover:bg-indigo-100 transition duration-200"
@@ -171,40 +155,28 @@ const NavbarUser = () => {
               <span className="text-indigo-600 text-sm font-medium cursor-pointer">
                 Thông báo
               </span>
-              <span className="ml-auto flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full">
-                3
-              </span>
             </motion.button>
 
-            {/* 🔹 User info */}
             {user ? (
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="flex items-center gap-2 px-3 py-2 bg-indigo-50 border border-indigo-100 rounded-full hover:bg-indigo-100 transition duration-200"
+                onClick={handleLogout}
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-red-50 border border-red-200 rounded-full hover:bg-red-100 transition"
               >
-                <Image
-                  src={user.avatar || "/default-avatar.png"}
-                  alt={user.fullname}
-                  width={28}
-                  height={28}
-                  className="w-7 h-7 rounded-full object-cover border border-indigo-400/40"
-                />
-                <span className="text-sm font-medium text-indigo-600">
-                  {user.fullname}
+                <LogOut className="w-5 h-5 text-red-600" />
+                <span className="text-red-600 text-sm font-semibold">
+                  Đăng xuất
                 </span>
               </motion.button>
             ) : (
-              <motion.div whileHover={{ scale: 1.05 }}>
-                <Link
-                  href="/login"
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-400/30 rounded-full hover:bg-indigo-500/20 transition duration-200"
-                >
-                  <User className="w-5 h-5 text-indigo-600" />
-                  <span className="text-indigo-600 text-sm font-semibold">
-                    Đăng nhập
-                  </span>
-                </Link>
-              </motion.div>
+              <Link
+                href="/login"
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-200 rounded-full hover:bg-indigo-100 transition duration-200"
+              >
+                <span className="text-indigo-600 text-sm font-semibold">
+                  Đăng nhập
+                </span>
+              </Link>
             )}
           </div>
         </SheetContent>
@@ -212,18 +184,6 @@ const NavbarUser = () => {
 
       {/* User Section - Desktop */}
       <div className="hidden lg:flex items-center gap-5">
-        {/* 🔹 Giảng dạy */}
-        <motion.div whileHover={{ scale: 1.05 }}>
-          <Link
-            href="/become-instructor"
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 transition"
-          >
-            <span className="text-sm font-semibold text-indigo-700">
-              Giảng dạy trên EduSmart
-            </span>
-          </Link>
-        </motion.div>
-
         {/* 🔹 Thông báo */}
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -234,7 +194,7 @@ const NavbarUser = () => {
             Thông báo
           </span>
           <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
-            3
+            5
           </span>
         </motion.button>
 
@@ -254,7 +214,6 @@ const NavbarUser = () => {
               </span>
             </button>
 
-            {/* Dropdown */}
             <div
               className="
                 invisible opacity-0 translate-y-1
@@ -272,16 +231,16 @@ const NavbarUser = () => {
               </div>
               <div className="py-1">
                 <Link
-                  href="/profile"
+                  href="/instructor/profile"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
                 >
-                  Hồ sơ học viên
+                  Hồ sơ giảng viên
                 </Link>
                 <Link
-                  href="/my-learning"
+                  href="/instructor/courses"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
                 >
-                  Khóa học của tôi
+                  Quản lý khóa học
                 </Link>
                 <button
                   type="button"
@@ -296,9 +255,8 @@ const NavbarUser = () => {
         ) : (
           <Link
             href="/login"
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-400/30 rounded-full hover:bg-indigo-500/20 transition duration-200"
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-200 rounded-full hover:bg-indigo-100 transition duration-200"
           >
-            <User className="w-5 h-5 text-indigo-600" />
             <span className="text-indigo-600 text-sm font-semibold">
               Đăng nhập
             </span>
@@ -309,4 +267,4 @@ const NavbarUser = () => {
   );
 };
 
-export default NavbarUser;
+export default InstructorNavbar;
