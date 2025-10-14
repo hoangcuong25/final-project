@@ -90,7 +90,12 @@ export class CourseService {
     };
   }
 
-  async update(id: number, updateCourseDto, thumbnail?: Express.Multer.File) {
+  async update(
+    id: number,
+    updateCourseDto,
+    thumbnail?: Express.Multer.File,
+    userId?: number
+  ) {
     const existing = await this.prisma.course.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException("Course not found");
 
@@ -116,7 +121,7 @@ export class CourseService {
     };
   }
 
-  async remove(id: number) {
+  async remove(id: number, userId: number) {
     const existing = await this.prisma.course.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException("Course not found");
 

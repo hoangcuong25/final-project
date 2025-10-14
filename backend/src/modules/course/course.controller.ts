@@ -57,8 +57,8 @@ export class CourseController {
     return this.courseService.getCoursesByInstructor(+instructorId);
   }
 
-  @Patch(":id")
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Patch("instructor/course/:id")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Update a course by ID" })
   @ApiConsumes("multipart/form-data")
   @ResponseMessage("Update course")
@@ -66,16 +66,22 @@ export class CourseController {
   update(
     @Param("id") id: string,
     @Body() updateCourseDto,
+    @Req() req: any,
     @UploadedFile() thumbnail?: Express.Multer.File
   ) {
-    return this.courseService.update(+id, updateCourseDto, thumbnail);
+    return this.courseService.update(
+      +id,
+      updateCourseDto,
+      thumbnail,
+      req.user.id
+    );
   }
 
-  @Delete(":id")
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Delete("instructor/course/:id")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Delete a course by ID" })
   @ResponseMessage("Delete course")
-  remove(@Param("id") id: string) {
-    return this.courseService.remove(+id);
+  remove(@Param("id") id: string, @Req() req) {
+    return this.courseService.remove(+id, req.user.id);
   }
 }

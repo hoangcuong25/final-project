@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import LoadingScreen from "@/components/LoadingScreen";
 import { fetchCoursesByInstructor } from "@/store/coursesSlice";
 import CourseCreate from "@/components/instructor/courses/CreateCourse";
+import DeleteCourseDialog from "@/components/instructor/courses/DeleteCourseDialog";
 
 const InstructorCoursesPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -102,9 +103,12 @@ const InstructorCoursesPage = () => {
                   >
                     <Edit className="w-4 h-4" /> Sửa
                   </Button>
-                  <Button variant="destructive" size="sm">
-                    <Trash2 className="w-4 h-4" /> Xóa
-                  </Button>
+
+                  {/* 🔥 Dialog delete */}
+                  <DeleteCourseDialog
+                    courseId={course.id}
+                    courseTitle={course.title}
+                  />
                 </div>
               </CardContent>
             </Card>
