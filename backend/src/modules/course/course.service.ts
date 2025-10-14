@@ -96,7 +96,9 @@ export class CourseService {
     thumbnail?: Express.Multer.File,
     userId?: number
   ) {
-    const existing = await this.prisma.course.findUnique({ where: { id } });
+    const existing = await this.prisma.course.findUnique({
+      where: { id, instructorId: userId },
+    });
     if (!existing) throw new NotFoundException("Course not found");
 
     let updateData: any = { ...updateCourseDto };
@@ -105,6 +107,10 @@ export class CourseService {
     if (thumbnail) {
       const uploaded = await this.cloudinaryService.uploadFile(thumbnail);
       updateData.thumbnail = uploaded.url;
+    }
+
+    if (updateData.price) {
+      updateData.price = parseFloat(updateData.price);
     }
 
     const updated = await this.prisma.course.update({
@@ -125,12 +131,9 @@ export class CourseService {
     const existing = await this.prisma.course.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException("Course not found");
 
-    await this.prisma.course.delete({ where: { id } });
-
-    return {
-      message: "Course deleted successfully",
-      data: { id },
-    };
+    return await this.prisma.course.delete({
+      where: { id, instructorId: userId },
+    });
   }
 
   async getCoursesByInstructor(instructorId: number) {

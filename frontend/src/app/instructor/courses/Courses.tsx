@@ -14,6 +14,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { fetchCoursesByInstructor } from "@/store/coursesSlice";
 import CourseCreate from "@/components/instructor/courses/CreateCourse";
 import DeleteCourseDialog from "@/components/instructor/courses/DeleteCourseDialog";
+import UpdateCourse from "@/components/instructor/courses/UpdateCourse";
 
 const InstructorCoursesPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -94,17 +95,8 @@ const InstructorCoursesPage = () => {
 
                 {/* Hành động */}
                 <div className="flex justify-end gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      router.push(`/instructor/course/${course.id}/edit`)
-                    }
-                  >
-                    <Edit className="w-4 h-4" /> Sửa
-                  </Button>
+                  <UpdateCourse course={course} />
 
-                  {/* 🔥 Dialog delete */}
                   <DeleteCourseDialog
                     courseId={course.id}
                     courseTitle={course.title}

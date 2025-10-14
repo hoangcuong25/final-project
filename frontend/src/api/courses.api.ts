@@ -22,7 +22,13 @@ export const createCourseApi = async (payload: FormData) => {
 
 // 🧩 4. Cập nhật khóa học
 export const updateCourseApi = async (id: number, payload: any) => {
-  const response = await axiosClient.patch(`/course/instructor/course/${id}`, payload);
+  const response = await axiosClient.patch(
+    `/course/instructor/course/${id}`,
+    payload,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
   return response.data;
 };
 
