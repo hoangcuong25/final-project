@@ -7,12 +7,15 @@ import {
   Param,
   Delete,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from "@nestjs/common";
 import { LessonService } from "./lesson.service";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Roles, ResponseMessage } from "src/decorator/customize";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @ApiTags("Lesson")
 @Controller("lesson")
@@ -20,12 +23,18 @@ export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
 
   @Post()
-  @Roles("INSTRUCTOR", "ADMIN")
-  @ApiOperation({ summary: "Create a new lesson" })
+  @Roles("INSTRUCTOR")
+  @ApiConsumes("multipart/form-data")
+  @ApiOperation({ summary: "Instructor create a new lesson" })
   @ResponseMessage("Lesson created successfully")
-  create(@Body() dto: CreateLessonDto, @Req() req: any) {
-    const instructorId = req.user?.id; 
-    return this.lessonService.create(dto, instructorId);
+  @UseInterceptors(FileInterceptor("video"))
+  create(
+    @Body() dto: CreateLessonDto,
+    @Req() req: any,
+    @UploadedFile() video?: Express.Multer.File
+  ) {
+    const instructorId = req.user?.id;
+    return this.lessonService.create(dto, instructorId, video);
   }
 
   @Get()
@@ -37,7 +46,7 @@ export class LessonController {
   }
 
   @Get(":id")
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Get lesson detail by ID" })
   @ResponseMessage("Fetched lesson detail")
   findOne(@Param("id") id: string) {
@@ -45,7 +54,7 @@ export class LessonController {
   }
 
   @Get("course/:courseId")
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Get all lessons by course ID" })
   @ResponseMessage("Fetched lessons by course")
   getLessonsByCourse(@Param("courseId") courseId: string) {
@@ -53,7 +62,7 @@ export class LessonController {
   }
 
   @Patch(":id")
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Update lesson by ID" })
   @ResponseMessage("Lesson updated successfully")
   update(@Param("id") id: string, @Body() dto: UpdateLessonDto) {
@@ -61,7 +70,7 @@ export class LessonController {
   }
 
   @Delete(":id")
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Delete lesson by ID" })
   @ResponseMessage("Lesson deleted successfully")
   remove(@Param("id") id: string) {

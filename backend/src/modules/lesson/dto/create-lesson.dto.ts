@@ -19,13 +19,9 @@ export class CreateLessonDto {
   @IsString()
   content?: string;
 
-  @ApiProperty({
-    example: "https://res.cloudinary.com/demo/video.mp4",
-    required: false,
-  })
+
   @IsOptional()
-  @IsUrl()
-  videoUrl?: string;
+  video?: string;
 
   @ApiProperty({ example: 1, required: false })
   @IsOptional()

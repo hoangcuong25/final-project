@@ -5,7 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Plus, Edit, Trash2, BookOpen, DollarSign } from "lucide-react";
+import {
+  Search,
+  Plus,
+  Edit,
+  Trash2,
+  BookOpen,
+  DollarSign,
+  Eye,
+} from "lucide-react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -96,6 +104,19 @@ const InstructorCoursesPage = () => {
                 {/* Hành động */}
                 <div className="flex justify-end gap-2 pt-2">
                   <UpdateCourse course={course} />
+
+                  <Button
+                    variant="outline"
+                    className="border-2 border-blue-500 text-blue-600 font-semibold rounded-xl
+             px-5 py-2 hover:bg-blue-500 hover:text-white 
+             transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2"
+                    onClick={() =>
+                      router.push(`/instructor/courses/${course.id}`)
+                    }
+                  >
+                    <Eye size={18} />
+                    Chi Tiết
+                  </Button>
 
                   <DeleteCourseDialog
                     courseId={course.id}

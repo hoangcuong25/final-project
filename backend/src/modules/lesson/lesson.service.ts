@@ -2,23 +2,47 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
+import { UploadApiResponse } from "cloudinary";
+import { CloudinaryService } from "src/cloudinary/cloudinary.service";
 
 @Injectable()
 export class LessonService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService
+  ) {}
 
-  async create(dto: CreateLessonDto, instructorId?: number) {
-    // kiểm tra course có tồn tại không
+  async create(
+    dto: CreateLessonDto,
+    instructorId?: number,
+    video?: Express.Multer.File
+  ) {
+    // 🧩 Kiểm tra course có tồn tại và thuộc về instructor
     const course = await this.prisma.course.findUnique({
-      where: { id: dto.courseId },
+      where: { id: dto.courseId, instructorId },
     });
-    if (!course) throw new NotFoundException("Course not found");
+    if (!course)
+      throw new NotFoundException("Course not found or access denied");
 
+    // 🧩 Upload video lên Cloudinary (nếu có)
+    let videoUrl: string | null = null;
+
+    // Nếu có video → upload lên Cloudinary
+    if (video) {
+      const uploaded = await this.cloudinaryService.uploadFile(
+        video,
+        "lessons",
+        "video" //  phải chỉ định "video"
+      );
+      videoUrl = uploaded.secure_url;
+    }
+
+    // 🧩 Tạo lesson
     return this.prisma.lesson.create({
       data: {
         title: dto.title,
         content: dto.content,
-        videoUrl: dto.videoUrl,
+        videoUrl,
         orderIndex: dto.orderIndex ?? 0,
         courseId: dto.courseId,
       },
