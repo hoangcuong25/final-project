@@ -4,6 +4,7 @@ import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { UploadApiResponse } from "cloudinary";
 import { CloudinaryService } from "src/cloudinary/cloudinary.service";
+import e from "express";
 
 @Injectable()
 export class LessonService {
@@ -35,6 +36,8 @@ export class LessonService {
         "video" //  phải chỉ định "video"
       );
       videoUrl = uploaded.secure_url;
+    } else {
+      throw new NotFoundException("Video file is required");
     }
 
     // 🧩 Tạo lesson

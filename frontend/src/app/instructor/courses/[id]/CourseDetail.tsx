@@ -1,17 +1,27 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { fetchCourseById } from "@/store/coursesSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Plus, Pencil, Trash2 } from "lucide-react";
+import { BookOpen, Calendar, Video, X, Play } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import CreateLesson from "@/components/instructor/courses/lessons/CreateLesson";
 import UpdateLesson from "@/components/instructor/courses/lessons/UpdateLesson";
 import DeleteLessonDialog from "@/components/instructor/courses/lessons/DeleteLessonDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
 const CourseDetailPage = () => {
   const { id } = useParams();
@@ -19,12 +29,26 @@ const CourseDetailPage = () => {
   const { currentCourse, loading } = useSelector(
     (state: RootState) => state.courses
   );
+  const [selectedLesson, setSelectedLesson] = useState<any | null>(null);
 
   useEffect(() => {
     if (id) dispatch(fetchCourseById(Number(id)));
   }, [dispatch, id]);
 
   if (loading || !currentCourse) return <LoadingScreen />;
+
+  const sortedLessons = [...(currentCourse.lessons || [])].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+
+  const getCloudinaryThumbnail = (videoUrl: string) => {
+    if (!videoUrl?.includes("cloudinary")) return null;
+    return videoUrl
+      .replace("/upload/", "/upload/so_auto,q_auto,w_400/")
+      .replace(".mp4", ".jpg");
+  };
+
+  console.log(selectedLesson);
 
   return (
     <div className="p-6 space-y-6">
@@ -36,7 +60,7 @@ const CourseDetailPage = () => {
         <CreateLesson courseId={currentCourse.id} />
       </div>
 
-      {/* Course info */}
+      {/* Course Info */}
       <Card className="border border-gray-200 shadow-sm">
         <CardHeader>
           <CardTitle>Thông tin khóa học</CardTitle>
@@ -56,40 +80,103 @@ const CourseDetailPage = () => {
         </CardContent>
       </Card>
 
-      {/* Lessons list */}
+      {/* Lessons Grid */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <BookOpen size={20} />
-            Danh sách bài học
+            <BookOpen size={20} /> Danh sách bài học
           </CardTitle>
         </CardHeader>
 
         <CardContent>
-          {currentCourse.lessons?.length ? (
-            <div className="space-y-3">
-              {currentCourse.lessons.map((lesson, index) => (
-                <div
-                  key={lesson.id}
-                  className="flex items-center justify-between border p-3 rounded-lg hover:bg-gray-50 transition"
-                >
-                  <div>
-                    <p className="font-semibold">
-                      {index + 1}. {lesson.title}
-                    </p>
-                    <p className="text-sm text-gray-500 truncate max-w-md">
-                      {lesson.content || "Không có nội dung"}
-                    </p>
+          {sortedLessons.length ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedLessons.map((lesson, index) => {
+                const thumbnail = lesson.videoUrl
+                  ? getCloudinaryThumbnail(lesson.videoUrl)
+                  : null;
+
+                return (
+                  <div
+                    key={lesson.id}
+                    className="relative border rounded-lg overflow-hidden shadow hover:shadow-lg transition"
+                  >
+                    {/* Thumbnail */}
+                    <div
+                      className="relative w-full aspect-video bg-gray-200 cursor-pointer"
+                      onClick={() =>
+                        lesson.videoUrl && setSelectedLesson(lesson)
+                      }
+                    >
+                      {thumbnail ? (
+                        <Image
+                          src={thumbnail}
+                          alt={lesson.title}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-500 italic">
+                          Chưa có video
+                        </div>
+                      )}
+                      {/* Overlay Play */}
+                      {lesson.videoUrl && (
+                        <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                          <Play className="w-12 h-12 text-white" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="p-4 flex flex-col gap-1">
+                      <h3 className="font-semibold text-lg line-clamp-2">
+                        {lesson.orderIndex
+                          ? `${lesson.orderIndex}. ${lesson.title}`
+                          : `${index + 1}. ${lesson.title}`}
+                      </h3>
+                      {lesson.content && (
+                        <p className="text-sm text-gray-600 line-clamp-2">
+                          {lesson.content}
+                        </p>
+                      )}
+
+                      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mt-1">
+                        <div className="flex items-center gap-1">
+                          <Calendar size={14} />{" "}
+                          {new Date(lesson.createdAt).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar size={14} />{" "}
+                          {new Date(lesson.updatedAt).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                        </div>
+                        {lesson.videoUrl && (
+                          <Button
+                            variant="link"
+                            className="flex items-center gap-1 text-blue-600 hover:underline p-0"
+                            onClick={() => setSelectedLesson(lesson)}
+                          >
+                            <Video size={14} /> Xem video
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Actions luôn hiện */}
+                      <div className="flex gap-2 mt-3">
+                        <UpdateLesson lesson={lesson} />
+                        <DeleteLessonDialog
+                          lessonId={lesson.id}
+                          lessonTitle={lesson.title}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <UpdateLesson lesson={lesson} />
-                    <DeleteLessonDialog
-                      lessonId={lesson.id}
-                      lessonTitle={lesson.title}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="text-gray-500 italic">
@@ -98,6 +185,41 @@ const CourseDetailPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal Video */}
+      <Dialog
+        open={!!selectedLesson}
+        onOpenChange={() => setSelectedLesson(null)}
+      >
+        <DialogContent className="max-w-3xl">
+          <DialogHeader className="flex justify-between items-center">
+            <DialogTitle>{selectedLesson?.title}</DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSelectedLesson(null)}
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </DialogHeader>
+          <div className="mt-4">
+            {selectedLesson?.videoUrl ? (
+              <div className="aspect-video rounded-lg overflow-hidden">
+                <ReactPlayer
+                  url={selectedLesson.videoUrl as string}
+                  width="100%"
+                  height="100%"
+                  controls
+                />
+              </div>
+            ) : (
+              <p className="text-center text-gray-500 italic py-10">
+                Bài học này chưa có video.
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

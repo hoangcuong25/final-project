@@ -41,11 +41,11 @@ export class CourseController {
   }
 
   @Get(":id")
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Get course detail by ID" })
   @ResponseMessage("Get course detail")
-  findOne(@Param("id") id: string) {
-    return this.courseService.findOne(+id);
+  findOne(@Param("id") id: string, @Req() req) {
+    return this.courseService.findOne(+id, req.user.id);
   }
 
   @Get("instructors/me/courses")

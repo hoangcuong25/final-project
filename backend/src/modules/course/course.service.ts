@@ -57,15 +57,26 @@ export class CourseService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, instructorId: number) {
     const course = await this.prisma.course.findUnique({
-      where: { id },
+      where: { id, instructorId },
       include: {
         instructor: {
           select: { id: true, fullname: true, email: true },
         },
         lessons: {
-          select: { id: true, title: true },
+          select: {
+            id: true,
+            title: true,
+            orderIndex: true,
+            videoUrl: true,
+            content: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
         },
         specializations: {
           include: {
@@ -138,8 +149,29 @@ export class CourseService {
 
   async getCoursesByInstructor(instructorId: number) {
     return this.prisma.course.findMany({
-      where: { instructorId }, // Lấy tất cả khóa học của instructor
-      orderBy: { createdAt: "desc" }, // tuỳ chọn
+      where: { instructorId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        lessons: {
+          select: {
+            id: true,
+            title: true,
+            orderIndex: true,
+            videoUrl: true,
+            content: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          orderBy: { orderIndex: "asc" }, // Sắp xếp bài học trong khoá học
+        },
+        specializations: {
+          include: {
+            specialization: {
+              select: { id: true, name: true },
+            },
+          },
+        },
+      },
     });
   }
 }

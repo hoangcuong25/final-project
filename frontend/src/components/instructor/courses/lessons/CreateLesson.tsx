@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 
 import { lessonSchema, LessonFormData } from "@/hook/zod-schema/LessonSchema";
+import { toast } from "sonner";
 
 const CreateLesson = ({ courseId }: { courseId: number }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -53,6 +54,9 @@ const CreateLesson = ({ courseId }: { courseId: number }) => {
       formData.append("video", data.video[0]);
     } else if (data.video instanceof File) {
       formData.append("video", data.video);
+    } else {
+      toast.error("Vui lòng chọn file video.");
+      return;
     }
 
     formData.append("courseId", String(courseId));
