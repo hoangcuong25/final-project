@@ -13,9 +13,9 @@ import {
 import { LessonService } from "./lesson.service";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Roles, ResponseMessage } from "src/decorator/customize";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { ResponseMessage, Roles } from "src/core/decorator/customize";
 
 @ApiTags("Lesson")
 @Controller("lesson")

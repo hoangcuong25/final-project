@@ -12,10 +12,11 @@ import {
 } from "@nestjs/common";
 import { CourseService } from "./course.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
-import { ApiConsumes, ApiOperation } from "@nestjs/swagger";
-import { ResponseMessage, Roles } from "src/decorator/customize";
+import { ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { ResponseMessage, Roles } from "src/core/decorator/customize";
 
+@ApiTags("course")
 @Controller("course")
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}

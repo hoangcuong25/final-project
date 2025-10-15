@@ -1,11 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryResponse } from "./cloudinary-response";
-const streamifier = require("streamifier");
 
 @Injectable()
 export class CloudinaryService {
-  //  Hàm upload hỗ trợ cả ảnh và video
+  // ✅ Upload ảnh hoặc video nhỏ
   uploadFile(
     file: Express.Multer.File,
     folder = "uploads",
@@ -15,7 +14,7 @@ export class CloudinaryService {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder,
-          resource_type: resourceType, //  quan trọng: cho phép video/mp4
+          resource_type: resourceType,
         },
         (error, result) => {
           if (error) return reject(error);
@@ -23,8 +22,26 @@ export class CloudinaryService {
           reject(new Error("Upload result is undefined"));
         }
       );
-
+      const streamifier = require("streamifier");
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
+    });
+  }
+
+  // ✅ Upload video lớn (chunked upload)
+  async uploadLargeVideo(
+    file: Express.Multer.File,
+    folder = "videos"
+  ): Promise<CloudinaryResponse> {
+    if (!file.path)
+      throw new Error(
+        "File path is missing (use diskStorage for large videos)"
+      );
+
+    return cloudinary.uploader.upload_large(file.path, {
+      resource_type: "video",
+      folder,
+      chunk_size: 20_000_000, // 20MB mỗi chunk
+      timeout: 600000, // 10 phút
     });
   }
 }

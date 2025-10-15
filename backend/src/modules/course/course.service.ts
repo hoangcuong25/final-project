@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateCourseDto } from "./dto/create-course.dto";
-import { PrismaService } from "src/prisma/prisma.service";
-import { CloudinaryService } from "src/cloudinary/cloudinary.service";
+import { PrismaService } from "src/core/prisma/prisma.service";
+import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
 
 @Injectable()
 export class CourseService {
@@ -75,7 +75,7 @@ export class CourseService {
             updatedAt: true,
           },
           orderBy: {
-            createdAt: "asc",
+            orderIndex: "asc",
           },
         },
         specializations: {

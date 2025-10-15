@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
-import { UploadApiResponse } from "cloudinary";
-import { CloudinaryService } from "src/cloudinary/cloudinary.service";
-import e from "express";
+import * as fs from "fs";
+import { PrismaService } from "src/core/prisma/prisma.service";
+import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
 
 @Injectable()
 export class LessonService {
@@ -22,23 +21,22 @@ export class LessonService {
     const course = await this.prisma.course.findUnique({
       where: { id: dto.courseId, instructorId },
     });
+
     if (!course)
       throw new NotFoundException("Course not found or access denied");
+
+    // 🧩 Upload video lên Cloudinary
+    if (!video) throw new NotFoundException("Video file is required");
 
     // 🧩 Upload video lên Cloudinary (nếu có)
     let videoUrl: string | null = null;
 
-    // Nếu có video → upload lên Cloudinary
-    if (video) {
-      const uploaded = await this.cloudinaryService.uploadFile(
-        video,
-        "lessons",
-        "video" //  phải chỉ định "video"
-      );
-      videoUrl = uploaded.secure_url;
-    } else {
-      throw new NotFoundException("Video file is required");
-    }
+    const uploaded = await this.cloudinaryService.uploadFile(
+      video,
+      "lessons",
+      "video" //  phải chỉ định "video"
+    );
+    videoUrl = uploaded.secure_url;
 
     // 🧩 Tạo lesson
     return this.prisma.lesson.create({
@@ -95,11 +93,11 @@ export class LessonService {
     // 🧩 Upload video mới (nếu có)
     let videoUrl = existing.videoUrl; // giữ video cũ nếu không upload mới
     if (video) {
-      const uploaded = await this.cloudinaryService.uploadFile(
+      const uploaded = await this.cloudinaryService.uploadLargeVideo(
         video,
-        "lessons",
-        "video"
+        "lessons"
       );
+
       videoUrl = uploaded.secure_url;
     }
 
