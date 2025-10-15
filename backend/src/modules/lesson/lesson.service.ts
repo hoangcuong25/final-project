@@ -72,13 +72,44 @@ export class LessonService {
     });
   }
 
-  async update(id: number, dto: UpdateLessonDto) {
+  async update(
+    id: number,
+    dto: UpdateLessonDto,
+    instructorId: number,
+    video?: Express.Multer.File
+  ) {
+    // 🧩 Kiểm tra course có tồn tại và thuộc về instructor
+    const course = await this.prisma.course.findUnique({
+      where: { id: dto.courseId, instructorId },
+    });
+    if (!course)
+      throw new NotFoundException("Course not found or access denied");
+
+    // 🧩 Kiểm tra lesson có tồn tại
     const existing = await this.prisma.lesson.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException("Lesson not found");
 
+    // 🧩 Upload video mới (nếu có)
+    let videoUrl = existing.videoUrl; // giữ video cũ nếu không upload mới
+    if (video) {
+      const uploaded = await this.cloudinaryService.uploadFile(
+        video,
+        "lessons",
+        "video"
+      );
+      videoUrl = uploaded.secure_url;
+    }
+
+    // 🧩 Cập nhật lesson
     return this.prisma.lesson.update({
       where: { id },
-      data: dto,
+      data: {
+        title: dto.title ?? existing.title,
+        content: dto.content ?? existing.content,
+        orderIndex: dto.orderIndex ?? existing.orderIndex,
+        courseId: dto.courseId ?? existing.courseId,
+        videoUrl,
+      },
     });
   }
 
