@@ -7,7 +7,7 @@ import { AppDispatch, RootState } from "@/store";
 import { fetchCourseById } from "@/store/coursesSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Calendar, Video, X, Play } from "lucide-react";
+import { BookOpen, Calendar, Video, Play } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import CreateLesson from "@/components/instructor/courses/lessons/CreateLesson";
 import UpdateLesson from "@/components/instructor/courses/lessons/UpdateLesson";
@@ -19,9 +19,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Image from "next/image";
-import dynamic from "next/dynamic";
-
-const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
 const CourseDetailPage = () => {
   const { id } = useParams();
@@ -29,7 +26,7 @@ const CourseDetailPage = () => {
   const { currentCourse, loading } = useSelector(
     (state: RootState) => state.courses
   );
-  const [selectedLesson, setSelectedLesson] = useState<any | null>(null);
+  const [selectedLesson, setSelectedLesson] = useState<LessonType | null>(null);
 
   useEffect(() => {
     if (id) dispatch(fetchCourseById(Number(id)));
@@ -37,18 +34,12 @@ const CourseDetailPage = () => {
 
   if (loading || !currentCourse) return <LoadingScreen />;
 
-  const sortedLessons = [...(currentCourse.lessons || [])].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  );
-
   const getCloudinaryThumbnail = (videoUrl: string) => {
     if (!videoUrl?.includes("cloudinary")) return null;
     return videoUrl
       .replace("/upload/", "/upload/so_auto,q_auto,w_400/")
       .replace(".mp4", ".jpg");
   };
-
-  console.log(selectedLesson);
 
   return (
     <div className="p-6 space-y-6">
@@ -89,9 +80,9 @@ const CourseDetailPage = () => {
         </CardHeader>
 
         <CardContent>
-          {sortedLessons.length ? (
+          {currentCourse?.lessons?.length ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedLessons.map((lesson, index) => {
+              {currentCourse.lessons.map((lesson, index) => {
                 const thumbnail = lesson.videoUrl
                   ? getCloudinaryThumbnail(lesson.videoUrl)
                   : null;
@@ -103,7 +94,7 @@ const CourseDetailPage = () => {
                   >
                     {/* Thumbnail */}
                     <div
-                      className="relative w-full aspect-video bg-gray-200 cursor-pointer"
+                      className="relative w-full aspect-video bg-gray-200 cursor-pointer group"
                       onClick={() =>
                         lesson.videoUrl && setSelectedLesson(lesson)
                       }
@@ -131,10 +122,9 @@ const CourseDetailPage = () => {
                     {/* Info */}
                     <div className="p-4 flex flex-col gap-1">
                       <h3 className="font-semibold text-lg line-clamp-2">
-                        {lesson.orderIndex
-                          ? `${lesson.orderIndex}. ${lesson.title}`
-                          : `${index + 1}. ${lesson.title}`}
+                        {lesson.orderIndex}. {lesson.title}
                       </h3>
+
                       {lesson.content && (
                         <p className="text-sm text-gray-600 line-clamp-2">
                           {lesson.content}
@@ -165,7 +155,7 @@ const CourseDetailPage = () => {
                         )}
                       </div>
 
-                      {/* Actions luôn hiện */}
+                      {/* Actions */}
                       <div className="flex gap-2 mt-3">
                         <UpdateLesson lesson={lesson} />
                         <DeleteLessonDialog
@@ -194,23 +184,22 @@ const CourseDetailPage = () => {
         <DialogContent className="max-w-3xl">
           <DialogHeader className="flex justify-between items-center">
             <DialogTitle>{selectedLesson?.title}</DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSelectedLesson(null)}
-            >
-              <X className="w-5 h-5" />
-            </Button>
           </DialogHeader>
+
           <div className="mt-4">
             {selectedLesson?.videoUrl ? (
-              <div className="aspect-video rounded-lg overflow-hidden">
-                <ReactPlayer
-                  url={selectedLesson.videoUrl as string}
-                  width="100%"
-                  height="100%"
+              <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                <video
+                  src={selectedLesson.videoUrl}
+                  poster={
+                    getCloudinaryThumbnail(selectedLesson.videoUrl) ?? undefined
+                  }
                   controls
-                />
+                  className="w-full h-full object-contain"
+                  preload="metadata"
+                >
+                  Trình duyệt của bạn không hỗ trợ phát video.
+                </video>
               </div>
             ) : (
               <p className="text-center text-gray-500 italic py-10">
