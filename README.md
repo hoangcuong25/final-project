@@ -195,18 +195,29 @@ Dự án gồm **7 module chính**:
 
 ---
 
-## 📁 PROJECT STRUCTURE (Dự kiến)
-
-/backend
-/frontend
-/mobile
-
 ## 💡 GỢI Ý MỞ RỘNG
 
 - Thêm module **Notification** (Email / Push Notification)
 - Tích hợp **AI Quiz Generator** (tự tạo câu hỏi từ nội dung bài học)
 - Tích hợp **Realtime Chat** giữa học viên và instructor
 - Tự động gợi ý khoá học liên quan (Recommendation Engine)
+
+## 📁 PROJECT STRUCTURE (Dự kiến)
+
+### **Backend (NestJS + Prisma)**
+- `core/`: Chứa các phần cốt lõi như Cloudinary, Prisma service, Mail sender  
+- `modules/`: Gồm các module tính năng (`auth`, `course`, `lesson`, `user`, ...)  
+- `prisma/`: Quản lý schema, migrations, và dữ liệu seed  
+
+### **Frontend (Next.js + Redux Toolkit)**
+- `app/`: Cấu trúc trang theo App Router (Next 13+)  
+- `components/`: Các component chia theo vai trò (admin, instructor, user, ui)  
+- `api/`: Các file gọi API tới backend  
+- `store/`: Redux slices quản lý state  
+- `hook/zod-schema/`: Validation form bằng Zod  
+
+---
+
 
 ## 🧑‍💻 TÁC GIẢ
 

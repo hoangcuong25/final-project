@@ -15,18 +15,31 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { deleteLesson } from "@/store/lessonsSlice";
+import { toast } from "sonner";
+import { fetchCourseById } from "@/store/coursesSlice";
 
 const DeleteLessonDialog = ({
   lessonId,
   lessonTitle,
+  courseId,
 }: {
   lessonId: number;
   lessonTitle: string;
+  courseId: number;
 }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleDelete = async () => {
-    await dispatch(deleteLesson(lessonId));
+    try {
+      await dispatch(deleteLesson(lessonId)).unwrap();
+      await dispatch(fetchCourseById(courseId)).unwrap();
+      toast.success(`Đã xóa bài học thành công!`);
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        "Xóa bài học thất bại, vui lòng thử lại.";
+      toast.error(message);
+    }
   };
 
   return (

@@ -157,10 +157,14 @@ const CourseDetailPage = () => {
 
                       {/* Actions */}
                       <div className="flex gap-2 mt-3">
-                        <UpdateLesson lesson={lesson} courseId={currentCourse.id}/>
+                        <UpdateLesson
+                          lesson={lesson}
+                          courseId={currentCourse.id}
+                        />
                         <DeleteLessonDialog
                           lessonId={lesson.id}
                           lessonTitle={lesson.title}
+                          courseId={currentCourse.id}
                         />
                       </div>
                     </div>
