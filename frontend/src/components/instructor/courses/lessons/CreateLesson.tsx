@@ -22,6 +22,7 @@ import { Plus } from "lucide-react";
 
 import { lessonSchema, LessonFormData } from "@/hook/zod-schema/LessonSchema";
 import { toast } from "sonner";
+import { fetchCourseById } from "@/store/coursesSlice";
 
 const CreateLesson = ({ courseId }: { courseId: number }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -44,26 +45,34 @@ const CreateLesson = ({ courseId }: { courseId: number }) => {
   });
 
   const onSubmit = async (data: LessonFormData) => {
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("content", data.content);
-    formData.append("orderIndex", String(data.orderIndex ?? "0"));
+    try {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("content", data.content);
+      formData.append("orderIndex", String(data.orderIndex ?? "0"));
 
-    // ✅ lấy file từ FileList
-    if (data.video instanceof FileList && data.video.length > 0) {
-      formData.append("video", data.video[0]);
-    } else if (data.video instanceof File) {
-      formData.append("video", data.video);
-    } else {
-      toast.error("Vui lòng chọn file video.");
-      return;
+      // ✅ lấy file từ FileList
+      if (data.video instanceof FileList && data.video.length > 0) {
+        formData.append("video", data.video[0]);
+      } else if (data.video instanceof File) {
+        formData.append("video", data.video);
+      } else {
+        toast.error("Vui lòng chọn file video.");
+        return;
+      }
+
+      formData.append("courseId", String(courseId));
+
+      await dispatch(createLesson(formData)).unwrap();
+      await dispatch(fetchCourseById(courseId)).unwrap;
+
+      reset();
+      setOpen(false);
+
+      toast.success("Tạo bài học thành công!");
+    } catch (err) {
+      toast.error("Tạo bài học thất bại, vui lòng thử lại.");
     }
-
-    formData.append("courseId", String(courseId));
-
-    await dispatch(createLesson(formData));
-    reset();
-    setOpen(false);
   };
 
   const selectedVideo = watch("video");

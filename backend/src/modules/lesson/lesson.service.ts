@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import * as fs from "fs";
@@ -79,25 +83,44 @@ export class LessonService {
     instructorId: number,
     video?: Express.Multer.File
   ) {
-    // 🧩 Kiểm tra course có tồn tại và thuộc về instructor
-    const course = await this.prisma.course.findUnique({
-      where: { id: dto.courseId, instructorId },
+    const existing = await this.prisma.lesson.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException("Lesson not found");
+
+    const courseIdToCheck = dto.courseId ?? existing.courseId;
+
+    const course = await this.prisma.course.findFirst({
+      where: { id: courseIdToCheck, instructorId },
     });
     if (!course)
       throw new NotFoundException("Course not found or access denied");
 
-    // 🧩 Kiểm tra lesson có tồn tại
-    const existing = await this.prisma.lesson.findUnique({ where: { id } });
-    if (!existing) throw new NotFoundException("Lesson not found");
+    // 🧩 Kiểm tra trùng orderIndex
+    if (
+      dto.orderIndex !== undefined &&
+      dto.orderIndex !== existing.orderIndex
+    ) {
+      const duplicate = await this.prisma.lesson.findFirst({
+        where: {
+          courseId: courseIdToCheck,
+          orderIndex: dto.orderIndex,
+          NOT: { id },
+        },
+      });
+      if (duplicate) {
+        throw new ConflictException(
+          `Thứ tự ${dto.orderIndex} đã tồn tại trong khóa học này`
+        );
+      }
+    }
 
     // 🧩 Upload video mới (nếu có)
-    let videoUrl = existing.videoUrl; // giữ video cũ nếu không upload mới
+    let videoUrl = existing.videoUrl;
     if (video) {
-      const uploaded = await this.cloudinaryService.uploadLargeVideo(
+      const uploaded = await this.cloudinaryService.uploadFile(
         video,
-        "lessons"
+        "lessons",
+        "video" //  phải chỉ định "video"
       );
-
       videoUrl = uploaded.secure_url;
     }
 
