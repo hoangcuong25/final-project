@@ -25,6 +25,11 @@ enum ApplicationStatus {
   REJECTED
 }
 
+  enum CourseType {
+  FREE
+  PAID
+}
+
 // ─── USER ──────────────────────────────
 model User {
   id       Int       @id @default(autoincrement())
@@ -104,6 +109,7 @@ model Course {
   description   String?   @db.Text
   thumbnail     String?   // Cloudinary URL
   price         Float     @default(0)
+  type          CourseType @default(FREE)
   isPublished   Boolean   @default(false)
 
   // Relations
