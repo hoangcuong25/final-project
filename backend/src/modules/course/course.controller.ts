@@ -28,9 +28,10 @@ export class CourseController {
   @UseInterceptors(FileInterceptor("thumbnail"))
   create(
     @Body() dto: CreateCourseDto,
+    @Req() req,
     @UploadedFile() thumbnail?: Express.Multer.File
   ) {
-    return this.courseService.create(dto, thumbnail);
+    return this.courseService.create(dto, req.user.id, thumbnail);
   }
 
   @Get()

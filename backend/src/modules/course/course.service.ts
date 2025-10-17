@@ -1,21 +1,59 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
+import { ApplicationStatus } from "@prisma/client";
+import { SpecializationService } from "../specialization/specialization.service";
 
 @Injectable()
 export class CourseService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly cloudinaryService: CloudinaryService
+    private readonly cloudinaryService: CloudinaryService,
+    private readonly specializationService: SpecializationService
   ) {}
 
   async create(
     createCourseDto: CreateCourseDto,
+    userId: number,
     thumbnail?: Express.Multer.File
   ) {
-    const { title, description, price, isPublished, instructorId } =
-      createCourseDto;
+    const {
+      title,
+      description,
+      price,
+      isPublished,
+      instructorId,
+      specializationIds,
+    } = createCourseDto;
+
+    const approvedSpecializations =
+      await this.specializationService.findByInstructorId(userId);
+
+    if (!approvedSpecializations.length) {
+      throw new ForbiddenException(
+        "You must be an approved instructor to create a course."
+      );
+    }
+
+    // Lấy danh sách chuyên môn được duyệt
+    const approvedIds = approvedSpecializations.map((s) => s.id);
+
+    // Kiểm tra chuyên môn hợp lệ
+    const invalidIds = specializationIds.filter(
+      (id) => !approvedIds.includes(id)
+    );
+    if (invalidIds.length > 0) {
+      throw new ForbiddenException(
+        `You can only assign approved specializations. Invalid IDs: ${invalidIds.join(", ")}`
+      );
+    }
+
+    // Upload thumbnail lên Cloudinary
 
     let thumbnailUrl: string | undefined;
 
@@ -24,21 +62,40 @@ export class CourseService {
     thumbnailUrl = uploaded.url;
 
     // Tạo course trong DB
-    return await this.prisma.course.create({
+    const newCourse = await this.prisma.course.create({
       data: {
         title,
         description,
         price,
         isPublished,
-        instructorId,
+        instructorId: userId,
         thumbnail: thumbnailUrl,
+        specializations: {
+          createMany: {
+            data: specializationIds.map((id) => ({
+              specializationId: id,
+            })),
+          },
+        },
       },
       include: {
         instructor: {
           select: { id: true, fullname: true, email: true },
         },
+        specializations: {
+          include: {
+            specialization: {
+              select: { id: true, name: true },
+            },
+          },
+        },
       },
     });
+
+    return {
+      message: "Course created successfully.",
+      course: newCourse,
+    };
   }
 
   async findAll() {

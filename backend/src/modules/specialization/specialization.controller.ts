@@ -60,4 +60,14 @@ export class SpecializationController {
   remove(@Param("id") id: string) {
     return this.specializationService.remove(+id);
   }
+
+  @Get("instructor/:instructorId")
+  @Roles("INSTRUCTOR")
+  @ApiOperation({
+    summary: "Lấy danh sách chuyên ngành của giảng viên",
+  })
+  @ResponseMessage("Danh sách chuyên ngành của giảng viên")
+  findByUserId(@Param("instructorId") instructorId: number) {
+    return this.specializationService.findByInstructorId(instructorId);
+  }
 }
