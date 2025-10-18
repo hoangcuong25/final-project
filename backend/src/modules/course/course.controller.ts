@@ -15,6 +15,7 @@ import { CreateCourseDto } from "./dto/create-course.dto";
 import { ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { UpdateCourseDto } from "./dto/update-course.dto";
 
 @ApiTags("course")
 @Controller("course")
@@ -67,7 +68,7 @@ export class CourseController {
   @UseInterceptors(FileInterceptor("thumbnail"))
   update(
     @Param("id") id: string,
-    @Body() updateCourseDto,
+    @Body() updateCourseDto: UpdateCourseDto,
     @Req() req: any,
     @UploadedFile() thumbnail?: Express.Multer.File
   ) {

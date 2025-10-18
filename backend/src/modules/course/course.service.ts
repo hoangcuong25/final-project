@@ -8,6 +8,7 @@ import { PrismaService } from "src/core/prisma/prisma.service";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
 import { ApplicationStatus, CourseType } from "@prisma/client";
 import { SpecializationService } from "../specialization/specialization.service";
+import { UpdateCourseDto } from "./dto/update-course.dto";
 
 @Injectable()
 export class CourseService {
@@ -25,6 +26,7 @@ export class CourseService {
     const { title, description, price, isPublished, specializationIds, type } =
       createCourseDto;
 
+    // 🧩 Lấy danh sách chuyên môn được duyệt
     const approvedSpecializations =
       await this.specializationService.findByInstructorId(instructorId);
 
@@ -34,40 +36,50 @@ export class CourseService {
       );
     }
 
-    // Lấy danh sách chuyên môn được duyệt
     const approvedIds = approvedSpecializations.map((s) => s.id);
 
-    // Kiểm tra chuyên môn hợp lệ
-    const invalidIds = specializationIds.filter(
+    // 🧩 Xử lý specializationIds: vì form-data có thể là 1 giá trị hoặc nhiều
+    let parsedSpecializationIds: number[] = [];
+
+    if (specializationIds) {
+      if (Array.isArray(specializationIds)) {
+        parsedSpecializationIds = specializationIds.map((id) => Number(id));
+      } else {
+        parsedSpecializationIds = [Number(specializationIds)];
+      }
+    }
+
+    // 🧩 Kiểm tra chuyên ngành hợp lệ
+    const invalidIds = parsedSpecializationIds.filter(
       (id) => !approvedIds.includes(id)
     );
+
     if (invalidIds.length > 0) {
       throw new ForbiddenException(
         `You can only assign approved specializations. Invalid IDs: ${invalidIds.join(", ")}`
       );
     }
 
-    // Upload thumbnail lên Cloudinary
+    // 🧩 Upload thumbnail lên Cloudinary (nếu có)
+    let thumbnailUrl: string | undefined = undefined;
+    if (thumbnail) {
+      const uploaded = await this.cloudinaryService.uploadFile(thumbnail);
+      thumbnailUrl = uploaded.url;
+    }
 
-    let thumbnailUrl: string | undefined;
-
-    // đẩy lên Cloudinar
-    const uploaded = await this.cloudinaryService.uploadFile(thumbnail);
-    thumbnailUrl = uploaded.url;
-
-    // Tạo course trong DB
+    // 🧩 Tạo course trong DB
     const newCourse = await this.prisma.course.create({
       data: {
         title,
         description,
-        price,
-        isPublished,
-        instructorId: instructorId,
+        price: type === "FREE" ? 0 : Number(price ?? 0),
+        isPublished: isPublished ?? false,
+        instructorId,
         thumbnail: thumbnailUrl,
-        type: type ?? CourseType.FREE,
+        type: (type as any) ?? CourseType.FREE,
         specializations: {
           createMany: {
-            data: specializationIds.map((id) => ({
+            data: parsedSpecializationIds.map((id) => ({
               specializationId: id,
             })),
           },
@@ -155,16 +167,18 @@ export class CourseService {
 
   async update(
     id: number,
-    updateCourseDto,
+    updateCourseDto: UpdateCourseDto,
     thumbnail?: Express.Multer.File,
     userId?: number
   ) {
+    // Kiểm tra khoá học thuộc về giảng viên hiện tại
     const existing = await this.prisma.course.findUnique({
       where: { id, instructorId: userId },
     });
     if (!existing) throw new NotFoundException("Course not found");
 
-    let updateData: any = { ...updateCourseDto };
+    // Tạo object cập nhật
+    const updateData: any = {};
 
     // Nếu có thumbnail mới, upload Cloudinary
     if (thumbnail) {
@@ -172,22 +186,71 @@ export class CourseService {
       updateData.thumbnail = uploaded.url;
     }
 
-    if (updateData.price) {
-      updateData.price = parseFloat(updateData.price);
+    // Map các trường từ DTO nếu có giá trị
+    if (updateCourseDto.title) updateData.title = updateCourseDto.title;
+    if (updateCourseDto.description)
+      updateData.description = updateCourseDto.description;
+    if (updateCourseDto.isPublished !== undefined)
+      updateData.isPublished = updateCourseDto.isPublished;
+    if (updateCourseDto.type) updateData.type = updateCourseDto.type;
+
+    // Logic: nếu type = FREE → set giá về 0
+    if (updateCourseDto.type === "FREE") {
+      updateData.price = 0;
+    } else if (updateCourseDto.price !== undefined) {
+      updateData.price = Number(updateCourseDto.price);
     }
 
+    // Xử lý specializationIds (form-data có thể gửi 1 hoặc nhiều giá trị)
+    let specializationIds: number[] = [];
+
+    if (updateCourseDto.specializationIds) {
+      // Chuyển về mảng số
+      if (!Array.isArray(updateCourseDto.specializationIds)) {
+        specializationIds = [Number(updateCourseDto.specializationIds)];
+      } else {
+        specializationIds = updateCourseDto.specializationIds.map((id) =>
+          Number(id)
+        );
+      }
+    }
+
+    // ── Nếu có specialization mới ───────────────────────────
+    if (specializationIds.length > 0) {
+      // Xoá liên kết cũ
+      await this.prisma.courseSpecialization.deleteMany({
+        where: { courseId: id },
+      });
+
+      // Cập nhật lại course + liên kết specialization mới
+      const updated = await this.prisma.course.update({
+        where: { id },
+        data: {
+          ...updateData,
+          specializations: {
+            create: specializationIds.map((spId) => ({
+              specialization: { connect: { id: spId } },
+            })),
+          },
+        },
+        include: {
+          specializations: { include: { specialization: true } },
+        },
+      });
+
+      return { message: "Course updated successfully", data: updated };
+    }
+
+    // ── Nếu không có specializationIds → chỉ cập nhật dữ liệu cơ bản ──
     const updated = await this.prisma.course.update({
       where: { id },
       data: updateData,
       include: {
-        instructor: { select: { id: true, fullname: true, email: true } },
+        specializations: { include: { specialization: true } },
       },
     });
 
-    return {
-      message: "Course updated successfully",
-      data: updated,
-    };
+    return { message: "Course updated successfully", data: updated };
   }
 
   async remove(id: number, userId: number) {
