@@ -22,12 +22,6 @@ import { AppDispatch, RootState } from "@/store";
 import { createCourse, fetchCoursesByInstructor } from "@/store/coursesSlice";
 import { CourseFormData, courseSchema } from "@/hook/zod-schema/CourseSchema";
 import LoadingScreen from "@/components/LoadingScreen";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import { Command, CommandItem, CommandList } from "@/components/ui/command";
 import { fetchSpecializationsByInstructorId } from "@/store/specializationSlice";
 
 export default function CourseCreate() {
@@ -41,15 +35,15 @@ export default function CourseCreate() {
 
   useEffect(() => {
     if (user) {
-      dispatch(fetchSpecializationsByInstructorId(Number(user?.id)));
+      dispatch(fetchSpecializationsByInstructorId(Number(user.id)));
     }
-  }, [dispatch]);
+  }, [dispatch, user]);
 
   const [open, setOpen] = useState(false);
-  const [selectOpen, setSelectOpen] = useState(false);
-  const [selectedSpecId, setSelectedSpecId] = useState<number | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [selectedSpecs, setSelectedSpecs] = useState<number[]>([]);
 
   const {
     register,
@@ -61,6 +55,22 @@ export default function CourseCreate() {
     resolver: zodResolver(courseSchema),
     mode: "onChange",
   });
+
+  // 🧩 Toggle chọn chuyên ngành
+  const toggleSelect = (id: number) => {
+    const updated = selectedSpecs.includes(id)
+      ? selectedSpecs.filter((item) => item !== id)
+      : [...selectedSpecs, id];
+
+    setSelectedSpecs(updated);
+    setValue("specializationIds", updated);
+  };
+
+  const removeSpec = (id: number) => {
+    const updated = selectedSpecs.filter((item) => item !== id);
+    setSelectedSpecs(updated);
+    setValue("specializationIds", updated);
+  };
 
   // 🖼️ Chọn ảnh
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,8 +90,8 @@ export default function CourseCreate() {
 
   // 🚀 Submit
   const onSubmit = async (data: CourseFormData) => {
-    if (!selectedSpecId) {
-      toast.error("Vui lòng chọn chuyên ngành!");
+    if (!selectedSpecs.length) {
+      toast.error("Vui lòng chọn ít nhất một chuyên ngành!");
       return;
     }
 
@@ -90,23 +100,23 @@ export default function CourseCreate() {
       formData.append("title", data.title);
       formData.append("description", data.description);
       formData.append("price", data.price.toString());
-      formData.append("specializationId", selectedSpecId.toString());
+      formData.append("instructorId", user?.id.toString() ?? "");
+
+      selectedSpecs.forEach((id) =>
+        formData.append("specializationIds", id.toString())
+      );
+
       if (file) formData.append("thumbnail", file);
-      if (user?.id === undefined) {
-        return toast.error("Người dùng không hợp lệ");
-      }
-      formData.append("instructorId", user.id.toString());
 
       await dispatch(createCourse(formData)).unwrap();
       await dispatch(fetchCoursesByInstructor()).unwrap();
 
       toast.success("Tạo khóa học thành công!");
-
       reset();
       removePreview();
-      setSelectedSpecId(null);
+      setSelectedSpecs([]);
       setOpen(false);
-    } catch (error: any) {
+    } catch {
       toast.error("Không thể tạo khóa học!");
     }
   };
@@ -149,61 +159,69 @@ export default function CourseCreate() {
             )}
           </div>
 
-          {/* ─── Chọn chuyên ngành ───────────────────── */}
-          <div>
+          {/* 🧩 Multi-select chuyên ngành (Tailwind thuần) */}
+          <div className="relative">
             <label className="block text-sm font-medium mb-1">
               Chuyên ngành
             </label>
-            <Popover open={selectOpen} onOpenChange={setSelectOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={selectOpen}
-                  className="w-full justify-between"
-                >
-                  {selectedSpecId
-                    ? instructorSpecializaions.find(
-                        (s) => s.id === selectedSpecId
-                      )?.name
-                    : "Chọn chuyên ngành"}
-                  <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
-                  <CommandList>
-                    {instructorSpecializaions.length === 0 ? (
-                      <p className="text-center text-gray-500 p-2">
-                        Không có chuyên ngành
-                      </p>
-                    ) : (
-                      instructorSpecializaions.map((spec) => (
-                        <CommandItem
-                          key={spec.id}
-                          value={spec.id.toString()}
-                          onSelect={(value) => {
-                            setSelectedSpecId(Number(value));
-                            setSelectOpen(false);
-                          }}
-                          className="flex items-center justify-between"
-                        >
-                          <span>{spec.name}</span>
-                          {selectedSpecId === spec.id && (
-                            <Check className="h-4 w-4 text-green-500" />
-                          )}
-                        </CommandItem>
-                      ))
-                    )}
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
 
-            {!selectedSpecId && (
-              <p className="text-sm text-gray-500 mt-1">
-                Hãy chọn chuyên ngành phù hợp.
-              </p>
+            <button
+              type="button"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="w-full flex justify-between items-center border rounded-md px-3 py-2 bg-white hover:bg-gray-50 focus:outline-none"
+            >
+              {selectedSpecs.length > 0
+                ? `${selectedSpecs.length} chuyên ngành đã chọn`
+                : "Chọn chuyên ngành"}
+              <ChevronDown className="w-4 h-4 opacity-60" />
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute z-50 mt-2 w-full bg-white border rounded-md shadow-lg max-h-52 overflow-auto">
+                {instructorSpecializaions.length === 0 ? (
+                  <p className="text-sm text-gray-500 p-3 text-center">
+                    Không có chuyên ngành
+                  </p>
+                ) : (
+                  instructorSpecializaions.map((spec) => (
+                    <div
+                      key={spec.id}
+                      onClick={() => toggleSelect(spec.id)}
+                      className="flex justify-between items-center px-3 py-2 cursor-pointer hover:bg-gray-100"
+                    >
+                      <span>{spec.name}</span>
+                      {selectedSpecs.includes(spec.id) && (
+                        <Check className="w-4 h-4 text-green-500" />
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {selectedSpecs.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {selectedSpecs.map((id) => {
+                  const spec = instructorSpecializaions.find(
+                    (s) => s.id === id
+                  );
+                  return (
+                    <span
+                      key={id}
+                      className="flex items-center bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
+                    >
+                      {spec?.name}
+                      <button
+                        type="button"
+                        onClick={() => removeSpec(id)}
+                        className="ml-2 hover:text-red-600"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
             )}
           </div>
 
@@ -243,13 +261,10 @@ export default function CourseCreate() {
             <label className="block text-sm font-medium mb-1">
               Ảnh khóa học
             </label>
-
             {!preview ? (
               <label
                 htmlFor="thumbnail"
-                className={`flex flex-col items-center justify-center border border-dashed rounded-lg p-6 cursor-pointer hover:bg-gray-50 ${
-                  errors.thumbnail ? "border-red-500" : ""
-                }`}
+                className="flex flex-col items-center justify-center border border-dashed rounded-lg p-6 cursor-pointer hover:bg-gray-50"
               >
                 <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-500">
@@ -279,12 +294,6 @@ export default function CourseCreate() {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-            )}
-
-            {errors.thumbnail && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.thumbnail.message}
-              </p>
             )}
           </div>
 

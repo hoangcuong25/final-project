@@ -7,6 +7,9 @@ export const courseSchema = z.object({
   price: z.number().min(1000, "Giá tối thiểu là 1.000 VNĐ"),
   instructorId: z.number().optional(),
   thumbnail: z.instanceof(File).optional(),
+  specializationIds: z
+    .array(z.number())
+    .min(1, "Cần chọn ít nhất 1 chuyên ngành"),
 });
 
 export type CourseFormData = z.infer<typeof courseSchema>;
