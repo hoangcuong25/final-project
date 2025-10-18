@@ -192,7 +192,9 @@ const CourseDetailPage = () => {
                     <div
                       className="relative w-full aspect-video bg-gray-100 cursor-pointer"
                       onClick={() =>
-                        lesson.videoUrl && setSelectedLesson(lesson)
+                        router.push(
+                          `/instructor/courses/${currentCourse.id}/lesson/${lesson?.id}`
+                        )
                       }
                     >
                       {thumbnail ? (
@@ -241,17 +243,21 @@ const CourseDetailPage = () => {
                           )}
                         </span>
                       </div>
-                      
-                      {/* Learn */}
+
+                      {/* Detail */}
                       <div className="flex justify-center mt-4">
                         <Button
                           variant="default"
                           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white w-full"
-                          onClick={() => setSelectedLesson(lesson)}
+                          onClick={() =>
+                            router.push(
+                              `/instructor/courses/${currentCourse.id}/lesson/${lesson?.id}`
+                            )
+                          }
                           disabled={!lesson.videoUrl}
                         >
                           <Play size={16} />
-                          <span>Bắt đầu học</span>
+                          <span>Chi tiết</span>
                         </Button>
                       </div>
 
