@@ -21,6 +21,7 @@ import { AppDispatch, RootState } from "@/store";
 import { updateCourse, fetchCoursesByInstructor } from "@/store/coursesSlice";
 import { fetchSpecializationsByInstructorId } from "@/store/specializationSlice";
 import LoadingScreen from "@/components/LoadingScreen";
+import RichTextEditor from "@/components/RichTextEditor";
 
 interface Props {
   course: any;
@@ -61,6 +62,7 @@ export default function UpdateCourse({ course }: Props) {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { isSubmitting },
   } = useForm<CourseFormData>({
     defaultValues: {
@@ -163,7 +165,7 @@ export default function UpdateCourse({ course }: Props) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="md:max-w-[800px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
             Cập nhật khóa học
@@ -316,9 +318,9 @@ export default function UpdateCourse({ course }: Props) {
           {/* ─── Mô tả ───────────────────────────── */}
           <div className="flex flex-col gap-2">
             <label className="font-medium text-sm">Mô tả</label>
-            <Textarea
-              placeholder="Nhập mô tả khóa học"
-              {...register("description")}
+            <RichTextEditor
+              value={watch("description") || ""}
+              onChange={(val) => setValue("description", val)}
             />
           </div>
 

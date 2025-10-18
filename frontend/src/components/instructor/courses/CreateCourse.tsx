@@ -23,6 +23,7 @@ import { createCourse, fetchCoursesByInstructor } from "@/store/coursesSlice";
 import { CourseFormData, courseSchema } from "@/hook/zod-schema/CourseSchema";
 import LoadingScreen from "@/components/LoadingScreen";
 import { fetchSpecializationsByInstructorId } from "@/store/specializationSlice";
+import RichTextEditor from "@/components/RichTextEditor";
 
 export default function CourseCreate() {
   const dispatch = useDispatch<AppDispatch>();
@@ -50,6 +51,7 @@ export default function CourseCreate() {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
@@ -139,7 +141,7 @@ export default function CourseCreate() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="md:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Tạo khóa học mới</DialogTitle>
         </DialogHeader>
@@ -286,13 +288,14 @@ export default function CourseCreate() {
             )}
           </div>
 
-          {/* ─── Mô tả ───────────────────────────── */}
+          {/* ─── Nội dung khóa học ───────────────────────────── */}
           <div>
-            <label className="block text-sm font-medium mb-1">Mô tả</label>
-            <Textarea
-              placeholder="Nhập mô tả khóa học"
-              {...register("description")}
-              className={errors.description ? "border-red-500" : ""}
+            <label className="block text-sm font-medium mb-1">
+              Mô tả khóa học
+            </label>
+            <RichTextEditor
+              value={watch("description") || ""}
+              onChange={(val) => setValue("description", val)}
             />
             {errors.description && (
               <p className="text-sm text-red-500 mt-1">
