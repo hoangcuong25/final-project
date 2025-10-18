@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, ImageIcon, X } from "lucide-react";
+import { Plus, ImageIcon, X, ChevronDown, Check } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,13 +22,32 @@ import { AppDispatch, RootState } from "@/store";
 import { createCourse, fetchCoursesByInstructor } from "@/store/coursesSlice";
 import { CourseFormData, courseSchema } from "@/hook/zod-schema/CourseSchema";
 import LoadingScreen from "@/components/LoadingScreen";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Command, CommandItem, CommandList } from "@/components/ui/command";
+import { fetchSpecializationsByInstructorId } from "@/store/specializationSlice";
 
 export default function CourseCreate() {
   const dispatch = useDispatch<AppDispatch>();
 
-  const { user, loading } = useSelector((state: RootState) => state.user);
+  const { user, loading: userLoading } = useSelector(
+    (state: RootState) => state.user
+  );
+  const { instructorSpecializaions, loading: specializationLoading } =
+    useSelector((state: RootState) => state.specialization);
+
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchSpecializationsByInstructorId(Number(user?.id)));
+    }
+  }, [dispatch]);
 
   const [open, setOpen] = useState(false);
+  const [selectOpen, setSelectOpen] = useState(false);
+  const [selectedSpecId, setSelectedSpecId] = useState<number | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
 
@@ -40,16 +59,16 @@ export default function CourseCreate() {
     formState: { errors, isSubmitting },
   } = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
-    mode: "onChange", // ⚡ validate realtime
+    mode: "onChange",
   });
 
-  // 🖼️ Xử lý chọn ảnh
+  // 🖼️ Chọn ảnh
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
       setPreview(URL.createObjectURL(selectedFile));
-      setValue("thumbnail", selectedFile); // đồng bộ với react-hook-form
+      setValue("thumbnail", selectedFile);
     }
   };
 
@@ -59,13 +78,19 @@ export default function CourseCreate() {
     setValue("thumbnail", undefined);
   };
 
-  // 🚀 Gửi form
+  // 🚀 Submit
   const onSubmit = async (data: CourseFormData) => {
+    if (!selectedSpecId) {
+      toast.error("Vui lòng chọn chuyên ngành!");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("description", data.description);
       formData.append("price", data.price.toString());
+      formData.append("specializationId", selectedSpecId.toString());
       if (file) formData.append("thumbnail", file);
       if (user?.id === undefined) {
         return toast.error("Người dùng không hợp lệ");
@@ -79,13 +104,14 @@ export default function CourseCreate() {
 
       reset();
       removePreview();
+      setSelectedSpecId(null);
       setOpen(false);
     } catch (error: any) {
       toast.error("Không thể tạo khóa học!");
     }
   };
 
-  if (loading) return <LoadingScreen />;
+  if (userLoading || specializationLoading) return <LoadingScreen />;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -119,6 +145,64 @@ export default function CourseCreate() {
             {errors.title && (
               <p className="text-sm text-red-500 mt-1">
                 {errors.title.message}
+              </p>
+            )}
+          </div>
+
+          {/* ─── Chọn chuyên ngành ───────────────────── */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Chuyên ngành
+            </label>
+            <Popover open={selectOpen} onOpenChange={setSelectOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={selectOpen}
+                  className="w-full justify-between"
+                >
+                  {selectedSpecId
+                    ? instructorSpecializaions.find(
+                        (s) => s.id === selectedSpecId
+                      )?.name
+                    : "Chọn chuyên ngành"}
+                  <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandList>
+                    {instructorSpecializaions.length === 0 ? (
+                      <p className="text-center text-gray-500 p-2">
+                        Không có chuyên ngành
+                      </p>
+                    ) : (
+                      instructorSpecializaions.map((spec) => (
+                        <CommandItem
+                          key={spec.id}
+                          value={spec.id.toString()}
+                          onSelect={(value) => {
+                            setSelectedSpecId(Number(value));
+                            setSelectOpen(false);
+                          }}
+                          className="flex items-center justify-between"
+                        >
+                          <span>{spec.name}</span>
+                          {selectedSpecId === spec.id && (
+                            <Check className="h-4 w-4 text-green-500" />
+                          )}
+                        </CommandItem>
+                      ))
+                    )}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+
+            {!selectedSpecId && (
+              <p className="text-sm text-gray-500 mt-1">
+                Hãy chọn chuyên ngành phù hợp.
               </p>
             )}
           </div>
