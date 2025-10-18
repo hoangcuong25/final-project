@@ -6,7 +6,7 @@ import {
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
-import { ApplicationStatus } from "@prisma/client";
+import { ApplicationStatus, CourseType } from "@prisma/client";
 import { SpecializationService } from "../specialization/specialization.service";
 
 @Injectable()
@@ -19,20 +19,14 @@ export class CourseService {
 
   async create(
     createCourseDto: CreateCourseDto,
-    userId: number,
+    instructorId: number,
     thumbnail?: Express.Multer.File
   ) {
-    const {
-      title,
-      description,
-      price,
-      isPublished,
-      instructorId,
-      specializationIds,
-    } = createCourseDto;
+    const { title, description, price, isPublished, specializationIds, type } =
+      createCourseDto;
 
     const approvedSpecializations =
-      await this.specializationService.findByInstructorId(userId);
+      await this.specializationService.findByInstructorId(instructorId);
 
     if (!approvedSpecializations.length) {
       throw new ForbiddenException(
@@ -68,8 +62,9 @@ export class CourseService {
         description,
         price,
         isPublished,
-        instructorId: userId,
+        instructorId: instructorId,
         thumbnail: thumbnailUrl,
+        type: type ?? CourseType.FREE,
         specializations: {
           createMany: {
             data: specializationIds.map((id) => ({

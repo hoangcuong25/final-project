@@ -22,7 +22,7 @@ export class CourseController {
   constructor(private readonly courseService: CourseService) {}
 
   @Post()
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Roles("INSTRUCTOR")
   @ApiConsumes("multipart/form-data")
   @ApiOperation({ summary: "Create new course" })
   @UseInterceptors(FileInterceptor("thumbnail"))

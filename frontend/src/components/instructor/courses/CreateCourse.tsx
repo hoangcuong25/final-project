@@ -26,7 +26,6 @@ import { fetchSpecializationsByInstructorId } from "@/store/specializationSlice"
 
 export default function CourseCreate() {
   const dispatch = useDispatch<AppDispatch>();
-
   const { user, loading: userLoading } = useSelector(
     (state: RootState) => state.user
   );
@@ -44,6 +43,7 @@ export default function CourseCreate() {
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [selectedSpecs, setSelectedSpecs] = useState<number[]>([]);
+  const [courseType, setCourseType] = useState<"FREE" | "PAID">("FREE");
 
   const {
     register,
@@ -54,14 +54,16 @@ export default function CourseCreate() {
   } = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
     mode: "onChange",
+    defaultValues: {
+      type: "FREE",
+    },
   });
 
-  // 🧩 Toggle chọn chuyên ngành
+  // 🧩 Toggle chuyên ngành
   const toggleSelect = (id: number) => {
     const updated = selectedSpecs.includes(id)
       ? selectedSpecs.filter((item) => item !== id)
       : [...selectedSpecs, id];
-
     setSelectedSpecs(updated);
     setValue("specializationIds", updated);
   };
@@ -99,8 +101,12 @@ export default function CourseCreate() {
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("description", data.description);
-      formData.append("price", data.price.toString());
+      formData.append("type", courseType);
       formData.append("instructorId", user?.id.toString() ?? "");
+
+      if (courseType === "PAID" && data.price)
+        formData.append("price", data.price.toString());
+      else formData.append("price", "0");
 
       selectedSpecs.forEach((id) =>
         formData.append("specializationIds", id.toString())
@@ -115,6 +121,7 @@ export default function CourseCreate() {
       reset();
       removePreview();
       setSelectedSpecs([]);
+      setCourseType("FREE");
       setOpen(false);
     } catch {
       toast.error("Không thể tạo khóa học!");
@@ -159,12 +166,66 @@ export default function CourseCreate() {
             )}
           </div>
 
-          {/* 🧩 Multi-select chuyên ngành (Tailwind thuần) */}
+          {/* ─── Loại khóa học (FREE / PAID) ───────────────────── */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Loại khóa học
+            </label>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="FREE"
+                  checked={courseType === "FREE"}
+                  onChange={(e) => {
+                    setCourseType("FREE");
+                    setValue("type", "FREE");
+                    setValue("price", 0);
+                  }}
+                />
+                <span>Miễn phí</span>
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="PAID"
+                  checked={courseType === "PAID"}
+                  onChange={(e) => {
+                    setCourseType("PAID");
+                    setValue("type", "PAID");
+                  }}
+                />
+                <span>Trả phí</span>
+              </label>
+            </div>
+          </div>
+
+          {/* ─── Giá ───────────────────────────── */}
+          {courseType === "PAID" && (
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Giá (VNĐ)
+              </label>
+              <Input
+                type="number"
+                placeholder="Nhập giá"
+                {...register("price", { valueAsNumber: true })}
+                className={errors.price ? "border-red-500" : ""}
+              />
+              {errors.price && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.price.message}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* ─── Chuyên ngành ───────────────────────────── */}
           <div className="relative">
             <label className="block text-sm font-medium mb-1">
               Chuyên ngành
             </label>
-
             <button
               type="button"
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -240,22 +301,6 @@ export default function CourseCreate() {
             )}
           </div>
 
-          {/* ─── Giá ───────────────────────────── */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Giá (VNĐ)</label>
-            <Input
-              type="number"
-              placeholder="Nhập giá"
-              {...register("price", { valueAsNumber: true })}
-              className={errors.price ? "border-red-500" : ""}
-            />
-            {errors.price && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.price.message}
-              </p>
-            )}
-          </div>
-
           {/* ─── Ảnh khóa học ───────────────────────────── */}
           <div>
             <label className="block text-sm font-medium mb-1">
@@ -297,7 +342,6 @@ export default function CourseCreate() {
             )}
           </div>
 
-          {/* ─── Footer ───────────────────────────── */}
           <DialogFooter className="mt-4 flex justify-end gap-2">
             <Button
               type="button"
