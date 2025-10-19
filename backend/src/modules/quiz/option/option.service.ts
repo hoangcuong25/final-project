@@ -1,26 +1,43 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOptionDto } from './dto/create-option.dto';
-import { UpdateOptionDto } from './dto/update-option.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "src/core/prisma/prisma.service";
+import { CreateOptionDto, UpdateOptionDto } from "./dto/create-option.dto";
 
 @Injectable()
 export class OptionService {
-  create(createOptionDto: CreateOptionDto) {
-    return 'This action adds a new option';
+  constructor(private prisma: PrismaService) {}
+
+  async create(dto: CreateOptionDto) {
+    const { text, isCorrect, questionId } = dto;
+    return this.prisma.option.create({
+      data: { text, isCorrect, questionId },
+    });
   }
 
-  findAll() {
-    return `This action returns all option`;
+  async findAll() {
+    return this.prisma.option.findMany({ include: { question: true } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} option`;
+  async findByQuestionId(questionId: number) {
+    return this.prisma.option.findMany({ where: { questionId } });
   }
 
-  update(id: number, updateOptionDto: UpdateOptionDto) {
-    return `This action updates a #${id} option`;
+  async findOne(id: number) {
+    const option = await this.prisma.option.findUnique({ where: { id } });
+    if (!option) throw new NotFoundException("Option not found");
+    return option;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} option`;
+  async update(id: number, dto: UpdateOptionDto) {
+    const option = await this.prisma.option.findUnique({ where: { id } });
+    if (!option) throw new NotFoundException("Option not found");
+
+    return this.prisma.option.update({ where: { id }, data: dto });
+  }
+
+  async remove(id: number) {
+    const option = await this.prisma.option.findUnique({ where: { id } });
+    if (!option) throw new NotFoundException("Option not found");
+
+    return this.prisma.option.delete({ where: { id } });
   }
 }
