@@ -157,7 +157,7 @@ model CourseSpecialization {
 model Quiz {
   id        Int       @id @default(autoincrement())
   title     String     @db.VarChar(150)
-  lessonId  Int        @unique // Mỗi lesson chỉ có 1 quiz
+  lessonId  Int        
   lesson    Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   questions Question[]
 

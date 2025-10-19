@@ -1,8 +1,8 @@
 import React from "react";
-import DashboardPage from "./Dashboard";
+import Quizzes from "./Quizzes";
 
 const page = () => {
-  return <DashboardPage />;
+  return <Quizzes />;
 };
 
 export default page;

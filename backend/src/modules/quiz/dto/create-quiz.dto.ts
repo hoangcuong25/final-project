@@ -10,4 +10,8 @@ export class CreateQuizDto {
   @ApiProperty({ example: 1, description: "ID của bài học liên kết" })
   @IsInt()
   lessonId: number;
+
+  @ApiProperty({ example: 1, description: "ID của khóa học" })
+  @IsInt()
+  courseId: number;
 }

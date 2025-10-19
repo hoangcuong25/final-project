@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
@@ -8,21 +12,20 @@ export class QuizService {
   constructor(private prisma: PrismaService) {}
 
   // ─── CREATE ──────────────────────────────
-  async create(createQuizDto: CreateQuizDto) {
-    const { title, lessonId } = createQuizDto;
+  async create(createQuizDto: CreateQuizDto, instructorId) {
+    const { title, lessonId, courseId } = createQuizDto;
+
+    const isCourse = await this.prisma.course.findFirst({
+      where: { id: courseId, instructorId },
+    });
+
+    if (!isCourse) throw new BadRequestException("Không tìm thấy khóa học");
 
     // Kiểm tra lesson có tồn tại không
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
     });
     if (!lesson) throw new NotFoundException("Lesson not found");
-
-    // Mỗi lesson chỉ có 1 quiz
-    const existingQuiz = await this.prisma.quiz.findUnique({
-      where: { lessonId },
-    });
-    if (existingQuiz)
-      throw new NotFoundException("This lesson already has a quiz");
 
     return this.prisma.quiz.create({
       data: {
@@ -77,5 +80,41 @@ export class QuizService {
     if (!quiz) throw new NotFoundException("Quiz not found");
 
     return this.prisma.quiz.delete({ where: { id } });
+  }
+
+  // ─── GET INSTRUCTOR QUIZZES ──────────────────────────────
+  async instructorQuizzes(instructorId: number) {
+    // Lấy tất cả quiz thuộc các lesson nằm trong course của instructor
+    return this.prisma.quiz.findMany({
+      where: {
+        lesson: {
+          course: {
+            instructorId, // chỉ lấy quiz thuộc các khóa học của instructor này
+          },
+        },
+      },
+      include: {
+        lesson: {
+          select: {
+            id: true,
+            title: true,
+            course: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            questions: true, // đếm số lượng câu hỏi trong mỗi quiz
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
   }
 }

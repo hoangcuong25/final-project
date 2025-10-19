@@ -121,25 +121,6 @@ const LessonDetail = () => {
               )}
             </div>
 
-            {/* Lesson Info */}
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-900">
-                {currentLesson.title}
-              </h2>
-              <p className="text-gray-600 mt-3 leading-relaxed">
-                {currentLesson.content ? (
-                  <div
-                    className="prose max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html: currentLesson.content,
-                    }}
-                  />
-                ) : (
-                  "Chưa có mô tả cho khóa học này."
-                )}
-              </p>
-            </div>
-
             {/* Navigation */}
             <div className="flex justify-between mt-8">
               <Button
@@ -161,6 +142,25 @@ const LessonDetail = () => {
                 <span>Bài tiếp theo</span>
                 <ChevronRight size={16} />
               </Button>
+            </div>
+
+            {/* Lesson Info */}
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-900">
+                {currentLesson.title}
+              </h2>
+              <p className="text-gray-600 mt-3 leading-relaxed">
+                {currentLesson.content ? (
+                  <div
+                    className="prose max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: currentLesson.content,
+                    }}
+                  />
+                ) : (
+                  "Chưa có mô tả cho khóa học này."
+                )}
+              </p>
             </div>
           </div>
         </div>

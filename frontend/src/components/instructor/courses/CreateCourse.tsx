@@ -135,7 +135,7 @@ export default function CourseCreate() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600">
           <Plus className="w-4 h-4" />
           Tạo khóa học mới
         </Button>
