@@ -3,6 +3,7 @@ import userReducer from "./userSlice";
 import instructorReducer from "./instructorSlice";
 import specializationReducer from "./specializationSlice";
 import coursesReducer from "./coursesSlice";
+import lessonsReducer from "./lessonsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     instructor: instructorReducer,
     specialization: specializationReducer,
     courses: coursesReducer,
+    lesson: lessonsReducer,
   },
 });
 

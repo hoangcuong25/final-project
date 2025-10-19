@@ -1,11 +1,5 @@
 import { cn } from "@/lib/utils";
 
-interface LessonType {
-  id: number;
-  title: string;
-  videoUrl?: string;
-}
-
 interface SidebarLessonsProps {
   lessons: LessonType[];
   currentLessonId: number | null;

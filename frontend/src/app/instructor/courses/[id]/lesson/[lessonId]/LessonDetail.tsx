@@ -1,80 +1,81 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { fetchLessonsByCourse } from "@/store/lessonsSlice";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ChevronLeft, ChevronRight, PlayCircle } from "lucide-react";
-
-interface LessonType {
-  id: number;
-  title: string;
-  videoUrl?: string;
-  content?: string;
-}
-
-interface CourseData {
-  id: number;
-  title: string;
-  lessons: LessonType[];
-}
+import SidebarLessons from "@/components/learn/SidebarLessons";
 
 const LessonDetail = () => {
   const router = useRouter();
-  const { id } = useParams(); // courseId
-  // 🔹 Giả lập data — sau này bạn fetch từ API
-  const course: CourseData = {
-    id: Number(id),
-    title: "Khóa học ReactJS cho người mới bắt đầu",
-    lessons: [
-      {
-        id: 1,
-        title: "Giới thiệu về ReactJS",
-        videoUrl:
-          "https://res.cloudinary.com/demo/video/upload/w_800/sample.mp4",
-        content:
-          "Trong bài này, bạn sẽ tìm hiểu về React, Virtual DOM và cách nó hoạt động.",
-      },
-      {
-        id: 2,
-        title: "Cấu trúc dự án React",
-        videoUrl:
-          "https://res.cloudinary.com/demo/video/upload/w_800/sample.mp4",
-        content:
-          "Bài học này hướng dẫn cách tạo dự án React và cấu trúc folder hợp lý.",
-      },
-      {
-        id: 3,
-        title: "Component và Props",
-        videoUrl:
-          "https://res.cloudinary.com/demo/video/upload/w_800/sample.mp4",
-        content:
-          "Hiểu rõ cách xây dựng component, truyền props và tái sử dụng code.",
-      },
-    ],
-  };
+  const { id, lessonId } = useParams(); // id = courseId, lessonId = lessonId
 
-  const [currentLesson, setCurrentLesson] = useState<LessonType>(
-    course.lessons[0]
-  );
+  const dispatch = useDispatch<AppDispatch>();
+  const { lessons, loading } = useSelector((state: RootState) => state.lesson);
 
-  const currentIndex = course.lessons.findIndex(
-    (l) => l.id === currentLesson.id
-  );
+  const [currentLesson, setCurrentLesson] = useState<LessonType | null>(null);
+
+  // 🔹 Fetch toàn bộ bài học trong khóa
+  useEffect(() => {
+    if (id) dispatch(fetchLessonsByCourse(Number(id)));
+  }, [id, dispatch]);
+
+  // 🔹 Khi có dữ liệu => xác định bài học hiện tại
+  useEffect(() => {
+    if (lessons.length && lessonId) {
+      const lesson = lessons.find((l) => l.id === Number(lessonId));
+      setCurrentLesson(lesson || lessons[0]);
+    }
+  }, [lessons, lessonId]);
+
+  if (loading || !lessons.length) {
+    return (
+      <div className="flex items-center justify-center h-screen text-gray-500">
+        Đang tải bài học...
+      </div>
+    );
+  }
+
+  if (!currentLesson) {
+    return (
+      <div className="flex items-center justify-center h-screen text-gray-500">
+        Không tìm thấy bài học.
+      </div>
+    );
+  }
+
+  const currentIndex = lessons.findIndex((l) => l.id === currentLesson.id);
 
   const handleNext = () => {
-    if (currentIndex < course.lessons.length - 1) {
-      setCurrentLesson(course.lessons[currentIndex + 1]);
+    if (currentIndex < lessons.length - 1) {
+      const nextLesson = lessons[currentIndex + 1];
+      setCurrentLesson(nextLesson);
+      router.push(`/instructor/courses/${id}/lesson/${nextLesson.id}`);
     }
   };
 
   const handlePrev = () => {
     if (currentIndex > 0) {
-      setCurrentLesson(course.lessons[currentIndex - 1]);
+      const prevLesson = lessons[currentIndex - 1];
+      setCurrentLesson(prevLesson);
+      router.push(`/instructor/courses/${id}/lesson/${prevLesson.id}`);
     }
   };
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {/* 🔹 Sidebar Lessons */}
+      <SidebarLessons
+        lessons={lessons}
+        currentLessonId={currentLesson?.id ?? null}
+        onSelectLesson={(lesson) => {
+          setCurrentLesson(lesson);
+          router.push(`/instructor/courses/${id}/lesson/${lesson.id}`);
+        }}
+      />
       {/* 🔹 Main content */}
       <main className="flex-1 flex flex-col">
         {/* Header */}
@@ -83,14 +84,14 @@ const LessonDetail = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.back()}
+              onClick={() => router.push(`/instructor/courses/${id}`)}
               className="flex items-center gap-1"
             >
               <ArrowLeft size={18} />
               <span>Quay lại khóa học</span>
             </Button>
             <h1 className="text-lg font-semibold text-gray-800">
-              {course.title}
+              Bài học trong khóa học #{id}
             </h1>
           </div>
         </div>
@@ -126,8 +127,16 @@ const LessonDetail = () => {
                 {currentLesson.title}
               </h2>
               <p className="text-gray-600 mt-3 leading-relaxed">
-                {currentLesson.content ||
-                  "Bài học này hiện chưa có mô tả chi tiết."}
+                {currentLesson.content ? (
+                  <div
+                    className="prose max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: currentLesson.content,
+                    }}
+                  />
+                ) : (
+                  "Chưa có mô tả cho khóa học này."
+                )}
               </p>
             </div>
 
@@ -146,7 +155,7 @@ const LessonDetail = () => {
               <Button
                 variant="default"
                 onClick={handleNext}
-                disabled={currentIndex === course.lessons.length - 1}
+                disabled={currentIndex === lessons.length - 1}
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
               >
                 <span>Bài tiếp theo</span>

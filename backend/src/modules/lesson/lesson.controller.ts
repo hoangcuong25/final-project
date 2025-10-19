@@ -63,7 +63,7 @@ export class LessonController {
   @Get(":id")
   @ApiOperation({ summary: "Get lesson detail by ID" })
   @ResponseMessage("Fetched lesson detail")
-  findOne(@Param("id") id: string) {
+  findOne(@Param("id") id: string, @Req() req: any) {
     return this.lessonService.findOne(+id);
   }
 
