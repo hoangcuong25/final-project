@@ -53,15 +53,19 @@ export class QuizController {
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Update quiz information" })
   @ResponseMessage("Update quiz successfully")
-  update(@Param("id") id: string, @Body() updateQuizDto: UpdateQuizDto) {
-    return this.quizService.update(+id, updateQuizDto);
+  update(
+    @Param("id") id: string,
+    @Body() updateQuizDto: UpdateQuizDto,
+    @Req() req
+  ) {
+    return this.quizService.update(+id, updateQuizDto, req.user.id);
   }
 
   @Delete(":id")
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Delete quiz" })
   @ResponseMessage("Delete quiz successfully")
-  remove(@Param("id") id: string) {
-    return this.quizService.remove(+id);
+  remove(@Param("id") id: string, @Req() req) {
+    return this.quizService.remove(+id, req.user.id);
   }
 }

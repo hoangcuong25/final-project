@@ -1,19 +1,36 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trash2, PlusCircle } from "lucide-react";
-import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { deleteQuiz, fetchInstructorQuizzes } from "@/store/quizSlice";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { Trash2, PlusCircle, Pencil } from "lucide-react";
+
+import {
+  deleteQuiz,
+  fetchInstructorQuizzes,
+  updateQuiz,
+} from "@/store/quizSlice";
 import { fetchCoursesByInstructor } from "@/store/coursesSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import QuizForm from "@/components/quiz/CreateQuiz";
@@ -21,7 +38,7 @@ import QuizForm from "@/components/quiz/CreateQuiz";
 const Quizzes = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  // 🔹 Lấy danh sách quiz và khóa học của instructor
+  // Redux state
   const { instructorQuizzes, loading } = useSelector(
     (state: RootState) => state.quiz
   );
@@ -29,20 +46,49 @@ const Quizzes = () => {
     (state: RootState) => state.courses
   );
 
-  // 🔹 Load dữ liệu khi vào trang
+  // Local UI states
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [editQuiz, setEditQuiz] = useState<{
+    id: number;
+    title: string;
+  } | null>(null);
+  const [newTitle, setNewTitle] = useState("");
+
+  // Fetch data
   useEffect(() => {
     dispatch(fetchInstructorQuizzes());
     dispatch(fetchCoursesByInstructor());
   }, [dispatch]);
 
   // 🗑️ Xóa quiz
-  const handleDelete = async (id: number) => {
-    if (!confirm("Bạn có chắc muốn xóa quiz này không?")) return;
+  const confirmDelete = async () => {
+    if (!deleteId) return;
     try {
-      await dispatch(deleteQuiz(id)).unwrap();
+      await dispatch(deleteQuiz(deleteId)).unwrap();
+      await dispatch(fetchInstructorQuizzes()).unwrap();
       toast.success("Đã xóa quiz thành công!");
-    } catch (err) {
+      setDeleteId(null);
+    } catch {
       toast.error("Xóa quiz thất bại!");
+    }
+  };
+
+  // ✏️ Cập nhật quiz (chỉ sửa title)
+  const handleUpdate = async () => {
+    if (!editQuiz) return;
+    if (!newTitle.trim()) {
+      toast.error("Tiêu đề không được để trống!");
+      return;
+    }
+    try {
+      await dispatch(
+        updateQuiz({ id: editQuiz.id, payload: { title: newTitle } })
+      ).unwrap();
+      await dispatch(fetchInstructorQuizzes()).unwrap();
+      toast.success("Đã cập nhật quiz thành công!");
+      setEditQuiz(null);
+    } catch {
+      toast.error("Cập nhật thất bại!");
     }
   };
 
@@ -57,7 +103,7 @@ const Quizzes = () => {
             🎓 Quản lý Quiz của bạn
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Tạo và quản lý các bài quiz cho khóa học bạn giảng dạy.
+            Tạo, sửa tiêu đề và quản lý các bài quiz của khóa học bạn giảng dạy.
           </p>
         </div>
 
@@ -110,21 +156,123 @@ const Quizzes = () => {
                         Quiz: {quiz.title}
                       </h3>
                       <p className="text-sm text-gray-500 mt-1">
-                        🏫Khóa học {course?.title || "Không rõ khóa học"} • 📘{" "}
-                        Bài học:
+                        🏫 <span className="font-bold">Khóa học:</span>{" "}
+                        {course?.title || "Không rõ khóa học"} • 📘{" "}
+                        <span className="font-bold">Bài học:</span>{" "}
                         {lesson?.title || "Không rõ bài học"}
                       </p>
                     </div>
 
+                    {/* Action buttons */}
                     <div className="mt-3 sm:mt-0 flex items-center gap-2">
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="hover:scale-105 transition-transform"
-                        onClick={() => handleDelete(quiz.id)}
+                      {/* ✏️ Nút sửa */}
+                      <Dialog
+                        open={editQuiz?.id === quiz.id}
+                        onOpenChange={(open) =>
+                          open
+                            ? (setEditQuiz({ id: quiz.id, title: quiz.title }),
+                              setNewTitle(quiz.title))
+                            : setEditQuiz(null)
+                        }
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="hover:scale-105 transition-transform"
+                          >
+                            <Pencil className="w-4 h-4 text-gray-600" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-md">
+                          <DialogTitle className="text-lg font-semibold">
+                            ✏️ Chỉnh sửa tiêu đề Quiz
+                          </DialogTitle>
+
+                          <div className="space-y-5 mt-4">
+                            {/* Tiêu đề quiz */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Tiêu đề mới
+                              </label>
+                              <Input
+                                value={newTitle}
+                                onChange={(e) => setNewTitle(e.target.value)}
+                                placeholder="Nhập tiêu đề mới..."
+                              />
+                            </div>
+
+                            {/* Thông tin khóa học và bài học */}
+                            <div className="p-3 rounded-md bg-gray-50 border text-sm text-gray-700 space-y-1">
+                              <p>
+                                🏫 <strong>Khóa học:</strong>{" "}
+                                {course?.title || "Không rõ khóa học"}
+                              </p>
+                              <p>
+                                📘 <strong>Bài học:</strong>{" "}
+                                {lesson?.title || "Không rõ bài học"}
+                              </p>
+                            </div>
+
+                            {/* Ghi chú */}
+                            <div className="text-sm text-gray-500 italic">
+                              ⚠️ Bạn chỉ có thể sửa tiêu đề quiz. Khóa học và
+                              bài học không thể thay đổi.
+                            </div>
+                          </div>
+
+                          {/* Nút hành động */}
+                          <div className="flex justify-end gap-2 mt-6">
+                            <Button
+                              variant="outline"
+                              onClick={() => setEditQuiz(null)}
+                            >
+                              Hủy
+                            </Button>
+                            <Button
+                              onClick={handleUpdate}
+                              className="bg-blue-600 hover:bg-blue-700"
+                            >
+                              Lưu thay đổi
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+
+                      {/* 🗑️ Nút xóa */}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="hover:scale-105 transition-transform"
+                            onClick={() => setDeleteId(quiz.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Xác nhận xóa quiz
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Hành động này sẽ xóa vĩnh viễn quiz{" "}
+                              <strong>{quiz.title}</strong>. Bạn có chắc chắn
+                              muốn tiếp tục không?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Hủy</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={confirmDelete}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Xóa
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                 );
