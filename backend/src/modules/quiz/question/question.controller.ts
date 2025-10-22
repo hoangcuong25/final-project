@@ -10,10 +10,10 @@ import {
 import { QuestionService } from "./question.service";
 import { CreateQuestionDto } from "./dto/create-question.dto";
 import { UpdateQuestionDto } from "./dto/update-question.dto";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
 
-@ApiTags("question")
+@ApiTags("Question")
 @Controller("question")
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
@@ -22,6 +22,7 @@ export class QuestionController {
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Create new question for a quiz" })
   @ResponseMessage("Create question successfully")
+  @ApiBearerAuth()
   create(@Body() createQuestionDto: CreateQuestionDto) {
     return this.questionService.create(createQuestionDto);
   }
@@ -29,6 +30,7 @@ export class QuestionController {
   @Get()
   @ApiOperation({ summary: "Get all questions" })
   @ResponseMessage("Get all questions successfully")
+  @ApiBearerAuth()
   findAll() {
     return this.questionService.findAll();
   }
@@ -36,6 +38,7 @@ export class QuestionController {
   @Get(":id")
   @ApiOperation({ summary: "Get question by ID (include options)" })
   @ResponseMessage("Get question by ID successfully")
+  @ApiBearerAuth()
   findOne(@Param("id") id: string) {
     return this.questionService.findOne(+id);
   }
@@ -44,6 +47,7 @@ export class QuestionController {
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Update question content" })
   @ResponseMessage("Update question successfully")
+  @ApiBearerAuth()
   update(
     @Param("id") id: string,
     @Body() updateQuestionDto: UpdateQuestionDto
@@ -55,6 +59,7 @@ export class QuestionController {
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Delete question" })
   @ResponseMessage("Delete question successfully")
+  @ApiBearerAuth()
   remove(@Param("id") id: string) {
     return this.questionService.remove(+id);
   }
