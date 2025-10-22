@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from "@nestjs/common";
 import { QuestionService } from "./question.service";
 import { CreateQuestionDto } from "./dto/create-question.dto";
@@ -23,8 +24,8 @@ export class QuestionController {
   @ApiOperation({ summary: "Create new question for a quiz" })
   @ResponseMessage("Create question successfully")
   @ApiBearerAuth()
-  create(@Body() createQuestionDto: CreateQuestionDto) {
-    return this.questionService.create(createQuestionDto);
+  create(@Body() createQuestionDto: CreateQuestionDto, @Req() req) {
+    return this.questionService.create(createQuestionDto, req.user.id);
   }
 
   @Get()

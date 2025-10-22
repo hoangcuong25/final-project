@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CreateQuestionDto } from "./dto/create-question.dto";
 import { UpdateQuestionDto } from "./dto/update-question.dto";
@@ -7,14 +11,32 @@ import { UpdateQuestionDto } from "./dto/update-question.dto";
 export class QuestionService {
   constructor(private prisma: PrismaService) {}
 
-  // ─── CREATE ──────────────────────────────
-  async create(createQuestionDto: CreateQuestionDto) {
+  // ─── CREATE QUESTION ──────────────────────────────
+  async create(createQuestionDto: CreateQuestionDto, instructorId: number) {
     const { questionText, quizId } = createQuestionDto;
 
-    // Kiểm tra quiz tồn tại
-    const quiz = await this.prisma.quiz.findUnique({ where: { id: quizId } });
+    // Kiểm tra quiz có tồn tại
+    const quiz = await this.prisma.quiz.findUnique({
+      where: { id: quizId },
+      include: {
+        lesson: {
+          include: {
+            course: true,
+          },
+        },
+      },
+    });
+
     if (!quiz) throw new NotFoundException("Quiz not found");
 
+    // Kiểm tra quiz có thuộc quyền instructor không
+    if (quiz.lesson.course.instructorId !== instructorId) {
+      throw new ForbiddenException(
+        "You do not have permission to add questions to this quiz"
+      );
+    }
+
+    // Tạo question
     return this.prisma.question.create({
       data: {
         questionText,
