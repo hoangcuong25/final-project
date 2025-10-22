@@ -128,7 +128,7 @@ const quizSlice = createSlice({
       })
       .addCase(fetchQuizById.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentQuiz = action.payload.data;
+        state.currentQuiz = action.payload;
       })
       .addCase(fetchQuizById.rejected, (state, action) => {
         state.loading = false;

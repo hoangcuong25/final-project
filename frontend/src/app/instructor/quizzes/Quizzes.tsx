@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Trash2, PlusCircle, Pencil } from "lucide-react";
+import { Trash2, PlusCircle, Pencil, Eye } from "lucide-react";
 
 import {
   deleteQuiz,
@@ -34,8 +34,11 @@ import {
 import { fetchCoursesByInstructor } from "@/store/coursesSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import QuizForm from "@/components/quiz/CreateQuiz";
+import { useRouter } from "next/navigation";
 
 const Quizzes = () => {
+  const router = useRouter();
+
   const dispatch = useDispatch<AppDispatch>();
 
   // Redux state
@@ -95,7 +98,7 @@ const Quizzes = () => {
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-8">
+    <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
@@ -153,7 +156,7 @@ const Quizzes = () => {
                   >
                     <div>
                       <h3 className="font-semibold text-gray-800 text-lg group-hover:text-blue-600 transition">
-                        Quiz: {quiz.title}
+                        🧩 Quiz: {quiz.title}
                       </h3>
                       <p className="text-sm text-gray-500 mt-1">
                         🏫 <span className="font-bold">Khóa học:</span>{" "}
@@ -163,9 +166,9 @@ const Quizzes = () => {
                       </p>
                     </div>
 
-                    {/* Action buttons */}
-                    <div className="mt-3 sm:mt-0 flex items-center gap-2">
-                      {/* ✏️ Nút sửa */}
+                    {/* ─── Action buttons ─────────────────────────────── */}
+                    <div className="mt-4 flex items-center gap-2">
+                      {/* ✏️ Sửa */}
                       <Dialog
                         open={editQuiz?.id === quiz.id}
                         onOpenChange={(open) =>
@@ -178,19 +181,19 @@ const Quizzes = () => {
                         <DialogTrigger asChild>
                           <Button
                             variant="outline"
-                            size="icon"
-                            className="hover:scale-105 transition-transform"
+                            className="flex items-center gap-2 text-gray-700 hover:bg-gray-100"
                           >
-                            <Pencil className="w-4 h-4 text-gray-600" />
+                            <Pencil className="w-4 h-4" />
+                            Sửa
                           </Button>
                         </DialogTrigger>
+
                         <DialogContent className="max-w-md">
                           <DialogTitle className="text-lg font-semibold">
                             ✏️ Chỉnh sửa tiêu đề Quiz
                           </DialogTitle>
 
                           <div className="space-y-5 mt-4">
-                            {/* Tiêu đề quiz */}
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Tiêu đề mới
@@ -202,7 +205,6 @@ const Quizzes = () => {
                               />
                             </div>
 
-                            {/* Thông tin khóa học và bài học */}
                             <div className="p-3 rounded-md bg-gray-50 border text-sm text-gray-700 space-y-1">
                               <p>
                                 🏫 <strong>Khóa học:</strong>{" "}
@@ -213,15 +215,8 @@ const Quizzes = () => {
                                 {lesson?.title || "Không rõ bài học"}
                               </p>
                             </div>
-
-                            {/* Ghi chú */}
-                            <div className="text-sm text-gray-500 italic">
-                              ⚠️ Bạn chỉ có thể sửa tiêu đề quiz. Khóa học và
-                              bài học không thể thay đổi.
-                            </div>
                           </div>
 
-                          {/* Nút hành động */}
                           <div className="flex justify-end gap-2 mt-6">
                             <Button
                               variant="outline"
@@ -231,7 +226,7 @@ const Quizzes = () => {
                             </Button>
                             <Button
                               onClick={handleUpdate}
-                              className="bg-blue-600 hover:bg-blue-700"
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
                             >
                               Lưu thay đổi
                             </Button>
@@ -239,16 +234,29 @@ const Quizzes = () => {
                         </DialogContent>
                       </Dialog>
 
-                      {/* 🗑️ Nút xóa */}
+                      {/* Chi tiết */}
+                      <Button
+                        variant="outline"
+                        className="border-2 border-blue-500 text-blue-600 font-semibold rounded-xl
+                        px-5 py-2 hover:bg-blue-500 hover:text-white 
+                        transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2"
+                        onClick={() =>
+                          router.push(`/instructor/quizzes/${quiz.id}`)
+                        }
+                      >
+                        <Eye size={18} />
+                        Chi Tiết
+                      </Button>
+                      {/* 🗑️ Xóa */}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
                             variant="destructive"
-                            size="icon"
-                            className="hover:scale-105 transition-transform"
+                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white"
                             onClick={() => setDeleteId(quiz.id)}
                           >
                             <Trash2 className="w-4 h-4" />
+                            Xóa
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
