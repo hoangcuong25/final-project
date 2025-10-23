@@ -7,11 +7,16 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
 } from "@nestjs/common";
 import { OptionService } from "./option.service";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
-import { CreateOptionDto, UpdateOptionDto } from "./dto/create-option.dto";
+import {
+  CreateManyOptionsDto,
+  CreateOptionDto,
+  UpdateOptionDto,
+} from "./dto/create-option.dto";
 
 @ApiTags("Option")
 @Controller("options")
@@ -20,12 +25,21 @@ export class OptionController {
 
   // Create option
   @Post()
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Create new option for a question" })
   @ResponseMessage("create new option")
   @ApiBearerAuth()
-  create(@Body() dto: CreateOptionDto) {
-    return this.optionService.create(dto);
+  create(@Body() dto: CreateOptionDto, @Req() req) {
+    return this.optionService.create(dto, req.user.id);
+  }
+
+  @Post("bulk")
+  @Roles("INSTRUCTOR")
+  @ApiOperation({ summary: "Create multiple options for a question" })
+  @ResponseMessage("create multiple options")
+  @ApiBearerAuth()
+  createMany(@Body() dto: CreateManyOptionsDto, @Req() req) {
+    return this.optionService.createMany(dto.options, req.user.id);
   }
 
   // Get all options
