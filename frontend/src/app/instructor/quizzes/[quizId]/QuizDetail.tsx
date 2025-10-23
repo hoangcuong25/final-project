@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { fetchQuizById } from "@/store/quizSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import { ArrowLeft, PlusCircle } from "lucide-react";
+import CreateQuestion from "@/components/quiz/question/CreateQuestion";
 
 const QuizDetail = () => {
   const { quizId } = useParams();
@@ -45,15 +46,7 @@ const QuizDetail = () => {
           <ArrowLeft className="w-4 h-4" /> Quay lại
         </Button>
 
-        {/* ➕ Nút Tạo câu hỏi */}
-        <Button
-          onClick={() =>
-            router.push(`/dashboard/questions/create?quizId=${id}`)
-          }
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-        >
-          <PlusCircle className="w-4 h-4" /> Tạo câu hỏi
-        </Button>
+        <CreateQuestion quizId={id} />
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
