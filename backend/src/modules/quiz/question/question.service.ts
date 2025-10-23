@@ -70,9 +70,33 @@ export class QuestionService {
   }
 
   // ─── UPDATE ──────────────────────────────
-  async update(id: number, updateQuestionDto: UpdateQuestionDto) {
-    const question = await this.prisma.question.findUnique({ where: { id } });
+  async update(
+    id: number,
+    updateQuestionDto: UpdateQuestionDto,
+    instructorId: number
+  ) {
+    const question = await this.prisma.question.findUnique({
+      where: { id },
+      include: {
+        quiz: {
+          include: {
+            lesson: {
+              include: {
+                course: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
     if (!question) throw new NotFoundException("Question not found");
+
+    if (question.quiz.lesson.course.instructorId !== instructorId) {
+      throw new ForbiddenException(
+        "You do not have permission to update this question"
+      );
+    }
 
     return this.prisma.question.update({
       where: { id },
@@ -81,9 +105,29 @@ export class QuestionService {
   }
 
   // ─── DELETE ──────────────────────────────
-  async remove(id: number) {
-    const question = await this.prisma.question.findUnique({ where: { id } });
+  async remove(id: number, instructorId: number) {
+    const question = await this.prisma.question.findUnique({
+      where: { id },
+      include: {
+        quiz: {
+          include: {
+            lesson: {
+              include: {
+                course: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
     if (!question) throw new NotFoundException("Question not found");
+
+    if (question.quiz.lesson.course.instructorId !== instructorId) {
+      throw new ForbiddenException(
+        "You do not have permission to delete this question"
+      );
+    }
 
     return this.prisma.question.delete({ where: { id } });
   }

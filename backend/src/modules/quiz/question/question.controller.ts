@@ -51,9 +51,10 @@ export class QuestionController {
   @ApiBearerAuth()
   update(
     @Param("id") id: string,
-    @Body() updateQuestionDto: UpdateQuestionDto
+    @Body() updateQuestionDto: UpdateQuestionDto,
+    @Req() req
   ) {
-    return this.questionService.update(+id, updateQuestionDto);
+    return this.questionService.update(+id, updateQuestionDto, req.user.id);
   }
 
   @Delete(":id")
@@ -61,7 +62,7 @@ export class QuestionController {
   @ApiOperation({ summary: "Delete question" })
   @ResponseMessage("Delete question successfully")
   @ApiBearerAuth()
-  remove(@Param("id") id: string) {
-    return this.questionService.remove(+id);
+  remove(@Param("id") id: string, @Req() req) {
+    return this.questionService.remove(+id, req.user.id);
   }
 }
