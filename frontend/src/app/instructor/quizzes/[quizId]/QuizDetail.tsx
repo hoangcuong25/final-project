@@ -111,6 +111,7 @@ const QuizDetail = () => {
 
                 <div className="flex gap-2">
                   <EditQuestion
+                    currentQuiz={currentQuiz}
                     question={q}
                     onUpdated={() => dispatch(fetchQuizById(id))}
                   />

@@ -20,22 +20,19 @@ import { AppDispatch } from "@/store";
 import { toast } from "sonner";
 import { updateQuestion } from "@/store/question.slice";
 import { createOption, deleteOption, updateOption } from "@/store/option.slice";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import DeleteOption from "./DeleteQuestion";
 
 interface EditQuestionProps {
   question: any;
   onUpdated: () => void;
+  currentQuiz: QuizType;
 }
 
-const EditQuestion: React.FC<EditQuestionProps> = ({ question, onUpdated }) => {
+const EditQuestion: React.FC<EditQuestionProps> = ({
+  question,
+  onUpdated,
+  currentQuiz,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const [open, setOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
@@ -55,10 +52,12 @@ const EditQuestion: React.FC<EditQuestionProps> = ({ question, onUpdated }) => {
   const [options, setOptions] = useState<any[]>(question.options || []);
   const [newOptionText, setNewOptionText] = useState("");
 
+  console.log("options:", options);
+
   // 🧩 Cập nhật câu hỏi & các lựa chọn
   const onSubmit = async (data: any) => {
     try {
-      // 1️⃣ Update question
+      // Update question
       await dispatch(
         updateQuestion({
           id: question.id,
@@ -66,7 +65,7 @@ const EditQuestion: React.FC<EditQuestionProps> = ({ question, onUpdated }) => {
         })
       ).unwrap();
 
-      // 2️⃣ Update or create options
+      // Update or create options
       for (const opt of options) {
         if (opt.id) {
           await dispatch(
@@ -246,28 +245,11 @@ const EditQuestion: React.FC<EditQuestionProps> = ({ question, onUpdated }) => {
       </Dialog>
 
       {/* AlertDialog Confirm Delete */}
-      <AlertDialog
+      <DeleteOption
         open={!!deleteConfirmId}
-        onOpenChange={() => setDeleteConfirmId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa lựa chọn?</AlertDialogTitle>
-          </AlertDialogHeader>
-          <p className="text-gray-600 text-sm">
-            Hành động này không thể hoàn tác.
-          </p>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700"
-              onClick={() => handleDeleteOption(deleteConfirmId!)}
-            >
-              Xóa
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={() => handleDeleteOption(deleteConfirmId!)}
+      />
     </>
   );
 };
