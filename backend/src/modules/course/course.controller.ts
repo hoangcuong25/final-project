@@ -20,7 +20,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { Public, ResponseMessage, Roles } from "src/core/decorator/customize";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
 
@@ -44,14 +44,22 @@ export class CourseController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: "Get all courses with pagination and filter" })
   @ResponseMessage("Get all courses")
-  @ApiBearerAuth()
   findAll(@Query() dto: PaginationQueryDto) {
     return this.courseService.findAll(dto);
   }
 
   @Get(":id")
+  @Public()
+  @ApiOperation({ summary: "Get course detail by ID" })
+  @ResponseMessage("Get course detail")
+  findCourseById(@Param("id") id: string) {
+    return this.courseService.findCourseById(+id);
+  }
+
+  @Get(":id/instructor")
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Get course detail by ID" })
   @ResponseMessage("Get course detail")

@@ -6,6 +6,7 @@ import {
   updateCourseApi,
   deleteCourseApi,
   getCoursesByInstructorApi,
+  getCourseDetailApi,
 } from "@/api/courses.api";
 
 // 🧱 State
@@ -36,9 +37,18 @@ export const fetchAllCourses = createAsyncThunk(
   }
 );
 
-// 🔍 Lấy chi tiết khóa học theo ID
-export const fetchCourseById = createAsyncThunk(
+// 🔍 Lấy chi tiết khóa học (dành cho người dùng)
+export const fetchCourseDetail = createAsyncThunk(
   "course/fetchById",
+  async (id: number) => {
+    const response = await getCourseDetailApi(id);
+    return response.data;
+  }
+);
+
+// 🔍 Lấy chi tiết khóa học theo ID (Instructor)
+export const fetchCourseById = createAsyncThunk(
+  "course/fetchByIdInstructor",
   async (id: number) => {
     const response = await getCourseByIdApi(id);
     return response.data.data;
@@ -111,7 +121,21 @@ const coursesSlice = createSlice({
         state.error = action.error.message ?? "Lỗi khi tải danh sách khóa học";
       })
 
-      // 🔍 Fetch one
+      // 🔍 Fetch one (user)
+      .addCase(fetchCourseDetail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCourseDetail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentCourse = action.payload;
+      })
+      .addCase(fetchCourseDetail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message ?? "Không thể tải chi tiết khóa học";
+      })
+
+      // 🔍 Fetch one (instructor)
       .addCase(fetchCourseById.pending, (state) => {
         state.loading = true;
         state.error = null;

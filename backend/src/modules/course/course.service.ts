@@ -138,6 +138,17 @@ export class CourseService {
     };
   }
 
+  findCourseById(id: number) {
+    return this.prisma.course.findUnique({
+      where: { id },
+      include: {
+        instructor: {
+          select: { id: true, fullname: true, email: true },
+        },
+      },
+    });
+  }
+
   async findOne(id: number, instructorId: number) {
     const course = await this.prisma.course.findUnique({
       where: { id, instructorId },
