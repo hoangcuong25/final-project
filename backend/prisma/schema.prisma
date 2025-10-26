@@ -54,7 +54,9 @@ model User {
 
   // Relations
   instructorApplications InstructorApplication[]
+  
   courses                Course[]
+  CourseRating CourseRating[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -113,10 +115,14 @@ model Course {
   type         CourseType @default(FREE)
   isPublished  Boolean    @default(false)
 
+  // Relations
   instructorId Int
   instructor   User        @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+
   lessons      Lesson[]
   specializations CourseSpecialization[]
+
+  CourseRating CourseRating[]
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -184,4 +190,22 @@ model Option {
   isCorrect   Boolean  @default(false)
   questionId  Int
   question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+// ─── COURSE RATING ──────────────────────────────
+model CourseRating {
+  id        Int      @id @default(autoincrement())
+  rating    Int      @db.TinyInt // giá trị 1–5
+
+  // Relations
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  courseId  Int
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId]) // mỗi user chỉ được rate 1 lần / course
 }

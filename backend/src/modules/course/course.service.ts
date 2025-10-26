@@ -289,4 +289,23 @@ export class CourseService {
       },
     });
   }
+
+  async rateCourse(id: number, rating: number, userId: number) {
+    // Kiểm tra khoá học tồn tại
+    const course = await this.prisma.course.findUnique({ where: { id } });
+    if (!course) throw new NotFoundException("Course not found");
+    
+    // Tạo đánh giá
+    const newRating = await this.prisma.courseRating.create({
+      data: {
+        courseId: id,
+        userId,
+        rating,
+      },
+    });
+    return {
+      message: "Course rated successfully",
+      data: newRating,
+    };
+  }
 }

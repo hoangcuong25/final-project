@@ -98,4 +98,16 @@ export class CourseController {
   remove(@Param("id") id: string, @Req() req) {
     return this.courseService.remove(+id, req.user.id);
   }
+
+  @Post("rating/:id")
+  @ApiOperation({ summary: "Rate a course by ID" })
+  @ResponseMessage("Rate course")
+  @ApiBearerAuth()
+  rateCourse(
+    @Param("id") id: string,
+    @Body("rating") rating: number,
+    @Req() req
+  ) {
+    return this.courseService.rateCourse(+id, rating, req.user.id);
+  }
 }
