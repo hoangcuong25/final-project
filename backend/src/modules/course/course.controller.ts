@@ -99,7 +99,7 @@ export class CourseController {
     return this.courseService.remove(+id, req.user.id);
   }
 
-  @Post("rating/:id")
+  @Post(":id/rating")
   @ApiOperation({ summary: "Rate a course by ID" })
   @ResponseMessage("Rate course")
   @ApiBearerAuth()
@@ -109,5 +109,14 @@ export class CourseController {
     @Req() req
   ) {
     return this.courseService.rateCourse(+id, rating, req.user.id);
+  }
+
+  @Post(":id/view")
+  @ApiOperation({ summary: "Increase course view count" })
+  @ResponseMessage("Increase course view")
+  @ApiBearerAuth()
+  increaseView(@Param("id") id: string, @Req() req) {
+    const userId = req.user?.id;
+    return this.courseService.increaseView(+id, userId);
   }
 }

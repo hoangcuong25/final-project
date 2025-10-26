@@ -294,7 +294,7 @@ export class CourseService {
     // Kiểm tra khoá học tồn tại
     const course = await this.prisma.course.findUnique({ where: { id } });
     if (!course) throw new NotFoundException("Course not found");
-    
+
     // Tạo đánh giá
     const newRating = await this.prisma.courseRating.create({
       data: {
@@ -307,5 +307,50 @@ export class CourseService {
       message: "Course rated successfully",
       data: newRating,
     };
+  }
+
+  async increaseView(courseId: number, userId?: number) {
+    // Kiểm tra xem khóa học có tồn tại không
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      select: { id: true },
+    });
+
+    if (!course) {
+      throw new NotFoundException("Course not found");
+    }
+
+    // Kiểm tra nếu user đã xem trong 1 giờ gần đây thì bỏ qua
+    if (userId) {
+      const recentView = await this.prisma.courseView.findFirst({
+        where: {
+          courseId,
+          userId,
+          viewedAt: {
+            gte: new Date(Date.now() - 3600_000), // 1 giờ
+          },
+        },
+      });
+
+      if (recentView) {
+        return { message: "View already counted recently" };
+      }
+    }
+
+    // Ghi lại lượt xem
+    await this.prisma.courseView.create({
+      data: {
+        courseId,
+        userId: userId ?? null,
+      },
+    });
+
+    // Cập nhật bộ đếm tổng
+    await this.prisma.course.update({
+      where: { id: courseId },
+      data: { viewCount: { increment: 1 } },
+    });
+
+    return { message: "View counted successfully" };
   }
 }

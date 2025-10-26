@@ -57,6 +57,7 @@ model User {
   
   courses                Course[]
   CourseRating CourseRating[]
+  CourseView CourseView[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -114,6 +115,7 @@ model Course {
   price        Float      @default(0)
   type         CourseType @default(FREE)
   isPublished  Boolean    @default(false)
+  viewCount    Int        @default(0)
 
   // Relations
   instructorId Int
@@ -123,9 +125,24 @@ model Course {
   specializations CourseSpecialization[]
 
   CourseRating CourseRating[]
+  CourseView CourseView[]
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+}
+
+// ─── COURSE VIEW ──────────────────────────────
+model CourseView {
+  id        Int      @id @default(autoincrement())
+  courseId  Int
+  userId    Int?
+  ipAddress String?
+  viewedAt  DateTime @default(now())
+
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userId, ipAddress])
 }
 
 // ─── LESSON ──────────────────────────────
