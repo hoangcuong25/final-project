@@ -9,6 +9,13 @@ import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
 import { ApplicationStatus, CourseType } from "@prisma/client";
 import { SpecializationService } from "../specialization/specialization.service";
 import { UpdateCourseDto } from "./dto/update-course.dto";
+import {
+  buildOrderBy,
+  buildPaginationParams,
+  buildPaginationResponse,
+  buildSearchFilter,
+} from "src/core/helpers/pagination.util";
+import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
 
 @Injectable()
 export class CourseService {
@@ -105,19 +112,29 @@ export class CourseService {
     };
   }
 
-  async findAll() {
-    const courses = await this.prisma.course.findMany({
-      include: {
-        instructor: {
-          select: { id: true, fullname: true, email: true },
+  async findAll(dto: PaginationQueryDto) {
+    const { skip, take, page, limit } = buildPaginationParams(dto);
+    const orderBy = buildOrderBy(dto);
+    const where = buildSearchFilter(dto, ["title", "description"]); // các field cho phép tìm kiếm
+
+    const [courses, total] = await this.prisma.$transaction([
+      this.prisma.course.findMany({
+        skip,
+        take,
+        where,
+        orderBy,
+        include: {
+          instructor: {
+            select: { id: true, fullname: true, email: true },
+          },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+      }),
+      this.prisma.course.count({ where }),
+    ]);
 
     return {
       message: "Courses fetched successfully",
-      data: courses,
+      ...buildPaginationResponse(courses, total, page, limit),
     };
   }
 

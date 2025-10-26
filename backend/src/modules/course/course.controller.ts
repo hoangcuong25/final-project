@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Req,
+  Query,
 } from "@nestjs/common";
 import { CourseService } from "./course.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
@@ -21,6 +22,7 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
 import { UpdateCourseDto } from "./dto/update-course.dto";
+import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
 
 @ApiTags("Course")
 @Controller("course")
@@ -42,12 +44,11 @@ export class CourseController {
   }
 
   @Get()
-  @Roles("ADMIN")
-  @ApiOperation({ summary: "Get all courses" })
+  @ApiOperation({ summary: "Get all courses with pagination and filter" })
   @ResponseMessage("Get all courses")
   @ApiBearerAuth()
-  findAll() {
-    return this.courseService.findAll();
+  findAll(@Query() dto: PaginationQueryDto) {
+    return this.courseService.findAll(dto);
   }
 
   @Get(":id")
