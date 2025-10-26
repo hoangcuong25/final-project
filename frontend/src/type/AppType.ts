@@ -98,6 +98,7 @@ declare global {
     content?: string;
     videoUrl?: string;
     orderIndex: number;
+    quizzes?: QuizType[];
     courseId: number;
     course?: Pick<CourseType, "id" | "title">;
     createdAt: string;
@@ -133,6 +134,7 @@ declare global {
 
   // 🧩 QuizType — đại diện cho bài quiz (gắn với 1 lesson duy nhất)
   type QuizType = {
+    _count: any;
     id: number;
     title: string; // Tên quiz
     lessonId: number;
