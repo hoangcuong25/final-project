@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 export function buildPaginationParams(dto: any) {
   const page = dto.page ?? 1;
   const limit = dto.limit ?? 10;
@@ -12,13 +14,37 @@ export function buildOrderBy(dto: any) {
   return { [sortBy]: order };
 }
 
-export function buildSearchFilter(dto: any, searchableFields: string[] = []) {
+// Bỏ dấu tiếng Việt để tìm kiếm “mềm”
+function removeVietnameseTones(str: string) {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
+}
+
+export function buildSearchFilter(
+  dto: any,
+  searchableFields: string[] = []
+): Prisma.CourseWhereInput | undefined {
   if (!dto.search || searchableFields.length === 0) return undefined;
 
+  const search = String(dto.search).trim();
+  const normalized = removeVietnameseTones(search.toLowerCase());
+
+  // Tạo nhiều dạng tìm để dễ khớp hơn
+  const variants = [
+    search, // gốc
+    search.toLowerCase(), // thường
+    normalized, // bỏ dấu
+  ];
+
   return {
-    OR: searchableFields.map((field) => ({
-      [field]: { contains: dto.search, mode: "insensitive" },
-    })),
+    OR: searchableFields.flatMap((field) =>
+      variants.map((text) => ({
+        [field]: { contains: text },
+      }))
+    ),
   };
 }
 
