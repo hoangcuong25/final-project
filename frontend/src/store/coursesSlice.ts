@@ -28,10 +28,13 @@ const initialState: CourseState = {
 };
 
 // 🧾 Lấy tất cả khóa học
-export const fetchAllCourses = createAsyncThunk("course/fetchAll", async () => {
-  const response = await getAllCoursesApi();
-  return response.data;
-});
+export const fetchAllCourses = createAsyncThunk(
+  "course/fetchAll",
+  async (params?: PaginationParams) => {
+    const response = await getAllCoursesApi(params);
+    return response.data;
+  }
+);
 
 // 🔍 Lấy chi tiết khóa học theo ID
 export const fetchCourseById = createAsyncThunk(

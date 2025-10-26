@@ -1,9 +1,9 @@
 import axiosClient from "@/lib/axiosClient";
 
-// 🧩 1. Lấy tất cả khóa học
-export const getAllCoursesApi = async () => {
-  const response = await axiosClient.get("/course");
-  return response.data; // Trả về danh sách khóa học
+// 🧩 1. Lấy tất cả khóa học (có phân trang + filter)
+export const getAllCoursesApi = async (params?: PaginationParams) => {
+  const response = await axiosClient.get("/course", { params });
+  return response.data;
 };
 
 // 🧩 2. Lấy chi tiết khóa học theo ID

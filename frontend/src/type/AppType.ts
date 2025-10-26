@@ -1,6 +1,14 @@
 export {};
 
 declare global {
+  type PaginationParams = {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: string;
+    order?: "asc" | "desc";
+  };
+
   type UserType = {
     id: number;
     fullname: string;
