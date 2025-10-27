@@ -8,7 +8,7 @@ import { InstructorModule } from "./modules/instructor/instructor.module";
 import { SpecializationModule } from "./modules/specialization/specialization.module";
 import { MailModule } from "./core/mailSender/mail.module";
 import { CourseModule } from "./modules/course/course.module";
-import { LessonModule } from "./modules/lesson/lesson.module";
+import { LessonModule } from "./modules/course/lesson/lesson.module";
 import { CloudinaryModule } from "./core/cloudinary/cloudinary.module";
 import { PrismaModule } from "./core/prisma/prisma.module";
 import { QuestionModule } from "./modules/quiz/question/question.module";
