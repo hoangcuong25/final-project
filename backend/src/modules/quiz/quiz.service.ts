@@ -53,7 +53,7 @@ export class QuizService {
       include: {
         lesson: {
           include: {
-            course: true,
+            // course: true,
           },
         },
         questions: {
@@ -73,9 +73,9 @@ export class QuizService {
       where: {
         id,
         lesson: {
-          course: {
-            instructorId,
-          },
+          // course: {
+          //   instructorId,
+          // },
         },
       },
     });
@@ -94,9 +94,9 @@ export class QuizService {
       where: {
         id,
         lesson: {
-          course: {
-            instructorId,
-          },
+          // course: {
+          //   instructorId,
+          // },
         },
       },
     });
@@ -124,9 +124,9 @@ export class QuizService {
     return this.prisma.quiz.findMany({
       where: {
         lesson: {
-          course: {
-            instructorId, // chỉ lấy quiz thuộc các khóa học của instructor này
-          },
+          // course: {
+          //   instructorId, // chỉ lấy quiz thuộc các khóa học của instructor này
+          // },
         },
       },
       include: {
@@ -134,12 +134,12 @@ export class QuizService {
           select: {
             id: true,
             title: true,
-            course: {
-              select: {
-                id: true,
-                title: true,
-              },
-            },
+            // course: {
+            //   select: {
+            //     id: true,
+            //     title: true,
+            //   },
+            // },
           },
         },
         _count: {

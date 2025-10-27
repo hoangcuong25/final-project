@@ -156,15 +156,22 @@ export class CourseService {
         instructor: {
           select: { id: true, fullname: true, email: true },
         },
-        lessons: {
-          select: {
-            id: true,
-            title: true,
-            orderIndex: true,
-            videoUrl: true,
-            content: true,
-            createdAt: true,
-            updatedAt: true,
+        chapter: {
+          include: {
+            lessons: {
+              select: {
+                id: true,
+                title: true,
+                orderIndex: true,
+                videoUrl: true,
+                content: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+              orderBy: {
+                orderIndex: "asc",
+              },
+            },
           },
           orderBy: {
             orderIndex: "asc",
@@ -295,18 +302,6 @@ export class CourseService {
       where: { instructorId },
       orderBy: { createdAt: "desc" },
       include: {
-        lessons: {
-          select: {
-            id: true,
-            title: true,
-            orderIndex: true,
-            videoUrl: true,
-            content: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-          orderBy: { orderIndex: "asc" }, // Sắp xếp bài học trong khoá học
-        },
         specializations: {
           include: {
             specialization: {

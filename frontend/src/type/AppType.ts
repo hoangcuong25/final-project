@@ -77,6 +77,7 @@ declare global {
 
   // 🧩 CourseType — đại diện cho một khóa học
   type CourseType = {
+    chapter: ChapterType[];
     id: number;
     title: string;
     description?: string;
@@ -86,9 +87,6 @@ declare global {
 
     instructorId: number;
     instructor?: Pick<UserType, "id" | "fullname" | "email" | "avatar">;
-
-    // Danh sách bài học
-    lessons?: LessonType[];
 
     // Danh sách chuyên ngành / chủ đề (qua bảng trung gian)
     specializations?: {
@@ -157,6 +155,8 @@ declare global {
     title: string;
     description?: string;
     courseId: number;
+    orderIndex: number;
+    lessons?: LessonType[];
     createdAt?: string;
     updatedAt?: string;
   };

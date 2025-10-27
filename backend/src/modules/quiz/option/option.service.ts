@@ -21,7 +21,7 @@ export class OptionService {
           include: {
             lesson: {
               include: {
-                course: true,
+                // course: true,
               },
             },
           },
@@ -32,11 +32,11 @@ export class OptionService {
     if (!question) throw new NotFoundException("Question not found");
 
     // Check quyền: instructor phải là chủ course
-    if (question.quiz.lesson.course.instructorId !== instructorId) {
-      throw new ForbiddenException(
-        "You are not allowed to create options for this question"
-      );
-    }
+    // if (question.quiz.lesson.course.instructorId !== instructorId) {
+    //   throw new ForbiddenException(
+    //     "You are not allowed to create options for this question"
+    //   );
+    // }
 
     // Tạo option
     return this.prisma.option.create({
@@ -57,7 +57,7 @@ export class OptionService {
           include: {
             lesson: {
               include: {
-                course: true,
+                // course: true,
               },
             },
           },
@@ -66,11 +66,11 @@ export class OptionService {
     });
 
     // Check quyền: instructor phải là chủ course
-    if (question.quiz.lesson.course.instructorId !== instructorId) {
-      throw new ForbiddenException(
-        "You are not allowed to create options for this question"
-      );
-    }
+    // if (question.quiz.lesson.course.instructorId !== instructorId) {
+    //   throw new ForbiddenException(
+    //     "You are not allowed to create options for this question"
+    //   );
+    // }
 
     return this.prisma.option.createMany({
       data: options.map(({ text, isCorrect, questionId }) => ({

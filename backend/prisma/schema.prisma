@@ -122,12 +122,11 @@ model Course {
   instructorId Int
   instructor   User        @relation(fields: [instructorId], references: [id], onDelete: Cascade)
 
-  lessons      Lesson[]
   specializations CourseSpecialization[]
 
-  CourseRating CourseRating[]
-  CourseView CourseView[]
-  Chapter Chapter[]
+  courseRating CourseRating[]
+  courseView CourseView[]
+  chapter Chapter[]
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -176,9 +175,6 @@ model Lesson {
   duration    Int       @default(0) // Tổng thời lượng (phút)
 
   // Relations
-  courseId    Int
-  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
   quizzes Quiz[]
 
   chapterId   Int?

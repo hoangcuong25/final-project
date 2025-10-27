@@ -23,7 +23,7 @@ export class QuestionService {
       include: {
         lesson: {
           include: {
-            course: true,
+            // course: true,
           },
         },
       },
@@ -32,11 +32,11 @@ export class QuestionService {
     if (!quiz) throw new NotFoundException("Quiz not found");
 
     // Kiểm tra quiz có thuộc quyền instructor không
-    if (quiz.lesson.course.instructorId !== instructorId) {
-      throw new ForbiddenException(
-        "You do not have permission to add questions to this quiz"
-      );
-    }
+    // if (quiz.lesson.course.instructorId !== instructorId) {
+    //   throw new ForbiddenException(
+    //     "You do not have permission to add questions to this quiz"
+    //   );
+    // }
 
     // Tạo question
     return this.prisma.question.create({
@@ -84,7 +84,7 @@ export class QuestionService {
           include: {
             lesson: {
               include: {
-                course: true,
+                // course: true,
               },
             },
           },
@@ -94,11 +94,11 @@ export class QuestionService {
 
     if (!question) throw new NotFoundException("Question not found");
 
-    if (question.quiz.lesson.course.instructorId !== instructorId) {
-      throw new ForbiddenException(
-        "You do not have permission to update this question"
-      );
-    }
+    // if (question.quiz.lesson.course.instructorId !== instructorId) {
+    //   throw new ForbiddenException(
+    //     "You do not have permission to update this question"
+    //   );
+    // }
 
     return this.prisma.question.update({
       where: { id },
@@ -122,10 +122,10 @@ export class QuestionService {
         quiz: {
           lesson: {
             id: lessonId,
-            course: {
-              id: courseId,
-              instructorId, // chỉ cho phép instructor này sửa câu hỏi
-            },
+            // course: {
+            //   id: courseId,
+            //   instructorId, // chỉ cho phép instructor này sửa câu hỏi
+            // },
           },
         },
       },
@@ -178,7 +178,7 @@ export class QuestionService {
           include: {
             lesson: {
               include: {
-                course: true,
+                // course: true,
               },
             },
           },
@@ -188,11 +188,11 @@ export class QuestionService {
 
     if (!question) throw new NotFoundException("Question not found");
 
-    if (question.quiz.lesson.course.instructorId !== instructorId) {
-      throw new ForbiddenException(
-        "You do not have permission to delete this question"
-      );
-    }
+    // if (question.quiz.lesson.course.instructorId !== instructorId) {
+    //   throw new ForbiddenException(
+    //     "You do not have permission to delete this question"
+    //   );
+    // }
 
     return this.prisma.question.delete({ where: { id } });
   }

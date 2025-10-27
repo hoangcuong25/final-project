@@ -34,7 +34,7 @@ export class LessonService {
     if (dto.orderIndex !== undefined && dto.orderIndex !== null) {
       const existingLesson = await this.prisma.lesson.findFirst({
         where: {
-          courseId: dto.courseId,
+          // courseId: dto.courseId,
           orderIndex: dto.orderIndex,
         },
       });
@@ -66,14 +66,14 @@ export class LessonService {
         content: dto.content,
         videoUrl,
         orderIndex: dto.orderIndex ?? 0,
-        courseId: dto.courseId,
+        // courseId: dto.courseId,
       },
     });
   }
 
   async findAll() {
     return this.prisma.lesson.findMany({
-      include: { course: true },
+      // include: { course: true },
       orderBy: { createdAt: "desc" },
     });
   }
@@ -81,7 +81,7 @@ export class LessonService {
   async findOne(id: number) {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id },
-      include: { course: true },
+      // include: { course: true },
     });
     if (!lesson) throw new NotFoundException("Lesson not found");
     return lesson;
@@ -89,7 +89,7 @@ export class LessonService {
 
   async getLessonsByCourse(courseId: number, instructorId: number) {
     return this.prisma.lesson.findMany({
-      where: { courseId, course: { instructorId } },
+      // where: { courseId, course: { instructorId } },
       orderBy: { orderIndex: "asc" },
       include: {
         quizzes: {
@@ -110,10 +110,10 @@ export class LessonService {
     const existing = await this.prisma.lesson.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException("Lesson not found");
 
-    const courseIdToCheck = dto.courseId ?? existing.courseId;
+    // const courseIdToCheck = dto.courseId ?? existing.courseId;
 
     const course = await this.prisma.course.findFirst({
-      where: { id: courseIdToCheck, instructorId },
+      // where: { id: courseIdToCheck, instructorId },
     });
     if (!course)
       throw new NotFoundException("Course not found or access denied");
@@ -125,7 +125,7 @@ export class LessonService {
     ) {
       const duplicate = await this.prisma.lesson.findFirst({
         where: {
-          courseId: courseIdToCheck,
+          // courseId: courseIdToCheck,
           orderIndex: dto.orderIndex,
           NOT: { id },
         },
@@ -155,7 +155,7 @@ export class LessonService {
         title: dto.title ?? existing.title,
         content: dto.content ?? existing.content,
         orderIndex: dto.orderIndex ?? existing.orderIndex,
-        courseId: dto.courseId ?? existing.courseId,
+        // courseId: dto.courseId ?? existing.courseId,
         videoUrl,
       },
     });
