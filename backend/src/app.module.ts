@@ -15,6 +15,7 @@ import { QuestionModule } from "./modules/quiz/question/question.module";
 import { OptionModule } from "./modules/quiz/option/option.module";
 import { QuizModule } from "./modules/quiz/quiz.module";
 import { RedisModule } from "./core/redis/redis.module";
+import { ChapterModule } from "./modules/course/chapter/chapter.module";
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { RedisModule } from "./core/redis/redis.module";
     QuizModule,
     QuestionModule,
     OptionModule,
+    ChapterModule,
   ],
   controllers: [AppController],
   providers: [AppService],
