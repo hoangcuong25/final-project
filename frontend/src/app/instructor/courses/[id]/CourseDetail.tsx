@@ -28,6 +28,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Image from "next/image";
+import CreateChapter from "@/components/instructor/courses/chapter/CreateChapter";
 
 const CourseDetailPage = () => {
   const { id } = useParams();
@@ -67,7 +68,10 @@ const CourseDetailPage = () => {
           </Button>
         </div>
 
-        <CreateLesson courseId={currentCourse.id} />
+        <div className="flex gap-3">
+          <CreateChapter courseId={currentCourse.id} />
+          <CreateLesson courseId={currentCourse.id} />
+        </div>
       </div>
 
       {/* Course Info */}

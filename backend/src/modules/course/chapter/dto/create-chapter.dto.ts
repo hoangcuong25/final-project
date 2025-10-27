@@ -16,9 +16,4 @@ export class CreateChapterDto {
   @IsOptional()
   @IsNumber()
   order?: number;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  duration?: number; // minutes
 }

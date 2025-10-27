@@ -32,7 +32,7 @@ export class ChapterService {
           description: dto.description,
           courseId,
           orderIndex: dto.order ?? 0,
-          duration: dto.duration ?? 0,
+          duration: 0,
         },
       });
 
@@ -127,7 +127,7 @@ export class ChapterService {
         title: dto.title ?? chapter.title,
         description: dto.description ?? chapter.description,
         orderIndex: dto.order ?? chapter.orderIndex,
-        duration: dto.duration ?? chapter.duration,
+        duration: chapter.duration,
       },
     });
 

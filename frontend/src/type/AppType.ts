@@ -151,4 +151,13 @@ declare global {
     createdAt: string;
     updatedAt: string;
   };
+
+  type ChapterType = {
+    id: number;
+    title: string;
+    description?: string;
+    courseId: number;
+    createdAt?: string;
+    updatedAt?: string;
+  };
 }
