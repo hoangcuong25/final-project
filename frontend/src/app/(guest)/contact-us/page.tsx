@@ -1,7 +1,30 @@
-"use client";
-
 import React from "react";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Liên hệ | Học Lập Trình",
+  description:
+    "Liên hệ với đội ngũ Học Lập Trình để được hỗ trợ nhanh nhất. Chúng tôi luôn sẵn sàng giải đáp mọi thắc mắc của bạn về khóa học, thanh toán và hỗ trợ kỹ thuật.",
+  openGraph: {
+    title: "Liên hệ | Học Lập Trình",
+    description:
+      "Kết nối với đội ngũ Học Lập Trình để được hỗ trợ học tập và tư vấn khóa học nhanh chóng.",
+    url: "https://your-domain.com/contact",
+    siteName: "Học Lập Trình",
+    images: [
+      {
+        url: "/images/contact-banner.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Liên hệ Học Lập Trình",
+      },
+    ],
+    type: "website",
+  },
+  authors: [{ name: "EduSmart Team" }],
+  metadataBase: new URL("https://edusmart.vn"), // Đặt domain của bạn ở đây
+};
 
 const page = () => {
   return (
