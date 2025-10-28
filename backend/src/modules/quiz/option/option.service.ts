@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -13,7 +14,7 @@ export class OptionService {
   async create(dto: CreateOptionDto, instructorId: number) {
     const { text, isCorrect, questionId } = dto;
 
-    // Tìm question → quiz → lesson → course
+    // 🧩 Tìm question → quiz → lesson → chapter → course
     const question = await this.prisma.question.findUnique({
       where: { id: questionId },
       include: {
@@ -21,7 +22,11 @@ export class OptionService {
           include: {
             lesson: {
               include: {
-                // course: true,
+                chapter: {
+                  include: {
+                    course: true,
+                  },
+                },
               },
             },
           },
@@ -29,35 +34,47 @@ export class OptionService {
       },
     });
 
-    if (!question) throw new NotFoundException("Question not found");
+    if (!question) {
+      throw new NotFoundException("Question not found");
+    }
 
-    // Check quyền: instructor phải là chủ course
-    // if (question.quiz.lesson.course.instructorId !== instructorId) {
-    //   throw new ForbiddenException(
-    //     "You are not allowed to create options for this question"
-    //   );
-    // }
+    // 🧩 Kiểm tra quyền giảng viên
+    if (question.quiz.lesson.chapter.course.instructorId !== instructorId) {
+      throw new ForbiddenException(
+        "You are not allowed to create options for this question"
+      );
+    }
 
-    // Tạo option
+    // 🧩 Tạo option mới
     return this.prisma.option.create({
-      data: { text, isCorrect, questionId },
+      data: {
+        text,
+        isCorrect,
+        questionId,
+      },
     });
   }
 
   async createMany(options: CreateOptionDto[], instructorId: number) {
     if (!options.length) {
-      throw new Error("Options array cannot be empty");
+      throw new BadRequestException("Options array cannot be empty");
     }
 
-    // Tìm question → quiz → lesson → course
+    const questionId = options[0].questionId;
+
+    // 🧩 Tìm question → quiz → lesson → chapter → course
     const question = await this.prisma.question.findUnique({
-      where: { id: options[0].questionId },
+      where: { id: questionId },
       include: {
         quiz: {
           include: {
             lesson: {
               include: {
-                // course: true,
+                chapter: {
+                  include: {
+                    course: true,
+                  },
+                },
               },
             },
           },
@@ -65,13 +82,18 @@ export class OptionService {
       },
     });
 
-    // Check quyền: instructor phải là chủ course
-    // if (question.quiz.lesson.course.instructorId !== instructorId) {
-    //   throw new ForbiddenException(
-    //     "You are not allowed to create options for this question"
-    //   );
-    // }
+    if (!question) {
+      throw new NotFoundException("Question not found");
+    }
 
+    // 🧩 Kiểm tra quyền instructor
+    if (question.quiz.lesson.chapter.course.instructorId !== instructorId) {
+      throw new ForbiddenException(
+        "You are not allowed to create options for this question"
+      );
+    }
+
+    // 🧩 Tạo nhiều options
     return this.prisma.option.createMany({
       data: options.map(({ text, isCorrect, questionId }) => ({
         text,

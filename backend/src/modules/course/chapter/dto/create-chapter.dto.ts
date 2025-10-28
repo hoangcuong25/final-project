@@ -15,5 +15,5 @@ export class CreateChapterDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsNumber()
-  order?: number;
+  orderIndex?: number;
 }

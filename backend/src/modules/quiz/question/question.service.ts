@@ -17,34 +17,46 @@ export class QuestionService {
   async create(createQuestionDto: CreateQuestionDto, instructorId: number) {
     const { questionText, quizId } = createQuestionDto;
 
-    // Kiểm tra quiz có tồn tại
-    const quiz = await this.prisma.quiz.findUnique({
-      where: { id: quizId },
+    // 🧩 Kiểm tra quiz tồn tại và có thuộc quyền instructor không
+    const quiz = await this.prisma.quiz.findFirst({
+      where: {
+        id: quizId,
+        lesson: {
+          chapter: {
+            course: {
+              instructorId,
+            },
+          },
+        },
+      },
       include: {
         lesson: {
           include: {
-            // course: true,
+            chapter: {
+              include: { course: true },
+            },
           },
         },
       },
     });
 
-    if (!quiz) throw new NotFoundException("Quiz not found");
+    if (!quiz)
+      throw new ForbiddenException(
+        "You are not allowed to add questions to this quiz or quiz not found"
+      );
 
-    // Kiểm tra quiz có thuộc quyền instructor không
-    // if (quiz.lesson.course.instructorId !== instructorId) {
-    //   throw new ForbiddenException(
-    //     "You do not have permission to add questions to this quiz"
-    //   );
-    // }
-
-    // Tạo question
-    return this.prisma.question.create({
+    // 🧩 Tạo question
+    const newQuestion = await this.prisma.question.create({
       data: {
         questionText,
         quizId,
       },
     });
+
+    return {
+      message: "Question created successfully",
+      data: newQuestion,
+    };
   }
 
   // ─── GET ALL ──────────────────────────────
@@ -84,7 +96,11 @@ export class QuestionService {
           include: {
             lesson: {
               include: {
-                // course: true,
+                chapter: {
+                  include: {
+                    course: true,
+                  },
+                },
               },
             },
           },
@@ -92,13 +108,16 @@ export class QuestionService {
       },
     });
 
-    if (!question) throw new NotFoundException("Question not found");
+    if (!question) {
+      throw new NotFoundException("Question not found");
+    }
 
-    // if (question.quiz.lesson.course.instructorId !== instructorId) {
-    //   throw new ForbiddenException(
-    //     "You do not have permission to update this question"
-    //   );
-    // }
+    // kiểm tra instructor có quyền sửa không
+    if (question.quiz.lesson.chapter.course.instructorId !== instructorId) {
+      throw new ForbiddenException(
+        "You do not have permission to update this question"
+      );
+    }
 
     return this.prisma.question.update({
       where: { id },
@@ -122,10 +141,12 @@ export class QuestionService {
         quiz: {
           lesson: {
             id: lessonId,
-            // course: {
-            //   id: courseId,
-            //   instructorId, // chỉ cho phép instructor này sửa câu hỏi
-            // },
+            chapter: {
+              course: {
+                id: courseId,
+                instructorId: instructorId,
+              },
+            },
           },
         },
       },
@@ -138,7 +159,7 @@ export class QuestionService {
       );
     }
 
-    // 🧩 Cập nhật nội dung câu hỏi
+    // 🧩 Cập nhật nội dung câu hỏi (nếu có thay đổi)
     if (question.questionText !== questionText) {
       await this.prisma.question.update({
         where: { id },
@@ -163,7 +184,7 @@ export class QuestionService {
     }
 
     // 🧩 Trả về dữ liệu mới nhất
-    return await this.prisma.question.findUnique({
+    return this.prisma.question.findUnique({
       where: { id },
       include: { options: true },
     });
@@ -178,7 +199,11 @@ export class QuestionService {
           include: {
             lesson: {
               include: {
-                // course: true,
+                chapter: {
+                  include: {
+                    course: true,
+                  },
+                },
               },
             },
           },
@@ -186,14 +211,18 @@ export class QuestionService {
       },
     });
 
-    if (!question) throw new NotFoundException("Question not found");
+    if (!question) {
+      throw new NotFoundException("Question not found");
+    }
 
-    // if (question.quiz.lesson.course.instructorId !== instructorId) {
-    //   throw new ForbiddenException(
-    //     "You do not have permission to delete this question"
-    //   );
-    // }
+    // 🧩 Kiểm tra quyền instructor
+    if (question.quiz.lesson.chapter.course.instructorId !== instructorId) {
+      throw new ForbiddenException(
+        "You do not have permission to delete this question"
+      );
+    }
 
+    // 🧩 Xóa câu hỏi (Prisma tự động cascade nếu bạn set trong schema)
     return this.prisma.question.delete({ where: { id } });
   }
 }

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -53,7 +54,11 @@ export class QuizService {
       include: {
         lesson: {
           include: {
-            // course: true,
+            chapter: {
+              include: {
+                course: true,
+              },
+            },
           },
         },
         questions: {
@@ -63,28 +68,56 @@ export class QuizService {
         },
       },
     });
+
     if (!quiz) throw new NotFoundException("Quiz not found");
-    return quiz;
+
+    return {
+      message: "Quiz fetched successfully",
+      data: quiz,
+    };
   }
 
   // ─── UPDATE ──────────────────────────────
-  async update(id: number, updateQuizDto: UpdateQuizDto, instructorId) {
-    const quiz = await this.prisma.quiz.findUnique({
+  async update(id: number, updateQuizDto: UpdateQuizDto, instructorId: number) {
+    const quiz = await this.prisma.quiz.findFirst({
       where: {
         id,
         lesson: {
-          // course: {
-          //   instructorId,
-          // },
+          chapter: {
+            course: {
+              instructorId,
+            },
+          },
+        },
+      },
+      include: {
+        lesson: {
+          include: {
+            chapter: {
+              include: { course: true },
+            },
+          },
         },
       },
     });
-    if (!quiz) throw new NotFoundException("Quiz not found");
 
-    return this.prisma.quiz.update({
+    if (!quiz) {
+      throw new ForbiddenException(
+        "You are not allowed to update this quiz or it does not exist"
+      );
+    }
+
+    const updatedQuiz = await this.prisma.quiz.update({
       where: { id },
-      data: updateQuizDto,
+      data: {
+        title: updateQuizDto.title ?? quiz.title,
+      },
     });
+
+    return {
+      message: "Quiz updated successfully",
+      data: updatedQuiz,
+    };
   }
 
   // ─── DELETE QUIZ ──────────────────────────────
@@ -94,9 +127,11 @@ export class QuizService {
       where: {
         id,
         lesson: {
-          // course: {
-          //   instructorId,
-          // },
+          chapter: {
+            course: {
+              instructorId,
+            },
+          },
         },
       },
     });
@@ -124,22 +159,21 @@ export class QuizService {
     return this.prisma.quiz.findMany({
       where: {
         lesson: {
-          // course: {
-          //   instructorId, // chỉ lấy quiz thuộc các khóa học của instructor này
-          // },
+          chapter: {
+            course: {
+              instructorId,
+            },
+          },
         },
       },
       include: {
         lesson: {
-          select: {
-            id: true,
-            title: true,
-            // course: {
-            //   select: {
-            //     id: true,
-            //     title: true,
-            //   },
-            // },
+          include: {
+            chapter: {
+              include: {
+                course: true,
+              },
+            },
           },
         },
         _count: {

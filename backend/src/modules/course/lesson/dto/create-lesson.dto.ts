@@ -19,7 +19,6 @@ export class CreateLessonDto {
   @IsString()
   content?: string;
 
-
   @IsOptional()
   video?: string;
 
@@ -32,5 +31,5 @@ export class CreateLessonDto {
   @ApiProperty({ example: 3 })
   @IsNotEmpty()
   @IsInt()
-  courseId: number;
+  chapterId: number;
 }

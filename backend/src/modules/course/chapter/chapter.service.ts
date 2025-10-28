@@ -26,12 +26,28 @@ export class ChapterService {
           "You are not the instructor of this course"
         );
 
+      //  Kiểm tra trùng orderIndex trong cùng course
+      if (dto.orderIndex !== undefined && dto.orderIndex !== null) {
+        const existingChapter = await this.prisma.chapter.findFirst({
+          where: {
+            courseId,
+            orderIndex: dto.orderIndex,
+          },
+        });
+
+        if (existingChapter) {
+          throw new BadRequestException(
+            `Order index ${dto.orderIndex} already exists in this course`
+          );
+        }
+      }
+
       const chapter = await this.prisma.chapter.create({
         data: {
           title: dto.title,
           description: dto.description,
           courseId,
-          orderIndex: dto.order ?? 0,
+          orderIndex: dto.orderIndex ?? 0,
           duration: 0,
         },
       });
@@ -121,12 +137,33 @@ export class ChapterService {
         "You are not allowed to update this chapter"
       );
 
+    // Kiểm tra trùng orderIndex trong cùng course (nếu người dùng gửi orderIndex mới)
+    if (
+      dto.orderIndex !== undefined &&
+      dto.orderIndex !== null &&
+      dto.orderIndex !== chapter.orderIndex
+    ) {
+      const existingChapter = await this.prisma.chapter.findFirst({
+        where: {
+          courseId,
+          orderIndex: dto.orderIndex,
+          NOT: { id }, // loại trừ chính chapter đang update
+        },
+      });
+
+      if (existingChapter) {
+        throw new BadRequestException(
+          `Order index ${dto.orderIndex} already exists in this course`
+        );
+      }
+    }
+
     const updated = await this.prisma.chapter.update({
       where: { id },
       data: {
         title: dto.title ?? chapter.title,
         description: dto.description ?? chapter.description,
-        orderIndex: dto.order ?? chapter.orderIndex,
+        orderIndex: dto.orderIndex ?? chapter.orderIndex,
         duration: chapter.duration,
       },
     });
