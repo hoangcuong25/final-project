@@ -12,10 +12,11 @@ import { UpdateQuizDto } from "./dto/update-quiz.dto";
 export class QuizService {
   constructor(private prisma: PrismaService) {}
 
-  // ─── CREATE ──────────────────────────────
-  async create(createQuizDto: CreateQuizDto, instructorId) {
+  // ─── TẠO MỚI ──────────────────────────────
+  async create(createQuizDto: CreateQuizDto, instructorId: number) {
     const { title, lessonId, courseId } = createQuizDto;
 
+    // Kiểm tra khóa học có thuộc về giảng viên không
     const isCourse = await this.prisma.course.findFirst({
       where: { id: courseId, instructorId },
     });
@@ -26,7 +27,7 @@ export class QuizService {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
     });
-    if (!lesson) throw new NotFoundException("Lesson not found");
+    if (!lesson) throw new NotFoundException("Không tìm thấy bài học");
 
     return this.prisma.quiz.create({
       data: {
@@ -36,7 +37,7 @@ export class QuizService {
     });
   }
 
-  // ─── GET ALL ──────────────────────────────
+  // ─── LẤY TẤT CẢ ──────────────────────────────
   async findAll() {
     return this.prisma.quiz.findMany({
       include: {
@@ -47,7 +48,7 @@ export class QuizService {
     });
   }
 
-  // ─── GET ONE ──────────────────────────────
+  // ─── LẤY MỘT BẢN GHI ──────────────────────────────
   async findOne(id: number) {
     const quiz = await this.prisma.quiz.findUnique({
       where: { id },
@@ -69,15 +70,15 @@ export class QuizService {
       },
     });
 
-    if (!quiz) throw new NotFoundException("Quiz not found");
+    if (!quiz) throw new NotFoundException("Không tìm thấy bài kiểm tra");
 
     return {
-      message: "Quiz fetched successfully",
+      message: "Lấy thông tin bài kiểm tra thành công",
       data: quiz,
     };
   }
 
-  // ─── UPDATE ──────────────────────────────
+  // ─── CẬP NHẬT ──────────────────────────────
   async update(id: number, updateQuizDto: UpdateQuizDto, instructorId: number) {
     const quiz = await this.prisma.quiz.findFirst({
       where: {
@@ -103,7 +104,7 @@ export class QuizService {
 
     if (!quiz) {
       throw new ForbiddenException(
-        "You are not allowed to update this quiz or it does not exist"
+        "Bạn không có quyền cập nhật bài kiểm tra này hoặc bài kiểm tra không tồn tại"
       );
     }
 
@@ -115,14 +116,14 @@ export class QuizService {
     });
 
     return {
-      message: "Quiz updated successfully",
+      message: "Cập nhật bài kiểm tra thành công",
       data: updatedQuiz,
     };
   }
 
-  // ─── DELETE QUIZ ──────────────────────────────
+  // ─── XÓA ──────────────────────────────
   async remove(id: number, instructorId: number) {
-    // Tìm quiz theo id, đồng thời kiểm tra quyền instructor
+    // Tìm quiz theo id và kiểm tra quyền instructor
     const quiz = await this.prisma.quiz.findFirst({
       where: {
         id,
@@ -138,24 +139,23 @@ export class QuizService {
 
     if (!quiz) {
       throw new NotFoundException(
-        "Quiz not found or you don't have permission to delete it"
+        "Không tìm thấy bài kiểm tra hoặc bạn không có quyền xóa nó"
       );
     }
 
-    // Nếu tìm thấy, xóa quiz
     await this.prisma.quiz.delete({
       where: { id },
     });
 
     return {
-      message: "Quiz deleted successfully",
+      message: "Xóa bài kiểm tra thành công",
       deletedQuizId: id,
     };
   }
 
-  // ─── GET INSTRUCTOR QUIZZES ──────────────────────────────
+  // ─── LẤY DANH SÁCH QUIZ CỦA GIẢNG VIÊN ──────────────────────────────
   async instructorQuizzes(instructorId: number) {
-    // Lấy tất cả quiz thuộc các lesson nằm trong course của instructor
+    // Lấy tất cả bài kiểm tra thuộc các bài học nằm trong khóa học của giảng viên
     return this.prisma.quiz.findMany({
       where: {
         lesson: {
@@ -178,7 +178,7 @@ export class QuizService {
         },
         _count: {
           select: {
-            questions: true, // đếm số lượng câu hỏi trong mỗi quiz
+            questions: true, // Đếm số lượng câu hỏi trong mỗi bài kiểm tra
           },
         },
       },

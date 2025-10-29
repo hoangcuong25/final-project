@@ -13,20 +13,20 @@ import { Prisma } from "@prisma/client";
 export class ChapterService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ───────────────────────────────────────────────
+  // ── Tạo chương mới ─────────────────────────────
   async create(courseId: number, dto: CreateChapterDto, instructorId: number) {
     try {
-      // Kiểm tra course có tồn tại và thuộc instructor này không
+      // Kiểm tra khóa học có tồn tại và thuộc giảng viên này không
       const course = await this.prisma.course.findUnique({
         where: { id: courseId },
       });
-      if (!course) throw new NotFoundException("Course not found");
+      if (!course) throw new NotFoundException("Không tìm thấy khóa học");
       if (course.instructorId !== instructorId)
         throw new ForbiddenException(
-          "You are not the instructor of this course"
+          "Bạn không phải là giảng viên của khóa học này"
         );
 
-      //  Kiểm tra trùng orderIndex trong cùng course
+      // Kiểm tra trùng orderIndex trong cùng khóa học
       if (dto.orderIndex !== undefined && dto.orderIndex !== null) {
         const existingChapter = await this.prisma.chapter.findFirst({
           where: {
@@ -37,7 +37,7 @@ export class ChapterService {
 
         if (existingChapter) {
           throw new BadRequestException(
-            `Order index ${dto.orderIndex} already exists in this course`
+            `Thứ tự ${dto.orderIndex} đã tồn tại trong khóa học này`
           );
         }
       }
@@ -53,7 +53,7 @@ export class ChapterService {
       });
 
       return {
-        message: "Chapter created successfully",
+        message: "Tạo chương thành công",
         data: chapter,
       };
     } catch (error) {
@@ -61,7 +61,7 @@ export class ChapterService {
     }
   }
 
-  // ───────────────────────────────────────────────
+  // ── Lấy tất cả các chương ─────────────────────
   async findAll(courseId: number) {
     const chapters = await this.prisma.chapter.findMany({
       where: { courseId },
@@ -77,7 +77,7 @@ export class ChapterService {
       orderBy: { orderIndex: "asc" },
     });
 
-    // Tính tổng duration mỗi chapter
+    // Tính tổng thời lượng mỗi chương
     const withDuration = chapters.map((chapter) => {
       const totalDuration = chapter.lessons.reduce(
         (sum, l) => sum + (l.duration ?? 0),
@@ -87,12 +87,12 @@ export class ChapterService {
     });
 
     return {
-      message: "Get all chapters successfully",
+      message: "Lấy danh sách chương thành công",
       data: withDuration,
     };
   }
 
-  // ───────────────────────────────────────────────
+  // ── Lấy chi tiết một chương ───────────────────
   async findOne(courseId: number, id: number) {
     const chapter = await this.prisma.chapter.findFirst({
       where: { id, courseId },
@@ -106,7 +106,7 @@ export class ChapterService {
         },
       },
     });
-    if (!chapter) throw new NotFoundException("Chapter not found");
+    if (!chapter) throw new NotFoundException("Không tìm thấy chương");
 
     const totalDuration = chapter.lessons.reduce(
       (sum, l) => sum + (l.duration ?? 0),
@@ -114,12 +114,12 @@ export class ChapterService {
     );
 
     return {
-      message: "Get chapter detail successfully",
+      message: "Lấy chi tiết chương thành công",
       data: { ...chapter, totalDuration },
     };
   }
 
-  // ───────────────────────────────────────────────
+  // ── Cập nhật chương ───────────────────────────
   async update(
     courseId: number,
     id: number,
@@ -131,13 +131,11 @@ export class ChapterService {
       include: { course: true },
     });
 
-    if (!chapter) throw new NotFoundException("Chapter not found");
+    if (!chapter) throw new NotFoundException("Không tìm thấy chương");
     if (chapter.course.instructorId !== instructorId)
-      throw new ForbiddenException(
-        "You are not allowed to update this chapter"
-      );
+      throw new ForbiddenException("Bạn không có quyền cập nhật chương này");
 
-    // Kiểm tra trùng orderIndex trong cùng course (nếu người dùng gửi orderIndex mới)
+    // Kiểm tra trùng orderIndex trong cùng khóa học nếu có gửi orderIndex mới
     if (
       dto.orderIndex !== undefined &&
       dto.orderIndex !== null &&
@@ -147,13 +145,13 @@ export class ChapterService {
         where: {
           courseId,
           orderIndex: dto.orderIndex,
-          NOT: { id }, // loại trừ chính chapter đang update
+          NOT: { id }, // loại trừ chương đang update
         },
       });
 
       if (existingChapter) {
         throw new BadRequestException(
-          `Order index ${dto.orderIndex} already exists in this course`
+          `Thứ tự ${dto.orderIndex} đã tồn tại trong khóa học này`
         );
       }
     }
@@ -169,28 +167,26 @@ export class ChapterService {
     });
 
     return {
-      message: "Chapter updated successfully",
+      message: "Cập nhật chương thành công",
       data: updated,
     };
   }
 
-  // ───────────────────────────────────────────────
+  // ── Xóa chương ────────────────────────────────
   async remove(courseId: number, id: number, instructorId: number) {
     const chapter = await this.prisma.chapter.findFirst({
       where: { id, courseId },
       include: { course: true },
     });
 
-    if (!chapter) throw new NotFoundException("Chapter not found");
+    if (!chapter) throw new NotFoundException("Không tìm thấy chương");
     if (chapter.course.instructorId !== instructorId)
-      throw new ForbiddenException(
-        "You are not allowed to delete this chapter"
-      );
+      throw new ForbiddenException("Bạn không có quyền xóa chương này");
 
     await this.prisma.chapter.delete({ where: { id } });
 
     return {
-      message: "Chapter deleted successfully",
+      message: "Xóa chương thành công",
     };
   }
 }
