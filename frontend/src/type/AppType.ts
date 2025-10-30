@@ -104,6 +104,7 @@ declare global {
     content?: string;
     videoUrl?: string;
     orderIndex: number;
+    duration: number; // Thời lượng bài học
     chapter: ChapterType;
     quizzes?: QuizType[];
     courseId: number;

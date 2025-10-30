@@ -143,15 +143,38 @@ export class CourseService {
   }
 
   // 🧩 Lấy khóa học theo ID
-  findCourseById(id: number) {
-    return this.prisma.course.findUnique({
+  async findCourseById(id: number) {
+    const course = await this.prisma.course.findUnique({
       where: { id },
       include: {
         instructor: {
           select: { id: true, fullname: true, email: true },
         },
+        chapter: {
+          orderBy: { orderIndex: "asc" },
+          include: {
+            lessons: {
+              orderBy: { orderIndex: "asc" },
+              select: {
+                id: true,
+                title: true,
+                orderIndex: true,
+                content: true,
+                duration: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        },
       },
     });
+
+    if (!course) {
+      throw new NotFoundException("Không tìm thấy khóa học.");
+    }
+
+    return course;
   }
 
   // 🧩 Lấy chi tiết khóa học (bao gồm chương, bài học, chuyên ngành)
