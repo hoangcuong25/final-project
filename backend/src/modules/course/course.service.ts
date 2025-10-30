@@ -25,6 +25,7 @@ export class CourseService {
     private readonly specializationService: SpecializationService
   ) {}
 
+  // 🧩 Tạo khóa học mới
   async create(
     createCourseDto: CreateCourseDto,
     instructorId: number,
@@ -33,19 +34,19 @@ export class CourseService {
     const { title, description, price, isPublished, specializationIds, type } =
       createCourseDto;
 
-    // 🧩 Lấy danh sách chuyên môn được duyệt
+    // 🧩 Lấy danh sách chuyên ngành đã được duyệt của giảng viên
     const approvedSpecializations =
       await this.specializationService.findByInstructorId(instructorId);
 
     if (!approvedSpecializations.length) {
       throw new ForbiddenException(
-        "You must be an approved instructor to create a course."
+        "Bạn cần được phê duyệt là giảng viên trước khi tạo khóa học."
       );
     }
 
     const approvedIds = approvedSpecializations.map((s) => s.id);
 
-    // 🧩 Xử lý specializationIds: vì form-data có thể là 1 giá trị hoặc nhiều
+    // 🧩 Xử lý specializationIds (form-data có thể là 1 hoặc nhiều giá trị)
     let parsedSpecializationIds: number[] = [];
 
     if (specializationIds) {
@@ -56,25 +57,27 @@ export class CourseService {
       }
     }
 
-    // 🧩 Kiểm tra chuyên ngành hợp lệ
+    // 🧩 Kiểm tra các chuyên ngành hợp lệ
     const invalidIds = parsedSpecializationIds.filter(
       (id) => !approvedIds.includes(id)
     );
 
     if (invalidIds.length > 0) {
       throw new ForbiddenException(
-        `You can only assign approved specializations. Invalid IDs: ${invalidIds.join(", ")}`
+        `Bạn chỉ có thể chọn chuyên ngành đã được phê duyệt. ID không hợp lệ: ${invalidIds.join(
+          ", "
+        )}`
       );
     }
 
-    // 🧩 Upload thumbnail lên Cloudinary (nếu có)
+    // 🧩 Upload ảnh bìa lên Cloudinary (nếu có)
     let thumbnailUrl: string | undefined = undefined;
     if (thumbnail) {
       const uploaded = await this.cloudinaryService.uploadFile(thumbnail);
       thumbnailUrl = uploaded.url;
     }
 
-    // 🧩 Tạo course trong DB
+    // 🧩 Tạo khóa học trong cơ sở dữ liệu
     const newCourse = await this.prisma.course.create({
       data: {
         title,
@@ -107,15 +110,16 @@ export class CourseService {
     });
 
     return {
-      message: "Course created successfully.",
+      message: "Tạo khóa học thành công.",
       course: newCourse,
     };
   }
 
+  // 🧩 Lấy danh sách khóa học (phân trang + tìm kiếm)
   async findAll(dto: PaginationQueryDto) {
     const { skip, take, page, limit } = buildPaginationParams(dto);
     const orderBy = buildOrderBy(dto);
-    const where = buildSearchFilter(dto, ["title", "description"]); // các field cho phép tìm kiếm
+    const where = buildSearchFilter(dto, ["title", "description"]);
 
     const [courses, total] = await this.prisma.$transaction([
       this.prisma.course.findMany({
@@ -133,11 +137,12 @@ export class CourseService {
     ]);
 
     return {
-      message: "Courses fetched successfully",
+      message: "Lấy danh sách khóa học thành công.",
       ...buildPaginationResponse(courses, total, page, limit),
     };
   }
 
+  // 🧩 Lấy khóa học theo ID
   findCourseById(id: number) {
     return this.prisma.course.findUnique({
       where: { id },
@@ -149,6 +154,7 @@ export class CourseService {
     });
   }
 
+  // 🧩 Lấy chi tiết khóa học (bao gồm chương, bài học, chuyên ngành)
   async findOne(id: number, instructorId: number) {
     const course = await this.prisma.course.findUnique({
       where: { id, instructorId },
@@ -168,14 +174,10 @@ export class CourseService {
                 createdAt: true,
                 updatedAt: true,
               },
-              orderBy: {
-                orderIndex: "asc",
-              },
+              orderBy: { orderIndex: "asc" },
             },
           },
-          orderBy: {
-            orderIndex: "asc",
-          },
+          orderBy: { orderIndex: "asc" },
         },
         specializations: {
           include: {
@@ -188,40 +190,34 @@ export class CourseService {
     });
 
     if (!course) {
-      return {
-        message: "Course not found",
-        data: null,
-      };
+      return { message: "Không tìm thấy khóa học.", data: null };
     }
 
-    return {
-      message: "Course fetched successfully",
-      data: course,
-    };
+    return { message: "Lấy thông tin khóa học thành công.", data: course };
   }
 
+  // 🧩 Cập nhật khóa học
   async update(
     id: number,
     updateCourseDto: UpdateCourseDto,
     thumbnail?: Express.Multer.File,
     userId?: number
   ) {
-    // Kiểm tra khoá học thuộc về giảng viên hiện tại
+    // Kiểm tra khóa học thuộc giảng viên hiện tại
     const existing = await this.prisma.course.findUnique({
       where: { id, instructorId: userId },
     });
-    if (!existing) throw new NotFoundException("Course not found");
+    if (!existing) throw new NotFoundException("Không tìm thấy khóa học.");
 
-    // Tạo object cập nhật
     const updateData: any = {};
 
-    // Nếu có thumbnail mới, upload Cloudinary
+    // Upload ảnh bìa mới (nếu có)
     if (thumbnail) {
       const uploaded = await this.cloudinaryService.uploadFile(thumbnail);
       updateData.thumbnail = uploaded.url;
     }
 
-    // Map các trường từ DTO nếu có giá trị
+    // Gán các trường được cập nhật
     if (updateCourseDto.title) updateData.title = updateCourseDto.title;
     if (updateCourseDto.description)
       updateData.description = updateCourseDto.description;
@@ -229,18 +225,17 @@ export class CourseService {
       updateData.isPublished = updateCourseDto.isPublished;
     if (updateCourseDto.type) updateData.type = updateCourseDto.type;
 
-    // Logic: nếu type = FREE → set giá về 0
+    // Nếu là khóa học miễn phí → giá = 0
     if (updateCourseDto.type === "FREE") {
       updateData.price = 0;
     } else if (updateCourseDto.price !== undefined) {
       updateData.price = Number(updateCourseDto.price);
     }
 
-    // Xử lý specializationIds (form-data có thể gửi 1 hoặc nhiều giá trị)
+    // Xử lý danh sách chuyên ngành
     let specializationIds: number[] = [];
 
     if (updateCourseDto.specializationIds) {
-      // Chuyển về mảng số
       if (!Array.isArray(updateCourseDto.specializationIds)) {
         specializationIds = [Number(updateCourseDto.specializationIds)];
       } else {
@@ -250,14 +245,12 @@ export class CourseService {
       }
     }
 
-    // ── Nếu có specialization mới ───────────────────────────
+    // Nếu có chuyên ngành mới
     if (specializationIds.length > 0) {
-      // Xoá liên kết cũ
       await this.prisma.courseSpecialization.deleteMany({
         where: { courseId: id },
       });
 
-      // Cập nhật lại course + liên kết specialization mới
       const updated = await this.prisma.course.update({
         where: { id },
         data: {
@@ -273,10 +266,10 @@ export class CourseService {
         },
       });
 
-      return { message: "Course updated successfully", data: updated };
+      return { message: "Cập nhật khóa học thành công.", data: updated };
     }
 
-    // ── Nếu không có specializationIds → chỉ cập nhật dữ liệu cơ bản ──
+    // Nếu không thay đổi chuyên ngành
     const updated = await this.prisma.course.update({
       where: { id },
       data: updateData,
@@ -285,18 +278,20 @@ export class CourseService {
       },
     });
 
-    return { message: "Course updated successfully", data: updated };
+    return { message: "Cập nhật khóa học thành công.", data: updated };
   }
 
+  // 🧩 Xóa khóa học
   async remove(id: number, userId: number) {
     const existing = await this.prisma.course.findUnique({ where: { id } });
-    if (!existing) throw new NotFoundException("Course not found");
+    if (!existing) throw new NotFoundException("Không tìm thấy khóa học.");
 
     return await this.prisma.course.delete({
       where: { id, instructorId: userId },
     });
   }
 
+  // 🧩 Lấy danh sách khóa học của giảng viên
   async getCoursesByInstructor(instructorId: number) {
     return this.prisma.course.findMany({
       where: { instructorId },
@@ -313,59 +308,44 @@ export class CourseService {
     });
   }
 
+  // 🧩 Đánh giá khóa học
   async rateCourse(id: number, rating: number, userId: number) {
-    // Kiểm tra khoá học tồn tại
     const course = await this.prisma.course.findUnique({ where: { id } });
-    if (!course) throw new NotFoundException("Course not found");
+    if (!course) throw new NotFoundException("Không tìm thấy khóa học.");
 
-    // Tạo đánh giá
     const newRating = await this.prisma.courseRating.create({
-      data: {
-        courseId: id,
-        userId,
-        rating,
-      },
+      data: { courseId: id, userId, rating },
     });
-    return {
-      message: "Course rated successfully",
-      data: newRating,
-    };
+    return { message: "Đánh giá khóa học thành công.", data: newRating };
   }
 
+  // 🧩 Tăng lượt xem khóa học
   async increaseView(courseId: number, userId?: number) {
-    // Kiểm tra xem khóa học có tồn tại không
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
       select: { id: true },
     });
 
-    if (!course) {
-      throw new NotFoundException("Course not found");
-    }
+    if (!course) throw new NotFoundException("Không tìm thấy khóa học.");
 
-    // Kiểm tra nếu user đã xem trong 1 giờ gần đây thì bỏ qua
+    // Nếu người dùng đã xem trong 1 giờ qua thì bỏ qua
     if (userId) {
       const recentView = await this.prisma.courseView.findFirst({
         where: {
           courseId,
           userId,
-          viewedAt: {
-            gte: new Date(Date.now() - 3600_000), // 1 giờ
-          },
+          viewedAt: { gte: new Date(Date.now() - 3600_000) },
         },
       });
 
       if (recentView) {
-        return { message: "View already counted recently" };
+        return { message: "Lượt xem đã được tính gần đây." };
       }
     }
 
-    // Ghi lại lượt xem
+    // Ghi nhận lượt xem
     await this.prisma.courseView.create({
-      data: {
-        courseId,
-        userId: userId ?? null,
-      },
+      data: { courseId, userId: userId ?? null },
     });
 
     // Cập nhật bộ đếm tổng
@@ -374,6 +354,6 @@ export class CourseService {
       data: { viewCount: { increment: 1 } },
     });
 
-    return { message: "View counted successfully" };
+    return { message: "Tăng lượt xem thành công." };
   }
 }
