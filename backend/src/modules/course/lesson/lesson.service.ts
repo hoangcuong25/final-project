@@ -109,6 +109,7 @@ export class LessonService {
             _count: { select: { questions: true } },
           },
         },
+        chapter: true,
       },
     });
 

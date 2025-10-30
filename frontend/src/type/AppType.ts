@@ -104,6 +104,7 @@ declare global {
     content?: string;
     videoUrl?: string;
     orderIndex: number;
+    chapter: ChapterType;
     quizzes?: QuizType[];
     courseId: number;
     course?: Pick<CourseType, "id" | "title">;
