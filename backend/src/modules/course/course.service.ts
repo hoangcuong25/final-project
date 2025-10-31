@@ -6,7 +6,7 @@ import {
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
-import { ApplicationStatus, CourseType } from "@prisma/client";
+import { ApplicationStatus, CourseType, Prisma } from "@prisma/client";
 import { SpecializationService } from "../specialization/specialization.service";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import {
@@ -119,7 +119,10 @@ export class CourseService {
   async findAll(dto: PaginationQueryDto) {
     const { skip, take, page, limit } = buildPaginationParams(dto);
     const orderBy = buildOrderBy(dto);
-    const where = buildSearchFilter(dto, ["title", "description"]);
+    const where = buildSearchFilter<Prisma.CourseWhereInput>(dto, [
+      "title",
+      "description",
+    ]);
 
     const [courses, total] = await this.prisma.$transaction([
       this.prisma.course.findMany({
