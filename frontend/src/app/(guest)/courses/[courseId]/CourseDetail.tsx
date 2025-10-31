@@ -174,7 +174,10 @@ const CourseDetail = () => {
       {/* SIDEBAR — sticky thật sự */}
       <div className="relative">
         <div className="sticky top-24">
-          <CourseSidebar price={currentCourse.price || 149000} />
+          <CourseSidebar
+            price={currentCourse.price || 149000}
+            courseId={Number(courseId)}
+          />
         </div>
       </div>
     </motion.div>

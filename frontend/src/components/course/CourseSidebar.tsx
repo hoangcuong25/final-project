@@ -3,12 +3,16 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Lock, ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface CourseSidebarProps {
   price: number;
+  courseId: number;
 }
 
-const CourseSidebar = ({ price }: CourseSidebarProps) => {
+const CourseSidebar = ({ price, courseId }: CourseSidebarProps) => {
+  const router = useRouter();
+
   return (
     <motion.aside
       className="bg-white rounded-2xl shadow-xl p-6 sticky top-20 h-fit border border-gray-100"
@@ -41,6 +45,7 @@ const CourseSidebar = ({ price }: CourseSidebarProps) => {
           whileTap={{ scale: 0.94 }}
           transition={{ type: "spring", stiffness: 500, damping: 25 }}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition"
+          onClick={() => router.push(`/payment/${courseId}`)}
         >
           Mua ngay
         </motion.button>
