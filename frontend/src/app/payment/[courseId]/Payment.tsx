@@ -39,13 +39,13 @@ const Payment = () => {
     );
 
   const handleApplyCoupon = () => {
-    const code = coupon.trim().toLowerCase();
-    if (code === "freeship") {
-      setDiscount(10000);
-      setMessage("🎉 Coupon FREESHIP đã được áp dụng: giảm 10.000₫!");
-    } else if (code === "newuser") {
+    const code = coupon.trim().toUpperCase();
+    if (code === "GIAM10") {
+      setDiscount((currentCourse.price || 0) * 0.1);
+      setMessage("🎉 Mã GIAM10 đã được áp dụng: giảm 10% giá khóa học!");
+    } else if (code === "NEWUSER") {
       setDiscount(20000);
-      setMessage("🎉 Coupon NEWUSER đã được áp dụng: giảm 20.000₫!");
+      setMessage("🎉 Mã NEWUSER đã được áp dụng: giảm 20.000₫!");
     } else {
       setDiscount(0);
       setMessage("❌ Mã giảm giá không hợp lệ.");
@@ -56,9 +56,8 @@ const Payment = () => {
   const finalTotal = Math.max(total - discount, 0);
 
   const handlePayment = async () => {
-    // TODO: Gọi API thanh toán Sepay thật
     alert(
-      `Thanh toán khóa học "${
+      `✅ Thanh toán khóa học "${
         currentCourse.title
       }" với số tiền ${finalTotal.toLocaleString()}₫ thành công!`
     );
@@ -67,10 +66,10 @@ const Payment = () => {
 
   return (
     <motion.div
-      className="max-w-3xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-2xl"
+      className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-2xl"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.5 }}
     >
       {/* Nút quay lại */}
       <Button
@@ -83,8 +82,8 @@ const Payment = () => {
       </Button>
 
       {/* HEADER */}
-      <div className="flex items-center gap-5 mb-6">
-        <div className="relative w-40 h-40 rounded-2xl overflow-hidden border">
+      <div className="flex items-center gap-6 mb-8">
+        <div className="relative w-44 h-32 rounded-xl overflow-hidden border border-blue-100 shadow-sm">
           <Image
             src={currentCourse.thumbnail || "/images/default-course.jpg"}
             alt={currentCourse.title}
@@ -93,28 +92,36 @@ const Payment = () => {
           />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-blue-700">
             Thanh toán khóa học
           </h1>
-          <p className="text-gray-600">{currentCourse.title}</p>
+          <p className="text-gray-600 text-lg">{currentCourse.title}</p>
         </div>
       </div>
 
       {/* PRICE INFO */}
-      <div className="border-t border-b py-6 mb-8">
+      <div className="border border-blue-100 bg-blue-50/30 rounded-xl p-6 mb-8 shadow-sm">
+        <h3 className="text-lg font-semibold text-blue-700 mb-4">
+          💳 Thông tin thanh toán
+        </h3>
+
         <div className="flex justify-between text-gray-700 mb-2">
           <span>Giá khóa học</span>
           <span className="font-medium">{total.toLocaleString()}₫</span>
         </div>
 
-        {/* COUPON INPUT */}
         <div className="flex items-center gap-2 mt-3">
           <Input
-            placeholder="Nhập mã giảm giá (vd: LEARNONLINE)"
+            placeholder="Nhập mã giảm giá (VD: GIAM10)"
             value={coupon}
             onChange={(e) => setCoupon(e.target.value)}
+            className="border-blue-200 focus-visible:ring-blue-400"
           />
-          <Button variant="outline" onClick={handleApplyCoupon}>
+          <Button
+            variant="secondary"
+            onClick={handleApplyCoupon}
+            className="bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
+          >
             Áp dụng
           </Button>
         </div>
@@ -131,21 +138,22 @@ const Payment = () => {
 
         <div className="flex justify-between text-gray-700 mt-4 mb-2">
           <span>Giảm giá</span>
-          <span className="font-medium text-green-600">
+          <span className="text-green-600 font-medium">
             -{discount.toLocaleString()}₫
           </span>
         </div>
 
-        <hr className="my-3" />
-        <div className="flex justify-between text-lg font-semibold text-gray-900">
+        <hr className="my-3 border-blue-100" />
+
+        <div className="flex justify-between text-lg font-semibold text-blue-800">
           <span>Tổng cộng</span>
           <span>{finalTotal.toLocaleString()}₫</span>
         </div>
       </div>
 
-      {/* PAYMENT METHOD — SEPAY */}
+      {/* PAYMENT METHOD */}
       <div className="mb-10">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+        <h2 className="text-lg font-semibold text-blue-700 mb-4">
           Chọn phương thức thanh toán
         </h2>
 
@@ -164,7 +172,7 @@ const Payment = () => {
           </div>
         </label>
 
-        <div className="mt-4 text-sm text-gray-500 bg-gray-50 p-4 rounded-xl border">
+        <div className="mt-4 text-sm text-gray-500 bg-gray-50 p-4 rounded-xl border border-blue-100">
           <p>
             • Sau khi thanh toán thành công, hệ thống sẽ tự động kích hoạt khóa
             học.
@@ -175,7 +183,7 @@ const Payment = () => {
       {/* BUTTON */}
       <Button
         onClick={handlePayment}
-        className="w-full py-6 text-lg font-semibold flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+        className="w-full py-6 text-lg font-semibold flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white transition"
       >
         <CheckCircle className="w-5 h-5" />
         Thanh toán Online
