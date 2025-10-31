@@ -16,6 +16,8 @@ import { OptionModule } from "./modules/quiz/option/option.module";
 import { QuizModule } from "./modules/quiz/quiz.module";
 import { RedisModule } from "./core/redis/redis.module";
 import { ChapterModule } from "./modules/course/chapter/chapter.module";
+import { CouponModule } from './modules/coupon/coupon.module';
+import { DiscountModule } from './modules/discount/discount.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { ChapterModule } from "./modules/course/chapter/chapter.module";
     QuestionModule,
     OptionModule,
     ChapterModule,
+    CouponModule,
+    DiscountModule,
   ],
   controllers: [AppController],
   providers: [AppService],
