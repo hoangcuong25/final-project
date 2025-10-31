@@ -301,8 +301,6 @@ model DiscountCampaign {
   title       String
   description String?
   percentage  Float
-  courseId    Int?
-  specializationId Int?
   startsAt    DateTime
   endsAt      DateTime
   isActive    Boolean @default(true)
