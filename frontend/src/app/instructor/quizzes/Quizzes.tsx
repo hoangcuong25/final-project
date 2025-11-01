@@ -143,7 +143,7 @@ const Quizzes = () => {
             <div className="grid gap-4">
               {instructorQuizzes.map((quiz) => {
                 const course = instructorCourses.find((c) =>
-                  c.lessons?.some((l) => l.id === quiz.lessonId)
+                  c.lessons?.some((l: { id: number }) => l.id === quiz.lessonId)
                 );
                 const lesson = instructorCourses
                   .flatMap((c) => c.lessons || [])

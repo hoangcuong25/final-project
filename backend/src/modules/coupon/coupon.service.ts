@@ -36,6 +36,20 @@ export class CouponService {
       }
     }
 
+    // Kiểm tra expiresAt phải là tương lai
+    if (dto.expiresAt) {
+      const expiresDate = new Date(dto.expiresAt);
+      const now = new Date();
+
+      if (isNaN(expiresDate.getTime())) {
+        throw new BadRequestException("Định dạng ngày hết hạn không hợp lệ");
+      }
+
+      if (expiresDate <= now) {
+        throw new BadRequestException("Ngày hết hạn phải nằm trong tương lai");
+      }
+    }
+
     // Tạo mã coupon ngẫu nhiên (UUID)
     const randomId = uuidv4().split("-")[0].toUpperCase();
     const generatedCode = `${dto.code.trim().toUpperCase()}-${randomId}`;
@@ -221,6 +235,8 @@ export class CouponService {
       orderBy: { createdAt: "desc" },
       include: {
         course: { select: { id: true, title: true } },
+        createdBy: { select: { id: true, fullname: true, role: true } },
+        specialization: { select: { id: true, name: true } },
       },
     });
   }
