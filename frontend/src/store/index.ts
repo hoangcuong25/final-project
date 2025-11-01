@@ -6,6 +6,7 @@ import coursesReducer from "./coursesSlice";
 import lessonsReducer from "./lessonsSlice";
 import quizReducer from "./quizSlice";
 import couponReducer from "./couponSlice";
+import discountReducer from "./discount.slice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     lesson: lessonsReducer,
     quiz: quizReducer,
     coupon: couponReducer,
+    discount: discountReducer,
   },
 });
 
