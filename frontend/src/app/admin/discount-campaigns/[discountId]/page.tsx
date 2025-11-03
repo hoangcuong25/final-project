@@ -39,6 +39,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import DiscountUpdateDialog from "@/components/discount/DiscountUpdate";
 
 export default function DiscountDetailPage() {
   const { discountId } = useParams();
@@ -134,13 +135,10 @@ export default function DiscountDetailPage() {
           >
             <PlusCircle className="w-4 h-4 mr-1" /> Tạo Coupon
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/admin/discounts/edit/${id}`)}
-            className="border-blue-400 text-blue-600 hover:bg-blue-50"
-          >
-            <Edit className="w-4 h-4 mr-1" /> Chỉnh sửa
-          </Button>
+          <DiscountUpdateDialog
+            discount={currentDiscount}
+            onUpdated={() => dispatch(fetchDiscountById(currentDiscount.id))}
+          />
 
           {/* Nút bật/tắt */}
           <Button
@@ -148,7 +146,7 @@ export default function DiscountDetailPage() {
             onClick={handleToggle}
             className={`${
               isActive
-                ? "border-green-500 text-green-600 hover:bg-green-50"
+                ? "border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
                 : "border-gray-400 text-gray-600 hover:bg-gray-100"
             }`}
           >
