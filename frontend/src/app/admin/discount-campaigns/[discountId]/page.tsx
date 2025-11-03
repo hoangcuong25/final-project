@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -16,24 +16,41 @@ import {
   Info,
   Clock,
   Tag,
+  Power,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AppDispatch, RootState } from "@/store";
-import { fetchDiscountById, deleteDiscount } from "@/store/discount.slice";
+import {
+  fetchDiscountById,
+  deleteDiscount,
+  toggleDiscountStatus,
+} from "@/store/discount.slice";
 import { toast } from "sonner";
 import LoadingScreen from "@/components/LoadingScreen";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function DiscountDetailPage() {
   const { discountId } = useParams();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
+  const [openDialog, setOpenDialog] = useState(false); // trạng thái mở/đóng dialog
 
   const { currentDiscount, loading, error } = useSelector(
     (state: RootState) => state.discount
   );
 
-  // Fetch chi tiết discount
+  // Fetch chi tiết discount khi mount
   useEffect(() => {
     if (discountId) {
       dispatch(fetchDiscountById(Number(discountId)));
@@ -72,14 +89,28 @@ export default function DiscountDetailPage() {
     createdBy,
   } = currentDiscount;
 
+  // Xử lý xóa chiến dịch
   const handleDelete = async () => {
-    if (!confirm("Bạn có chắc muốn xóa chiến dịch này không?")) return;
     try {
       await dispatch(deleteDiscount(id)).unwrap();
       toast.success("Xóa chiến dịch thành công!");
-      router.push("/admin/discounts");
+      setOpenDialog(false);
+      router.push("/admin/discount-campaigns");
     } catch {
       toast.error("Không thể xóa chiến dịch");
+    }
+  };
+
+  // Toggle trạng thái (Bật/Tắt)
+  const handleToggle = async () => {
+    try {
+      await dispatch(toggleDiscountStatus(id)).unwrap();
+      toast.success(
+        isActive ? "Đã tắt chiến dịch giảm giá" : "Đã bật chiến dịch giảm giá"
+      );
+      dispatch(fetchDiscountById(id)); // Refresh lại dữ liệu
+    } catch {
+      toast.error("Không thể thay đổi trạng thái");
     }
   };
 
@@ -110,13 +141,54 @@ export default function DiscountDetailPage() {
           >
             <Edit className="w-4 h-4 mr-1" /> Chỉnh sửa
           </Button>
+
+          {/* Nút bật/tắt */}
           <Button
-            variant="destructive"
-            onClick={handleDelete}
-            className="bg-red-600 hover:bg-red-700 text-white"
+            variant="outline"
+            onClick={handleToggle}
+            className={`${
+              isActive
+                ? "border-green-500 text-green-600 hover:bg-green-50"
+                : "border-gray-400 text-gray-600 hover:bg-gray-100"
+            }`}
           >
-            <Trash2 className="w-4 h-4 mr-1" /> Xóa
+            <Power className="w-4 h-4 mr-1" />
+            {isActive ? "Tắt chiến dịch" : "Bật chiến dịch"}
           </Button>
+
+          {/*   Nút xóa với AlertDialog */}
+          <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <Trash2 className="w-4 h-4 mr-1" /> Xóa
+              </Button>
+            </AlertDialogTrigger>
+
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Bạn có chắc muốn xóa chiến dịch này?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Hành động này không thể hoàn tác. Chiến dịch{" "}
+                  <strong>{title}</strong> và toàn bộ dữ liệu liên quan sẽ bị
+                  xóa vĩnh viễn khỏi hệ thống.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Hủy</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Xác nhận xóa
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
