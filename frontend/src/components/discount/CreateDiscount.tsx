@@ -36,11 +36,35 @@ export default function CreateDiscountForm() {
 
   const onSubmit = async (data: DiscountFormType) => {
     try {
-      await dispatch(createDiscount(data)).unwrap();
+      // Chuẩn hóa dữ liệu
+      const payload = {
+        ...data,
+        percentage: Number(data.discountPercent),
+        startsAt: new Date(data.startDate).toISOString(),
+        endsAt: new Date(data.endDate).toISOString(),
+      };
+
+      await dispatch(createDiscount(payload)).unwrap();
+
       toast.success("Tạo chiến dịch thành công!");
       reset();
-    } catch {
-      toast.error("Tạo thất bại, vui lòng thử lại.");
+    } catch (error: any) {
+      // Xử lý thông báo lỗi chi tiết
+      let message = "Tạo thất bại, vui lòng thử lại.";
+
+      const backendError = error;
+
+      if (backendError) {
+        const msg = backendError.message || backendError.errors || backendError;
+
+        if (Array.isArray(msg) && msg.length > 0) {
+          message = msg[0]; // Lấy lỗi đầu tiên trong mảng
+        } else if (typeof msg === "string") {
+          message = msg; // Nếu là chuỗi
+        }
+      }
+
+      toast.error(message);
     }
   };
 

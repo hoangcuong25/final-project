@@ -61,7 +61,11 @@ export const createDiscount = createAsyncThunk(
       const response = await createDiscountApi(payload);
       return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Lỗi tạo discount");
+      if (error.response) {
+        return rejectWithValue(error.response.data);
+      }
+
+      return rejectWithValue(error.message || "Lỗi tạo discount");
     }
   }
 );
@@ -139,7 +143,7 @@ const discountSlice = createSlice({
         state.loading = false;
         state.successMessage =
           action.payload.message ?? "Tạo discount thành công";
-        state.discounts.push(action.payload.data);
+        state.discounts = action.payload.data || [];
       })
       .addCase(createDiscount.rejected, (state, action) => {
         state.loading = false;
