@@ -39,7 +39,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import DiscountUpdateDialog from "@/components/discount/DiscountUpdate";
+import DiscountUpdateDialog from "@/components/admin/discount/DiscountUpdate";
+import CouponCreateDialog from "@/components/admin/discount/coupon/CouponCreate";
 
 export default function DiscountDetailPage() {
   const { discountId } = useParams();
@@ -129,12 +130,8 @@ export default function DiscountDetailPage() {
         </Button>
 
         <div className="flex items-center gap-2">
-          <Button
-            onClick={() => router.push("/admin/discounts/create")}
-            className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white"
-          >
-            <PlusCircle className="w-4 h-4 mr-1" /> Tạo Coupon
-          </Button>
+          <CouponCreateDialog discount={currentDiscount} />
+
           <DiscountUpdateDialog
             discount={currentDiscount}
             onUpdated={() => dispatch(fetchDiscountById(currentDiscount.id))}
@@ -298,6 +295,7 @@ export default function DiscountDetailPage() {
           </div>
 
           {/* Danh sách coupon */}
+          {/* Danh sách coupon */}
           <div className="pt-6 border-t">
             <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
               <Tag className="w-5 h-5 text-blue-500" />
@@ -305,19 +303,101 @@ export default function DiscountDetailPage() {
             </h3>
 
             {coupons && coupons.length > 0 ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {coupons.map((coupon: any) => (
-                  <div
+                  <Card
                     key={coupon.id}
-                    className="border border-blue-100 bg-blue-50 rounded-xl p-3 flex flex-col text-sm text-gray-700 shadow-sm hover:shadow-md transition"
+                    className="border border-blue-100 bg-white hover:shadow-md transition rounded-xl"
                   >
-                    <span className="font-semibold text-blue-700">
-                      {coupon.code}
-                    </span>
-                    <span className="text-gray-500 text-xs mt-1">
-                      Giảm {coupon.percentage}%
-                    </span>
-                  </div>
+                    <CardHeader className="p-3 pb-0">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-indigo-700 uppercase">
+                          {coupon.code}
+                        </span>
+                        {coupon.isActive ? (
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                            Đang hoạt động
+                          </span>
+                        ) : (
+                          <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
+                            Tạm tắt
+                          </span>
+                        )}
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="p-3 space-y-2 text-sm text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Percent className="w-4 h-4 text-blue-500" />
+                        <span>Giảm {coupon.percentage}%</span>
+                      </div>
+
+                      {coupon.maxUsage ? (
+                        <div className="flex items-center gap-2">
+                          <Info className="w-4 h-4 text-blue-500" />
+                          <span>
+                            Sử dụng: {coupon.usedCount}/{coupon.maxUsage}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Info className="w-4 h-4 text-blue-500" />
+                          <span>Không giới hạn lượt dùng</span>
+                        </div>
+                      )}
+
+                      {coupon.expiresAt && (
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-blue-500" />
+                          <span>
+                            Hết hạn:{" "}
+                            {new Date(coupon.expiresAt).toLocaleDateString(
+                              "vi-VN"
+                            )}
+                          </span>
+                        </div>
+                      )}
+
+                      {coupon.target === "SPECIALIZATION" &&
+                        coupon.specialization && (
+                          <div className="flex items-center gap-2">
+                            <Tag className="w-4 h-4 text-blue-500" />
+                            <span>
+                              Áp dụng:{" "}
+                              <strong>{coupon.specialization.name}</strong>
+                            </span>
+                          </div>
+                        )}
+
+                      {coupon.target === "COURSE" && coupon.course && (
+                        <div className="flex items-center gap-2">
+                          <Tag className="w-4 h-4 text-blue-500" />
+                          <span>
+                            Áp dụng khóa học:{" "}
+                            <strong>{coupon.course.title}</strong>
+                          </span>
+                        </div>
+                      )}
+
+                      {coupon.createdBy && (
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-blue-500" />
+                          <span>
+                            Tạo bởi:{" "}
+                            <strong>{coupon.createdBy.fullname}</strong>
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-2 text-gray-500 text-xs">
+                        <Clock className="w-4 h-4" />
+                        <span>
+                          Tạo lúc:{" "}
+                          {new Date(coupon.createdAt).toLocaleString("vi-VN")}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             ) : (

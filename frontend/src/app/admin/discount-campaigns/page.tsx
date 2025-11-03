@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Search, PlusCircle, Trash2, Power } from "lucide-react";
-import CreateDiscountForm from "@/components/discount/CreateDiscount";
+import CreateDiscountForm from "@/components/admin/discount/CreateDiscount";
 import { Pagination } from "@/components/ui/pagination";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -164,22 +164,13 @@ export default function AdminDiscountCampaignsPage() {
                         </span>
                       </td>
 
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4 text-center">
                         {discount.coupons && discount.coupons.length > 0 ? (
-                          <div className="flex flex-col gap-1">
-                            {discount.coupons.map((coupon: any) => (
-                              <div
-                                key={coupon.id}
-                                className="text-xs bg-blue-50 border border-blue-100 px-2 py-1 rounded text-blue-600"
-                              >
-                                {coupon.code} ({coupon.percentage}%)
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-gray-400 text-sm">
-                            Không có
+                          <span className="font-semibold text-blue-600">
+                            {discount.coupons.length} coupon
                           </span>
+                        ) : (
+                          <span className="text-gray-400 text-sm">0</span>
                         )}
                       </td>
 

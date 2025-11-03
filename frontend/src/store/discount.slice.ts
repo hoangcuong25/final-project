@@ -9,19 +9,10 @@ import {
 } from "@/api/discount.api";
 
 // 🧩 Interface State
-interface DiscountCampaign {
-  id: number;
-  title: string;
-  description?: string;
-  startDate?: string;
-  endDate?: string;
-  active?: boolean;
-  [key: string]: any;
-}
 
 interface DiscountState {
-  discounts: DiscountCampaign[];
-  currentDiscount: DiscountCampaign | null;
+  discounts: DiscountCampaignType[];
+  currentDiscount: DiscountCampaignType | null;
   loading: boolean;
   error: string | null;
   successMessage: string | null;
