@@ -3,7 +3,7 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
-import { createDiscount } from "@/store/discount.slice";
+import { createDiscount, fetchAllDiscounts } from "@/store/discount.slice";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ export default function CreateDiscountForm() {
     resolver: zodResolver(discountSchema),
     defaultValues: {
       title: "",
+      description: "",
       discountPercent: 0,
       startDate: "",
       endDate: "",
@@ -38,13 +39,15 @@ export default function CreateDiscountForm() {
     try {
       // Chuẩn hóa dữ liệu
       const payload = {
-        ...data,
+        title: data.title,
+        description: data.description?.trim() || undefined,
         percentage: Number(data.discountPercent),
         startsAt: new Date(data.startDate).toISOString(),
         endsAt: new Date(data.endDate).toISOString(),
       };
 
       await dispatch(createDiscount(payload)).unwrap();
+      await dispatch(fetchAllDiscounts({ page: 1 }));
 
       toast.success("Tạo chiến dịch thành công!");
       reset();
@@ -89,6 +92,23 @@ export default function CreateDiscountForm() {
             {errors.title && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.title.message}
+              </p>
+            )}
+          </div>
+
+          {/* Mô tả */}
+          <div>
+            <Label htmlFor="description">Mô tả (tuỳ chọn)</Label>
+            {/* Dùng textarea cho mô tả */}
+            <textarea
+              id="description"
+              placeholder="Mô tả ngắn về chiến dịch, điều kiện áp dụng..."
+              className="w-full min-h-[88px] resize-y rounded-md border border-gray-200 p-2"
+              {...register("description")}
+            />
+            {errors.description && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.description.message}
               </p>
             )}
           </div>

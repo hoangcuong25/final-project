@@ -25,6 +25,10 @@ interface DiscountState {
   loading: boolean;
   error: string | null;
   successMessage: string | null;
+  currentPage: number;
+  totalItems: number;
+  totalPages: number;
+  itemsPerPage: number;
 }
 
 const initialState: DiscountState = {
@@ -33,6 +37,11 @@ const initialState: DiscountState = {
   loading: false,
   error: null,
   successMessage: null,
+
+  currentPage: 1,
+  totalItems: 0,
+  totalPages: 1,
+  itemsPerPage: 10,
 };
 
 // 🧾 Lấy tất cả discount campaigns
@@ -115,7 +124,12 @@ const discountSlice = createSlice({
       })
       .addCase(fetchAllDiscounts.fulfilled, (state, action) => {
         state.loading = false;
-        state.discounts = action.payload || [];
+        const apiResponse = action.payload;
+        state.discounts = apiResponse.data || [];
+        state.currentPage = apiResponse.pagination.currentPage || 1;
+        state.totalItems = apiResponse.pagination.total || 0;
+        state.itemsPerPage = apiResponse.pagination.pageSize || 10;
+        state.totalPages = apiResponse.pagination.totalPages;
       })
       .addCase(fetchAllDiscounts.rejected, (state, action) => {
         state.loading = false;
