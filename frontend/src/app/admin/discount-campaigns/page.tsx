@@ -23,12 +23,16 @@ import { Search, PlusCircle, Trash2, Power } from "lucide-react";
 import CreateDiscountForm from "@/components/discount/CreateDiscount";
 import { Pagination } from "@/components/ui/pagination";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function AdminDiscountCampaignsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { discounts, loading, totalPages } = useSelector(
     (state: RootState) => state.discount
   );
+
+  const router = useRouter();
+
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
 
@@ -201,7 +205,9 @@ export default function AdminDiscountCampaignsPage() {
                           size="sm"
                           className="bg-blue-500 hover:bg-blue-700 text-white"
                           onClick={() => {
-                            window.location.href = `/admin/discounts/${discount.id}`;
+                            router.push(
+                              `/admin/discount-campaigns/${discount.id}`
+                            );
                           }}
                         >
                           Xem chi tiết
