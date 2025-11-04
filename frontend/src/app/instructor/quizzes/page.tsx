@@ -35,6 +35,7 @@ import { fetchCoursesByInstructor } from "@/store/coursesSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import QuizForm from "@/components/quiz/CreateQuiz";
 import { useRouter } from "next/navigation";
+import QuizOnboarding from "@/components/instructor/onboarding/QuizOnboarding";
 
 const Quizzes = () => {
   const router = useRouter();
@@ -101,7 +102,7 @@ const Quizzes = () => {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <div>
+        <div className="step-quiz-header">
           <h1 className="text-3xl font-bold text-gray-800">
             🎓 Quản lý Quiz của bạn
           </h1>
@@ -110,24 +111,30 @@ const Quizzes = () => {
           </p>
         </div>
 
-        {/* Nút mở form tạo quiz */}
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 transition-all shadow-md">
-              <PlusCircle className="w-5 h-5" /> Tạo Quiz Mới
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl w-full">
-            <DialogTitle className="text-lg font-semibold mb-2">
-              Tạo Quiz Mới
-            </DialogTitle>
-            <QuizForm />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-4 items-center">
+          <div className="step-create-quiz">
+            {/* Nút mở form tạo quiz */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 transition-all shadow-md">
+                  <PlusCircle className="w-5 h-5" /> Tạo Quiz Mới
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl w-full">
+                <DialogTitle className="text-lg font-semibold mb-2">
+                  Tạo Quiz Mới
+                </DialogTitle>
+                <QuizForm />
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <QuizOnboarding />
+        </div>
       </div>
 
       {/* Danh sách quiz */}
-      <Card className="shadow-sm border border-gray-200">
+      <Card className="shadow-sm border border-gray-200 step-quiz-list">
         <CardHeader className="border-b bg-gray-50">
           <CardTitle className="text-lg font-semibold">
             Danh sách Quiz ({instructorQuizzes.length})
