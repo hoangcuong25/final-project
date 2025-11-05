@@ -7,6 +7,7 @@ declare global {
     search?: string;
     sortBy?: string;
     order?: "asc" | "desc";
+    specialization?: string;
   };
 
   type UserType = {

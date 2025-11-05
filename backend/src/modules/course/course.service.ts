@@ -119,10 +119,22 @@ export class CourseService {
   async findAll(dto: PaginationQueryDto) {
     const { skip, take, page, limit } = buildPaginationParams(dto);
     const orderBy = buildOrderBy(dto);
-    const where = buildSearchFilter<Prisma.CourseWhereInput>(dto, [
-      "title",
-      "description",
-    ]);
+    const where =
+      buildSearchFilter<Prisma.CourseWhereInput>(dto, [
+        "title",
+        "description",
+      ]) || {};
+
+    // Nếu có specializationId thì filter theo đó
+    if (dto.specialization) {
+      where.specializations = {
+        some: {
+          specialization: {
+            name: dto.specialization,
+          },
+        },
+      };
+    }
 
     const [courses, total] = await this.prisma.$transaction([
       this.prisma.course.findMany({
