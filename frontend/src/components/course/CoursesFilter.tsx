@@ -83,7 +83,7 @@ const CoursesFilter = ({
             <SelectContent>
               <SelectItem
                 value="all"
-                className="cursor-pointer transition-all duration-200 hover:bg-indigo-100 hover:text-indigo-600 rounded-md"
+                className="cursor-pointer transition-all duration-200 hover:bg-blue-100 hover:text-blue-600 rounded-md"
               >
                 Tất cả
               </SelectItem>
@@ -92,7 +92,7 @@ const CoursesFilter = ({
                 <SelectItem
                   key={s.id}
                   value={String(s.id)}
-                  className="cursor-pointer transition-all duration-200 hover:bg-indigo-100 hover:text-indigo-600 rounded-md"
+                  className="cursor-pointer transition-all duration-200 hover:bg-blue-100 hover:text-blue-600 rounded-md"
                 >
                   {s.name}
                 </SelectItem>
@@ -106,7 +106,7 @@ const CoursesFilter = ({
       <Button
         variant="outline"
         onClick={handleSortChange}
-        className="flex items-center gap-1 transition-all duration-200 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600"
+        className="flex items-center gap-1 transition-all duration-200 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600"
       >
         {order === "asc" ? (
           <>
