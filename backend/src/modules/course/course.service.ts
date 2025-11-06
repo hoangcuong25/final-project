@@ -136,6 +136,8 @@ export class CourseService {
       };
     }
 
+    const now = new Date();
+
     const [courses, total] = await this.prisma.$transaction([
       this.prisma.course.findMany({
         skip,
@@ -145,6 +147,19 @@ export class CourseService {
         include: {
           instructor: {
             select: { id: true, fullname: true, email: true },
+          },
+          specializations: {
+            include: {
+              specialization: {
+                select: { name: true },
+              },
+            },
+          },
+          coupon: {
+            where: {
+              isActive: true,
+              OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+            },
           },
         },
       }),
@@ -164,6 +179,13 @@ export class CourseService {
       include: {
         instructor: {
           select: { id: true, fullname: true, email: true },
+        },
+        specializations: {
+          include: {
+            specialization: {
+              select: { name: true },
+            },
+          },
         },
         chapter: {
           orderBy: { orderIndex: "asc" },

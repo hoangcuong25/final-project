@@ -80,6 +80,7 @@ declare global {
   type CourseType = {
     lessons: any;
     chapter: ChapterType[];
+    coupon: CouponType[];
     id: number;
     title: string;
     description?: string;
