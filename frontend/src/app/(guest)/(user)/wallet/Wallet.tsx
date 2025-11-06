@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { Wallet, PlusCircle, Clock } from "lucide-react";
+import { Wallet, PlusCircle, Clock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,32 +13,52 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { createDepositApi, getMyTransactionsApi } from "@/api/payment.api";
 
 export default function WalletPage() {
   const { user } = useSelector((state: RootState) => state.user);
   const [isOpen, setIsOpen] = useState(false);
   const [amount, setAmount] = useState<number>(0);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [depositInfo, setDepositInfo] = useState<any | null>(null);
 
-  // Demo transactions
-  const transactions = [
-    { id: 1, type: "Nạp tiền", amount: 500000, date: "2025-11-01T09:30:00Z" },
-    {
-      id: 2,
-      type: "Mua khóa học",
-      amount: -199000,
-      date: "2025-11-03T14:10:00Z",
-    },
-  ];
+  // Lấy lịch sử giao dịch khi vào trang
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await getMyTransactionsApi();
+        setTransactions(res.data || []);
+      } catch (error) {
+        toast.error("Không thể tải lịch sử giao dịch");
+      }
+    };
+    fetchTransactions();
+  }, []);
 
-  const handleDeposit = () => {
+  // Hàm xử lý nạp tiền
+  const handleDeposit = async () => {
     if (amount <= 0) {
       toast.error("Vui lòng nhập số tiền hợp lệ!");
       return;
     }
 
-    toast.success(`Nạp ${amount.toLocaleString()} LearnCoin thành công!`);
-    setAmount(0);
-    setIsOpen(false);
+    try {
+      setLoading(true);
+      const payload = { amount }; // DTO: CreateDepositDto có thể gồm { amount, note? }
+      const res = await createDepositApi(payload);
+
+      toast.success("Yêu cầu nạp tiền đã được tạo!");
+      setDepositInfo(res.data); // lưu thông tin QR
+
+      // 🔁 Cập nhật lại danh sách giao dịch
+      const updated = await getMyTransactionsApi();
+      setTransactions(updated.data || []);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Nạp tiền thất bại!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -84,7 +104,7 @@ export default function WalletPage() {
                 <div>
                   <p className="font-medium text-gray-800">{t.type}</p>
                   <p className="text-sm text-gray-500">
-                    {new Date(t.date).toLocaleString("vi-VN")}
+                    {new Date(t.createdAt).toLocaleString("vi-VN")}
                   </p>
                 </div>
                 <span
@@ -104,32 +124,88 @@ export default function WalletPage() {
       </div>
 
       {/* Deposit Dialog */}
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog
+        open={isOpen}
+        onOpenChange={(open) => {
+          setIsOpen(open);
+          if (!open) {
+            setDepositInfo(null);
+            setAmount(0);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Nạp tiền vào ví</DialogTitle>
           </DialogHeader>
 
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Nhập số tiền cần nạp (LearnCoin)
-            </label>
-            <Input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              placeholder="Nhập số tiền..."
-            />
+          {!depositInfo ? (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nhập số tiền cần nạp (LearnCoin)
+              </label>
+              <Input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
+                placeholder="Nhập số tiền..."
+              />
 
-            <div className="mt-6 flex justify-end">
-              <Button
-                onClick={handleDeposit}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Xác nhận nạp
-              </Button>
+              <div className="mt-6 flex justify-end">
+                <Button
+                  disabled={loading}
+                  onClick={handleDeposit}
+                  className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                >
+                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Xác nhận nạp
+                </Button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="mt-4 text-center">
+              <p className="text-gray-700 mb-3">
+                Quét mã QR dưới đây bằng app ngân hàng để nạp tiền:
+              </p>
+              <img
+                src={depositInfo.qrCode}
+                alt="QR Code"
+                className="mx-auto w-48 h-48 border rounded-lg shadow-sm"
+              />
+              <div className="mt-4 bg-gray-50 p-3 rounded-lg text-sm text-left">
+                <p>
+                  <strong>Ngân hàng:</strong> {depositInfo.bankAccount}
+                </p>
+                <p>
+                  <strong>Nội dung chuyển khoản:</strong>{" "}
+                  <span className="font-mono text-blue-600">
+                    {depositInfo.content}
+                  </span>
+                </p>
+                <p>
+                  <strong>Số tiền:</strong>{" "}
+                  {depositInfo.amount.toLocaleString()} đ
+                </p>
+              </div>
+
+              <p className="text-xs text-gray-500 mt-3">
+                Sau khi chuyển khoản thành công, hệ thống sẽ tự động cộng tiền
+                vào ví của bạn.
+              </p>
+
+              <div className="mt-5 flex justify-center">
+                <Button
+                  onClick={() => {
+                    setDepositInfo(null);
+                    setIsOpen(false);
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Đóng
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 

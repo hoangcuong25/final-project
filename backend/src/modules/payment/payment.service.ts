@@ -40,7 +40,7 @@ export class PaymentService {
     if (amount < 10000)
       throw new BadRequestException("Số tiền tối thiểu là 10,000đ");
 
-    const content = `UID${userId}_${Date.now()}`;
+    const content = `Elearning_UID${userId}_${Date.now()}`;
 
     // Tạo QR code để user quét chuyển khoản
     const qrData = await this.generateQRCode(amount, content);
