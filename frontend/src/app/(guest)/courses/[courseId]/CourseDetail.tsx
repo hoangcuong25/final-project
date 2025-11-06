@@ -48,7 +48,7 @@ const CourseDetail = ({ initialCourse }: Props) => {
             <span>{course.instructor?.fullname || "Giảng viên ẩn danh"}</span>
           </div>
           <div className="font-semibold text-blue-500">
-            {course.price?.toLocaleString()} LearnCoin
+            {course.price?.toLocaleString()} LC
           </div>
         </div>
 
