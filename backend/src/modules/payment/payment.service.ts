@@ -33,6 +33,13 @@ export class PaymentService {
     };
   }
 
+  private extractContent(raw: string): string | null {
+    if (!raw) return null;
+    const regex = /Elearning(.*?)\-CHUYEN TIEN/i;
+    const match = raw.match(regex);
+    return match ? `Elearning${match[1]}`.trim() : null;
+  }
+
   // 1) Tạo yêu cầu nạp tiền (DEPOSIT)
   async createDeposit(dto: CreateDepositDto, userId: number) {
     const { amount } = dto;
@@ -40,7 +47,7 @@ export class PaymentService {
     if (amount < 10000)
       throw new BadRequestException("Số tiền tối thiểu là 10,000đ");
 
-    const content = `Elearning_UID${userId}_${Date.now()}`;
+    const content = `ElearningUID${userId}${Date.now()}`;
 
     // Tạo QR code để user quét chuyển khoản
     const qrData = await this.generateQRCode(amount, content);
@@ -69,39 +76,47 @@ export class PaymentService {
 
   //  2) Xử lý Webhook từ Sepay
   async handleSepayWebhook(payload: any) {
-    const { transaction_id, amount, description } = payload.data;
-    const content = description.trim();
+    // Trích xuất dữ liệu gốc từ webhook
+    const { transferAmount: amount, content, referenceCode } = payload;
+    if (!content) return "Missing description";
 
+    const extractedContent = this.extractContent(content);
+
+    if (!extractedContent) {
+      console.warn("Không thể extract content từ webhook:", content);
+      return "Invalid content format";
+    }
+
+    // Tìm giao dịch pending tương ứng
     const payment = await this.prisma.paymentTransaction.findUnique({
-      where: { content },
+      where: { content: extractedContent },
     });
 
-    if (!payment) return "Payment not found";
+    if (!payment) {
+      console.warn("Payment not found for content:", extractedContent);
+      return "Payment not found";
+    }
 
     if (payment.status === "COMPLETED") return "Already processed";
 
-    const existed = await this.prisma.transaction.findFirst({
-      where: { id: transaction_id },
-    });
-    if (existed) return "Duplicate transaction";
-
+    // Cập nhật trạng thái và cộng tiền
     await this.prisma.$transaction([
       this.prisma.paymentTransaction.update({
         where: { id: payment.id },
         data: {
           status: "COMPLETED",
-          tranId: transaction_id,
+          tranId: referenceCode ?? undefined,
           completedAt: new Date(),
         },
       }),
 
       this.prisma.transaction.create({
         data: {
-          id: transaction_id,
           userId: payment.userId,
           amount,
           type: "DEPOSIT",
           paymentTransactionId: payment.id,
+          note: `Webhook auto-match: ${extractedContent}`,
         },
       }),
 
