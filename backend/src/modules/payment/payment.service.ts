@@ -47,6 +47,29 @@ export class PaymentService {
     if (amount < 10000)
       throw new BadRequestException("Số tiền tối thiểu là 10,000đ");
 
+    // Kiểm tra xem user đã có giao dịch pending trùng amount chưa
+    const existingPending = await this.prisma.paymentTransaction.findFirst({
+      where: {
+        userId,
+        amount,
+        type: "DEPOSIT",
+        status: "PENDING",
+      },
+    });
+
+    if (existingPending) {
+      // Nếu có rồi thì trả luôn thông tin cũ
+      return {
+        id: existingPending.id,
+        amount: existingPending.amount,
+        content: existingPending.content,
+        qrCode: existingPending.qrCode,
+        bankAccount: existingPending.bankAccount,
+        existing: true, // flag để FE biết
+      };
+    }
+
+    // Nếu chưa có pending, tạo content mới
     const content = `ElearningUID${userId}${Date.now()}`;
 
     // Tạo QR code để user quét chuyển khoản
@@ -71,6 +94,7 @@ export class PaymentService {
       content: payment.content,
       qrCode: payment.qrCode,
       bankAccount: payment.bankAccount,
+      existing: false,
     };
   }
 
