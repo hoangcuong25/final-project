@@ -228,4 +228,31 @@ declare global {
     createdAt: string;
     updatedAt: string;
   };
+
+  // 🧩 EnrollmentType — đại diện cho bản ghi đăng ký khóa học
+  type EnrollmentType = {
+    id: number;
+
+    // Quan hệ chính
+    userId: number;
+    courseId: number;
+
+    enrolledAt: string;
+    completedAt?: string | null;
+    progress: number; // phần trăm tiến độ (0–100)
+
+    // Nếu có coupon áp dụng
+    couponId?: number | null;
+    coupon?: Pick<
+      CouponType,
+      "id" | "code" | "percentage" | "isActive" | "expiresAt"
+    > | null;
+
+    // Thông tin quan hệ
+    user?: UserType;
+    course?: CourseType;
+
+    createdAt?: string;
+    updatedAt?: string;
+  };
 }

@@ -1,16 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { AppDispatch, RootState } from "@/store";
 import { fetchCourseDetail } from "@/store/coursesSlice";
+import { createEnrollment } from "@/store/enrollmentsSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { CheckCircle, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 const Payment = () => {
   const { courseId } = useParams();
@@ -20,10 +21,11 @@ const Payment = () => {
   const { currentCourse, loading } = useSelector(
     (state: RootState) => state.courses
   );
-
-  const [coupon, setCoupon] = useState("");
-  const [discount, setDiscount] = useState(0);
-  const [message, setMessage] = useState("");
+  const {
+    loading: enrolling,
+    successMessage,
+    error,
+  } = useSelector((state: RootState) => state.enrollment);
 
   useEffect(() => {
     if (courseId) dispatch(fetchCourseDetail(Number(courseId)));
@@ -38,31 +40,25 @@ const Payment = () => {
       </div>
     );
 
-  const handleApplyCoupon = () => {
-    const code = coupon.trim().toUpperCase();
-    if (code === "GIAM10") {
-      setDiscount((currentCourse.price || 0) * 0.1);
-      setMessage("🎉 Mã GIAM10 đã được áp dụng: giảm 10% giá khóa học!");
-    } else if (code === "NEWUSER") {
-      setDiscount(20000);
-      setMessage("🎉 Mã NEWUSER đã được áp dụng");
-    } else {
-      setDiscount(0);
-      setMessage("❌ Mã giảm giá không hợp lệ.");
+  const handlePayment = async () => {
+    try {
+      if (!courseId) return;
+
+      const result = await dispatch(
+        createEnrollment({ courseId: Number(courseId) })
+      ).unwrap();
+
+      toast.success(`Thanh toán thành công! Bạn đã ghi danh vào khóa học.`);
+
+      router.push(`/courses/${courseId}`);
+    } catch (error: any) {
+      toast.error(
+        error?.message || "Có lỗi xảy ra khi thanh toán, vui lòng thử lại."
+      );
     }
   };
 
   const total = currentCourse.price || 0;
-  const finalTotal = Math.max(total - discount, 0);
-
-  const handlePayment = async () => {
-    alert(
-      `✅ Thanh toán khóa học "${
-        currentCourse.title
-      }" với số tiền ${finalTotal.toLocaleString()} LearnCoin thành công!`
-    );
-    router.push(`/courses/${courseId}`);
-  };
 
   return (
     <motion.div
@@ -112,54 +108,22 @@ const Payment = () => {
           </span>
         </div>
 
-        <div className="flex items-center gap-2 mt-3">
-          <Input
-            placeholder="Nhập mã giảm giá (VD: GIAM10)"
-            value={coupon}
-            onChange={(e) => setCoupon(e.target.value)}
-            className="border-blue-200 focus-visible:ring-blue-400"
-          />
-          <Button
-            variant="secondary"
-            onClick={handleApplyCoupon}
-            className="bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
-          >
-            Áp dụng
-          </Button>
-        </div>
-
-        {message && (
-          <p
-            className={`text-sm mt-2 ${
-              discount > 0 ? "text-green-600" : "text-red-500"
-            }`}
-          >
-            {message}
-          </p>
-        )}
-
-        <div className="flex justify-between text-gray-700 mt-4 mb-2">
-          <span>Giảm giá</span>
-          <span className="text-green-600 font-medium">
-            -{discount.toLocaleString()} LearnCoin
-          </span>
-        </div>
-
         <hr className="my-3 border-blue-100" />
 
         <div className="flex justify-between text-lg font-semibold text-blue-800">
           <span>Tổng cộng</span>
-          <span>{finalTotal.toLocaleString()} LearnCoin</span>
+          <span>{total.toLocaleString()} LearnCoin</span>
         </div>
       </div>
 
       {/* BUTTON */}
       <Button
         onClick={handlePayment}
+        disabled={enrolling}
         className="w-full py-6 text-lg font-semibold flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white transition"
       >
         <CheckCircle className="w-5 h-5" />
-        Thanh toán
+        {enrolling ? "Đang xử lý..." : "Thanh toán"}
       </Button>
     </motion.div>
   );

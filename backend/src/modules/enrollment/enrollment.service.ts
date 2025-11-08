@@ -10,7 +10,7 @@ import { PrismaService } from "src/core/prisma/prisma.service";
 export class EnrollmentService {
   constructor(private prisma: PrismaService) {}
 
-  // ─── ENROLL COURSE ──────────────────────────────
+  // ─── ĐĂNG KÝ KHÓA HỌC ──────────────────────────────
   async enrollCourse(courseId: number, userId: number, couponCode?: string) {
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
@@ -18,11 +18,15 @@ export class EnrollmentService {
     });
 
     if (!course || !course.isPublished) {
-      throw new NotFoundException("Course not found or not published");
+      throw new NotFoundException(
+        "Khóa học không tồn tại hoặc chưa được xuất bản"
+      );
     }
 
     if (course.instructorId === userId) {
-      throw new BadRequestException("Instructor cannot enroll in own course");
+      throw new BadRequestException(
+        "Giảng viên không thể đăng ký khóa học của chính mình"
+      );
     }
 
     const existing = await this.prisma.enrollment.findUnique({
@@ -30,29 +34,33 @@ export class EnrollmentService {
     });
 
     if (existing) {
-      throw new BadRequestException("You are already enrolled in this course");
+      throw new BadRequestException("Bạn đã đăng ký khóa học này rồi");
     }
 
     let coupon = null;
     let finalPrice = course.price;
 
-    // Nếu có coupon
+    // Nếu có mã giảm giá
     if (couponCode) {
       coupon = await this.prisma.coupon.findUnique({
         where: { code: couponCode },
       });
 
       if (!coupon || !coupon.isActive) {
-        throw new BadRequestException("Invalid or inactive coupon");
+        throw new BadRequestException(
+          "Mã giảm giá không hợp lệ hoặc đã bị vô hiệu"
+        );
       }
 
       if (coupon.expiresAt && coupon.expiresAt < new Date()) {
-        throw new BadRequestException("Coupon has expired");
+        throw new BadRequestException("Mã giảm giá đã hết hạn");
       }
 
-      // Kiểm tra target
+      // Kiểm tra đối tượng áp dụng
       if (coupon.target === "COURSE" && coupon.courseId !== courseId) {
-        throw new BadRequestException("Coupon not applicable to this course");
+        throw new BadRequestException(
+          "Mã giảm giá không áp dụng cho khóa học này"
+        );
       }
 
       if (coupon.target === "SPECIALIZATION") {
@@ -62,16 +70,16 @@ export class EnrollmentService {
         const specializationIds = courseSpec.map((s) => s.specializationId);
         if (!specializationIds.includes(coupon.specializationId)) {
           throw new BadRequestException(
-            "Coupon not valid for this specialization"
+            "Mã giảm giá không áp dụng cho chuyên ngành này"
           );
         }
       }
 
-      // Tính giá giảm
+      // Tính giá sau giảm
       finalPrice = finalPrice * (1 - coupon.percentage / 100);
     }
 
-    // Nếu khóa học free => enroll trực tiếp
+    // Nếu khóa học miễn phí => đăng ký ngay
     if (course.type === "FREE" || finalPrice <= 0) {
       return this.prisma.enrollment.create({
         data: {
@@ -83,13 +91,15 @@ export class EnrollmentService {
       });
     }
 
-    // Nếu là khóa học trả phí => kiểm tra ví
+    // Nếu là khóa học trả phí => kiểm tra số dư ví
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (user.walletBalance < finalPrice) {
-      throw new BadRequestException("Insufficient wallet balance");
+      throw new BadRequestException(
+        "Số dư ví không đủ để đăng ký khóa học này"
+      );
     }
 
-    // Trừ tiền, lưu transaction + enrollment
+    // Trừ tiền, lưu lịch sử giao dịch + tạo bản ghi enrollment
     return await this.prisma.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: userId },
@@ -101,7 +111,7 @@ export class EnrollmentService {
           userId,
           amount: -finalPrice,
           type: "COURSE_PURCHASE",
-          note: `Enroll course #${courseId}`,
+          note: `Đăng ký khóa học #${courseId}`,
         },
       });
 
@@ -126,7 +136,7 @@ export class EnrollmentService {
     });
   }
 
-  // ─── GET MY ENROLLMENTS ──────────────────────────────
+  // ─── LẤY DANH SÁCH KHÓA HỌC CỦA TÔI ──────────────────────────────
   async getMyEnrollments(userId: number) {
     return this.prisma.enrollment.findMany({
       where: { userId },
@@ -143,7 +153,7 @@ export class EnrollmentService {
     });
   }
 
-  // ─── GET ENROLLMENT DETAIL ──────────────────────────────
+  // ─── XEM CHI TIẾT MỘT ENROLLMENT ──────────────────────────────
   async getEnrollmentDetail(id: number, userId: number) {
     const enrollment = await this.prisma.enrollment.findUnique({
       where: { id },
@@ -153,20 +163,24 @@ export class EnrollmentService {
       },
     });
 
-    if (!enrollment) throw new NotFoundException("Enrollment not found");
-    if (enrollment.userId !== userId) throw new ForbiddenException();
+    if (!enrollment)
+      throw new NotFoundException("Không tìm thấy thông tin đăng ký");
+    if (enrollment.userId !== userId)
+      throw new ForbiddenException("Bạn không có quyền xem thông tin này");
 
     return enrollment;
   }
 
-  // ─── INSTRUCTOR: GET STUDENTS ──────────────────────────────
+  // ─── GIẢNG VIÊN: LẤY DANH SÁCH HỌC VIÊN TRONG KHÓA ──────────────────────────────
   async getStudentsInCourse(courseId: number, instructorId: number) {
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
     });
 
     if (!course || course.instructorId !== instructorId) {
-      throw new ForbiddenException("Not your course");
+      throw new ForbiddenException(
+        "Bạn không có quyền truy cập vào khóa học này"
+      );
     }
 
     return this.prisma.enrollment.findMany({
@@ -179,16 +193,16 @@ export class EnrollmentService {
     });
   }
 
-  // ─── CANCEL ENROLLMENT ──────────────────────────────
+  // ─── HỦY ĐĂNG KÝ KHÓA HỌC ──────────────────────────────
   async cancelEnrollment(id: number, userId: number) {
     const enrollment = await this.prisma.enrollment.findUnique({
       where: { id },
     });
 
     if (!enrollment || enrollment.userId !== userId)
-      throw new ForbiddenException("Cannot cancel this enrollment");
+      throw new ForbiddenException("Bạn không thể hủy đăng ký này");
 
-    // chỉ cho phép cancel nếu khóa học free hoặc chưa học
+    // (Có thể mở rộng logic: chỉ cho hủy nếu khóa học miễn phí hoặc chưa bắt đầu)
     return this.prisma.enrollment.delete({ where: { id } });
   }
 }
