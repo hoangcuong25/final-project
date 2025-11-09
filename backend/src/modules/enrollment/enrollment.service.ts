@@ -143,8 +143,18 @@ export class EnrollmentService {
       include: {
         course: {
           include: {
+            _count: {
+              select: {
+                chapter: true, // Đếm số Chapter
+              },
+            },
             instructor: {
               select: { id: true, fullname: true, avatar: true },
+            },
+            specializations: {
+              include: {
+                specialization: { select: { name: true } },
+              },
             },
           },
         },

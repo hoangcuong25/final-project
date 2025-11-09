@@ -86,8 +86,14 @@ declare global {
     title: string;
     description?: string;
     thumbnail?: string;
+    duration: number;
+    type: string;
     price: number;
     isPublished: boolean;
+
+    _count?: {
+      chapter: number; // Số lượng Chapters
+    };
 
     instructorId: number;
     instructor?: Pick<UserType, "id" | "fullname" | "email" | "avatar">;
