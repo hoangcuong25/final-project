@@ -423,4 +423,38 @@ export class CourseService {
 
     return { message: "Tăng lượt xem thành công." };
   }
+
+  async getCourseDetail(courseId: number, userId?: number) {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      include: {
+        instructor: {
+          select: { id: true, fullname: true, avatar: true },
+        },
+        specializations: {
+          include: { specialization: true },
+        },
+        chapter: {
+          orderBy: { orderIndex: "asc" },
+          include: {
+            lessons: { orderBy: { orderIndex: "asc" } },
+          },
+        },
+        courseRating: {
+          select: { rating: true },
+        },
+        enrollments: {
+          where: { userId },
+          select: { id: true, progress: true, enrolledAt: true },
+        },
+      },
+    });
+
+    if (!course) {
+      throw new NotFoundException("Course not found");
+    }
+
+    // Trả về dữ liệu gọn gàng
+    return course;
+  }
 }
