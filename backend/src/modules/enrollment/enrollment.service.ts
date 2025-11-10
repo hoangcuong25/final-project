@@ -156,6 +156,11 @@ export class EnrollmentService {
                 specialization: { select: { name: true } },
               },
             },
+            chapter: {
+              include: {
+                lessons: true,
+              },
+            },
           },
         },
       },
