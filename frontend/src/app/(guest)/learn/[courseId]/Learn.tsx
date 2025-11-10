@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchLessonsByCourse } from "@/store/lessonsSlice";
+import { fetchCourseDetailWithAuth } from "@/store/coursesSlice";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -19,56 +19,58 @@ import LoadingScreen from "@/components/LoadingScreen";
 
 const Learn = () => {
   const router = useRouter();
-  const { courseId, lessonId } = useParams();
+  const { courseId } = useParams();
 
   const dispatch = useDispatch<AppDispatch>();
-  const { lessons, loading } = useSelector((state: RootState) => state.lesson);
+  const { currentCourse, loading } = useSelector(
+    (state: RootState) => state.courses
+  );
 
-  const [currentLesson, setCurrentLesson] = useState<LessonType | null>(null);
-
-  // Fetch toàn bộ bài học trong khóa
+  // 🧩 Lấy dữ liệu khóa học (có chapter, lessons, enrollment, ...)
   useEffect(() => {
-    if (courseId) dispatch(fetchLessonsByCourse(Number(courseId)));
+    if (courseId) {
+      dispatch(fetchCourseDetailWithAuth(Number(courseId)));
+    }
   }, [courseId, dispatch]);
 
-  // Khi có dữ liệu => xác định bài học hiện tại
+  const lessons =
+    currentCourse?.chapter?.flatMap((ch) =>
+      ch?.lessons?.map((l) => ({
+        ...l,
+        chapter: { id: ch.id, title: ch.title },
+      }))
+    ) || [];
+
+  const [currentLesson, setCurrentLesson] = useState<any>(lessons[0]);
+  const currentIndex = lessons.findIndex((l) => l?.id === currentLesson?.id);
+
   useEffect(() => {
-    if (lessons.length && lessonId) {
-      const lesson = lessons.find((l) => l.id === Number(lessonId));
-      setCurrentLesson(lesson || lessons[0]);
+    if (lessons.length > 0 && !currentLesson) {
+      setCurrentLesson(lessons[0]);
     }
-  }, [lessons, lessonId]);
+  }, [lessons]);
 
-  console.log(courseId);
-  console.log(lessons);
+  if (loading) return <LoadingScreen />;
 
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
-  if (lessons.length === 0) {
+  if (!lessons.length)
     return (
       <div className="flex items-center justify-center h-screen text-gray-500">
         Khóa học này chưa có bài học nào được xuất bản.
       </div>
     );
-  }
 
-  if (!currentLesson) {
+  if (!currentLesson)
     return (
       <div className="flex items-center justify-center h-screen text-gray-500">
         Không tìm thấy bài học.
       </div>
     );
-  }
-
-  const currentIndex = lessons.findIndex((l) => l.id === currentLesson.id);
 
   const handleNext = () => {
     if (currentIndex < lessons.length - 1) {
       const nextLesson = lessons[currentIndex + 1];
       setCurrentLesson(nextLesson);
-      router.push(`/instructor/courses/${courseId}/lesson/${nextLesson.id}`);
+      router.push(`/learn/${courseId}/lesson/${nextLesson?.id}`);
     }
   };
 
@@ -76,7 +78,7 @@ const Learn = () => {
     if (currentIndex > 0) {
       const prevLesson = lessons[currentIndex - 1];
       setCurrentLesson(prevLesson);
-      router.push(`/instructor/courses/${courseId}/lesson/${prevLesson.id}`);
+      router.push(`/learn/${courseId}/lesson/${prevLesson?.id}`);
     }
   };
 
@@ -88,14 +90,16 @@ const Learn = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 mt-4">
       {/* 🔹 Sidebar Lessons */}
       <SidebarLessons
-        lessons={lessons}
+        lessons={(lessons ?? []).filter(
+          (lesson): lesson is LessonType => !!lesson
+        )}
         currentLessonId={currentLesson?.id ?? null}
         onSelectLesson={(lesson) => {
           setCurrentLesson(lesson);
-          router.push(`/instructor/courses/${courseId}/lesson/${lesson.id}`);
+          router.push(`/learn/${courseId}/lesson/${lesson.id}`);
         }}
       />
 
@@ -107,14 +111,14 @@ const Learn = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push(`/instructor/courses/${courseId}`)}
+              onClick={() => router.push(`/courses/${courseId}`)}
               className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft size={18} />
               <span>Quay lại khóa học</span>
             </Button>
             <h1 className="text-lg font-semibold text-gray-800">
-              Bài học trong khóa #{courseId}
+              {currentCourse?.title || `Khóa học #${courseId}`}
             </h1>
           </div>
         </div>
@@ -202,7 +206,7 @@ const Learn = () => {
                   }}
                 />
               ) : (
-                <p className="text-gray-500">Chưa có mô tả cho khóa học này.</p>
+                <p className="text-gray-500">Chưa có mô tả cho bài học này.</p>
               )}
             </div>
 
@@ -218,11 +222,9 @@ const Learn = () => {
                 </h3>
               </div>
 
-              {loading ? (
-                <p className="text-gray-500">Đang tải dữ liệu...</p>
-              ) : currentLesson?.quizzes?.length ? (
+              {currentLesson?.quizzes?.length ? (
                 <div className="space-y-4">
-                  {currentLesson.quizzes.map((quiz, index) => (
+                  {currentLesson.quizzes.map((quiz: any, index: number) => (
                     <div
                       key={quiz.id}
                       className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 hover:bg-gray-100 transition"
