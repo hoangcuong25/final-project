@@ -130,11 +130,8 @@ export class CourseController {
   }
 
   @Get(":id/detail")
-  @ApiOperation({
-    summary:
-      "Get course detail (include chapters, lessons, and enrollment status)",
-  })
-  @ResponseMessage("Get full course detail")
+  @ApiOperation({ summary: "User Get course detail" })
+  @ResponseMessage("User Get full course detail")
   @ApiBearerAuth()
   async getCourseDetail(@Param("id") id: string, @Req() req) {
     return this.courseService.getCourseDetail(+id, req.user.id);

@@ -70,7 +70,6 @@ const Learn = () => {
     if (currentIndex < lessons.length - 1) {
       const nextLesson = lessons[currentIndex + 1];
       setCurrentLesson(nextLesson);
-      router.push(`/learn/${courseId}/lesson/${nextLesson?.id}`);
     }
   };
 
@@ -78,7 +77,6 @@ const Learn = () => {
     if (currentIndex > 0) {
       const prevLesson = lessons[currentIndex - 1];
       setCurrentLesson(prevLesson);
-      router.push(`/learn/${courseId}/lesson/${prevLesson?.id}`);
     }
   };
 
@@ -99,7 +97,6 @@ const Learn = () => {
         currentLessonId={currentLesson?.id ?? null}
         onSelectLesson={(lesson) => {
           setCurrentLesson(lesson);
-          router.push(`/learn/${courseId}/lesson/${lesson.id}`);
         }}
       />
 

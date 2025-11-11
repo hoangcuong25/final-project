@@ -233,6 +233,15 @@ export class CourseService {
                 content: true,
                 createdAt: true,
                 updatedAt: true,
+                quizzes: {
+                  include: {
+                    questions: {
+                      include: {
+                        options: true,
+                      },
+                    },
+                  },
+                },
               },
               orderBy: { orderIndex: "asc" },
             },
@@ -437,7 +446,20 @@ export class CourseService {
         chapter: {
           orderBy: { orderIndex: "asc" },
           include: {
-            lessons: { orderBy: { orderIndex: "asc" } },
+            lessons: {
+              orderBy: { orderIndex: "asc" },
+              include: {
+                quizzes: {
+                  include: {
+                    questions: {
+                      include: {
+                        options: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
         courseRating: {
@@ -454,7 +476,6 @@ export class CourseService {
       throw new NotFoundException("Course not found");
     }
 
-    // Trả về dữ liệu gọn gàng
     return course;
   }
 }
