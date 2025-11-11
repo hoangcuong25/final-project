@@ -178,7 +178,7 @@
   model CourseView {
     id        Int      @id @default(autoincrement())
     courseId  Int
-    userId    Int?
+    userId    Int
     ipAddress String?
     viewedAt  DateTime @default(now())
 

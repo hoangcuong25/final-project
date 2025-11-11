@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import SidebarLessons from "@/components/learn/SidebarLessons";
 import LoadingScreen from "@/components/LoadingScreen";
+import { increaseCourseViewApi } from "@/api/courses.api";
 
 const Learn = () => {
   const router = useRouter();
@@ -25,6 +26,41 @@ const Learn = () => {
   const { currentCourse, loading } = useSelector(
     (state: RootState) => state.courses
   );
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    // Chỉ chạy khi courseId tồn tại
+    if (!courseId) return;
+
+    const viewedKey = `viewed_course_${courseId}`;
+    let timer: NodeJS.Timeout | null = null;
+
+    // 1. Kiểm tra xem đã tăng view trong session này chưa
+    if (sessionStorage.getItem(viewedKey)) {
+      console.log("View already counted for this course in this session.");
+      return; // Nếu đã tăng rồi thì không làm gì nữa
+    }
+
+    // 2. Nếu chưa tăng view, thiết lập timer 30 giây
+    console.log("Setting 60s timer to increment course view...");
+    timer = setTimeout(() => {
+      console.log(
+        "60s passed. Incrementing course view and setting session flag."
+      );
+
+      // 3. Gọi API và lưu cờ vào sessionStorage
+      increaseCourseViewApi(Number(courseId));
+      sessionStorage.setItem(viewedKey, "true");
+    }, 60000); // 60000 milliseconds = 60 giây
+
+    // 4. Cleanup Function: Xóa timer khi component unmount hoặc courseId thay đổi
+    return () => {
+      console.log("Cleanup: Clearing 30s timer.");
+      if (timer) clearTimeout(timer);
+      timer = null;
+    };
+  }, [courseId]);
 
   // 🧩 Lấy dữ liệu khóa học (có chapter, lessons, enrollment, ...)
   useEffect(() => {
@@ -127,6 +163,8 @@ const Learn = () => {
             <div className="aspect-video bg-black rounded-xl overflow-hidden shadow-lg border border-gray-200">
               {currentLesson.videoUrl ? (
                 <video
+                  key={currentLesson.videoUrl} // Thêm key để React tái tạo video element khi chuyển bài học
+                  ref={videoRef}
                   src={currentLesson.videoUrl}
                   controls
                   preload="metadata"
