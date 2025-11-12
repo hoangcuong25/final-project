@@ -398,6 +398,6 @@ export class CouponService {
       return false;
     });
 
-    return { course, specializationIds, instructorId, coupons };
+    return { coupons };
   }
 }
