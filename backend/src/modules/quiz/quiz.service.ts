@@ -73,6 +73,7 @@ export class QuizService {
               include: {
                 course: {
                   include: {
+                    instructor: true,
                     enrollments: {
                       where: { userId },
                       select: { id: true },
@@ -91,10 +92,18 @@ export class QuizService {
       },
     });
 
-    if (!quiz) throw new NotFoundException("Không tìm thấy bài kiểm tra");
+    if (!quiz) {
+      throw new NotFoundException("Không tìm thấy bài kiểm tra");
+    }
 
-    if (quiz.lesson.chapter.course.enrollments.length === 0) {
-      throw new NotFoundException("Không có quyền truy cập");
+    const course = quiz.lesson.chapter.course;
+
+    // Nếu là instructor của course → bỏ qua kiểm tra enrollments
+    if (course.instructorId !== userId) {
+      // Nếu không phải instructor thì phải có enrollment
+      if (course.enrollments.length === 0) {
+        throw new NotFoundException("Không có quyền truy cập");
+      }
     }
 
     return {
