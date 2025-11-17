@@ -142,23 +142,48 @@ export class EnrollmentService {
       where: { userId },
       include: {
         course: {
-          include: {
+          select: {
+            id: true,
+            title: true,
+            averageRating: true,
+            totalRating: true,
+
             _count: {
               select: {
-                chapter: true, // Đếm số Chapter
+                chapter: true,
+                courseView: true,
               },
             },
+
             instructor: {
               select: { id: true, fullname: true, avatar: true },
             },
+
             specializations: {
               include: {
                 specialization: { select: { name: true } },
               },
             },
+
             chapter: {
-              include: {
-                lessons: true,
+              include: { lessons: true },
+            },
+
+            courseView: {
+              select: {
+                id: true,
+                userId: true,
+                ipAddress: true,
+                viewedAt: true,
+              },
+            },
+
+            courseRating: {
+              select: {
+                id: true,
+                rating: true,
+                userId: true,
+                createdAt: true,
               },
             },
           },
