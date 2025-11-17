@@ -147,6 +147,7 @@ export class EnrollmentService {
             title: true,
             averageRating: true,
             totalRating: true,
+            thumbnail: true,
 
             _count: {
               select: {
@@ -169,16 +170,8 @@ export class EnrollmentService {
               include: { lessons: true },
             },
 
-            courseView: {
-              select: {
-                id: true,
-                userId: true,
-                ipAddress: true,
-                viewedAt: true,
-              },
-            },
-
             courseRating: {
+              where: { userId },
               select: {
                 id: true,
                 rating: true,

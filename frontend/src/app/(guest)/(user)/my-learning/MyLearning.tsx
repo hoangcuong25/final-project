@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import Image from "next/image";
@@ -8,12 +8,20 @@ import Link from "next/link";
 import { fetchMyEnrollments } from "@/store/enrollmentsSlice";
 import { BookOpen, Layers, Eye, Star } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
+import { rateCourseApi } from "@/api/courses.api";
+import { toast } from "sonner";
+import { RateDialog } from "@/components/course/RateDialog";
 
 export default function MyLearningPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { myEnrollments, loading, error } = useSelector(
     (state: RootState) => state.enrollment
   );
+
+  const [isRating, setIsRating] = useState(false);
+
+  const [openRateDialog, setOpenRateDialog] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
 
   useEffect(() => {
     dispatch(fetchMyEnrollments());
@@ -30,6 +38,36 @@ export default function MyLearningPage() {
       result += `${remainingMinutes} phút`;
     }
     return result.trim() || "0 phút";
+  };
+
+  const handleRateCourse = async (rating: number) => {
+    if (!selectedCourseId) {
+      toast.error("Không tìm thấy khóa học để đánh giá.");
+      return;
+    }
+
+    if (isNaN(rating) || rating < 1 || rating > 5) {
+      toast.error("Đánh giá không hợp lệ. Vui lòng nhập số từ 1 đến 5.");
+      return;
+    }
+
+    setIsRating(true);
+
+    try {
+      const response = await rateCourseApi(selectedCourseId, rating);
+
+      toast.success(response.data.message || "Đánh giá khóa học thành công!");
+
+      // Cập nhật lại danh sách enrollments
+      dispatch(fetchMyEnrollments());
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message || "Đã xảy ra lỗi khi đánh giá.";
+      toast.error(errorMessage);
+    } finally {
+      setIsRating(false);
+      setSelectedCourseId(null); // reset after done
+    }
   };
 
   if (loading && myEnrollments.length === 0) return <LoadingScreen />;
@@ -164,6 +202,16 @@ export default function MyLearningPage() {
                   </div>
                 </div>
 
+                {course && course?.courseRating?.length > 0 && (
+                  <div className="mt-3 flex items-center text-sm text-green-600 font-medium">
+                    <Star className="w-4 h-4 text-yellow-400 mr-1" />
+                    Bạn đã đánh giá:{" "}
+                    <span className="ml-1 font-semibold">
+                      {course?.courseRating[0].rating} ⭐
+                    </span>
+                  </div>
+                )}
+
                 {/* Stats & Buttons */}
                 <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center flex-wrap gap-2">
                   <div className="text-sm text-gray-500 flex items-center gap-3">
@@ -179,9 +227,10 @@ export default function MyLearningPage() {
                     <button
                       type="button"
                       className="px-4 py-2 bg-yellow-400 text-white text-sm font-medium rounded-lg hover:bg-yellow-500 transition duration-200"
-                      onClick={() =>
-                        alert("Hiện UI đánh giá (chưa tích hợp API)")
-                      }
+                      onClick={() => {
+                        setSelectedCourseId(Number(course?.id));
+                        setOpenRateDialog(true);
+                      }}
                     >
                       Đánh giá
                     </button>
@@ -191,6 +240,12 @@ export default function MyLearningPage() {
             </div>
           );
         })}
+
+        <RateDialog
+          open={openRateDialog}
+          setOpen={setOpenRateDialog}
+          onSubmit={handleRateCourse}
+        />
       </div>
 
       <style jsx>{`

@@ -92,6 +92,7 @@ declare global {
     isPublished: boolean;
     totalRating: number;
     averageRating: number;
+    courseRating: any[];
 
     _count?: {
       chapter: number; // Số lượng Chapters
