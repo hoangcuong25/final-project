@@ -2,35 +2,44 @@ import {
   WebSocketGateway,
   WebSocketServer,
   OnGatewayConnection,
-  ConnectedSocket,
   SubscribeMessage,
-  MessageBody,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { Notification } from "@prisma/client";
+import { UseGuards } from "@nestjs/common";
+import { WsJwtAuthGuard } from "../auth/passport/ws-jwt-auth.guard";
+
+interface AuthenticatedSocket extends Socket {
+  user: {
+    id: number;
+  };
+}
 
 @WebSocketGateway({
-  namespace: "notifications", // namespace riêng cho thông báo
+  namespace: "notifications",
   cors: { origin: "*" },
+  guards: [WsJwtAuthGuard],
 })
 export class NotificationGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  handleConnection(client: Socket) {
-    console.log(`Client ${client.id} connected to NOTIFICATIONS`);
-  }
+  /**
+   * Phương thức được gọi sau khi client kết nối thành công và đã được xác thực
+   */
+  handleConnection(client: AuthenticatedSocket) {
+    // Tự động cho client tham gia phòng (Rooms) ngay sau khi kết nối
+    // Không cần client phải gửi sự kiện 'subscribe' thủ công nữa
+    const userId = client.user.id.toString(); // Lấy ID đã được gắn từ Guard
 
-  // Khi client kết nối, họ cần gửi 'subscribe' với userId của họ
-  @SubscribeMessage("subscribe")
-  handleSubscribe(
-    @MessageBody() userId: string,
-    @ConnectedSocket() client: Socket
-  ) {
-    if (!userId) return;
-    // Chúng ta cho client tham gia một "phòng" có tên là User ID của họ
-    client.join(userId);
-    console.log(`Client ${client.id} subscribed to user ${userId}`);
+    if (userId) {
+      client.join(userId);
+      console.log(`Client ${client.id} connected & joined room: ${userId}`);
+    } else {
+      // Trường hợp hiếm gặp nếu Guard có lỗi
+      client.disconnect(true);
+      console.log(`Client ${client.id} failed to retrieve userId.`);
+    }
   }
 
   /**
@@ -39,8 +48,8 @@ export class NotificationGateway implements OnGatewayConnection {
    * @param payload - Thông báo đầy đủ từ Prisma
    */
   sendNotificationToUser(userId: string, payload: Notification) {
-    // Gửi sự kiện 'newNotification' đến "phòng" có tên là userId
-    this.server.to(userId).emit("newNotification", payload);
+    // Tối ưu: Đảm bảo userId là string vì Socket.IO room names là string
+    const roomName = userId.toString();
+    this.server.to(roomName).emit("newNotification", payload);
   }
 }
- 
