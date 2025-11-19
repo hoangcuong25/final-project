@@ -49,20 +49,17 @@ export class NotificationGateway implements OnGatewayConnection {
     }
 
     console.log(client.user);
-    const userId = client.user.email.toString(); // Lấy ID đã được gắn từ Middleware
+    const email = client.user.email.toString(); // Lấy email đã được gắn từ Middleware
 
-    client.join(userId);
-    console.log(`Client ${client.id} connected & joined room: ${userId}`);
+    client.join(email);
+
+    console.log(`Client ${client.id} connected & joined room: ${email}`);
   }
 
   /**
    * Hàm này được gọi bởi NotificationService để đẩy thông báo
-   * @param userId - ID của người dùng (tên phòng)
-   * @param payload - Thông báo đầy đủ từ Prisma
    */
-  sendNotificationToUser(userId: string, payload: Notification) {
-    // Tối ưu: Đảm bảo userId là string vì Socket.IO room names là string
-    const roomName = userId.toString();
-    this.server.to(roomName).emit("newNotification", payload);
+  sendNotificationToUser(email: string, payload: Notification) {
+    this.server.to(email).emit("newNotification", payload);
   }
 }

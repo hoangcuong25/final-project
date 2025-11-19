@@ -122,15 +122,6 @@ const useSocket = () => {
       };
 
       dispatch(addNewNotification(notification as any));
-
-      toast.info(`🔔 ${data.title}`, {
-        description: data.message,
-        duration: 5000,
-        action: {
-          label: "Xem",
-          onClick: () => (window.location.href = "/notifications"),
-        },
-      });
     });
 
     // 5. Cleanup

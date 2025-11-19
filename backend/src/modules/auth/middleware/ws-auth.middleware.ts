@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
-import { JwtService, TokenExpiredError } from "@nestjs/jwt";
+import { JwtService } from "@nestjs/jwt";
 import { WsException } from "@nestjs/websockets";
+import { TokenExpiredError } from "jsonwebtoken";
 
 export type SocketIoMiddleware = (
   socket: Socket,

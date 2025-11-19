@@ -49,7 +49,6 @@ const CoursesClient = ({
 
       try {
         const data = await getAllCoursesApi(params);
-        console.log(data.data.data);
         setCourses(data.data.data ?? []);
       } catch (err) {
         console.error("Fetch courses error:", err);

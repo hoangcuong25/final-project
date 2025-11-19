@@ -48,7 +48,7 @@ export const fetchNotifications = createAsyncThunk(
   async (params: FindNotificationsParams | undefined, { rejectWithValue }) => {
     try {
       const response = await getNotificationsApi(params);
-      return response; // Trả về { data: [], meta: {} }
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi tải thông báo");
     }
@@ -61,7 +61,7 @@ export const fetchUnreadCount = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await getUnreadCountApi();
-      return response; // Giả sử trả về số hoặc object chứa số
+      return response;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data || "Lỗi tải số lượng chưa đọc"
@@ -133,9 +133,7 @@ const notificationsSlice = createSlice({
       })
       .addCase(fetchNotifications.fulfilled, (state, action) => {
         state.loading = false;
-        // Giả sử API trả về { data: [...], meta: {...} }
-        state.notifications = action.payload.data || [];
-        state.meta = action.payload.meta || null;
+        state.notifications = action.payload.data.data || [];
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.loading = false;
@@ -149,7 +147,7 @@ const notificationsSlice = createSlice({
         state.unreadCount =
           typeof action.payload === "number"
             ? action.payload
-            : action.payload.data;
+            : action.payload.data.unreadCount;
       })
 
       // ✅ Mark All Read
