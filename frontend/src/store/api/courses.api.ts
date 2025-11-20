@@ -57,9 +57,14 @@ export const getCourseDetailWithAuthApi = async (id: number) => {
 };
 
 // 🧩 9. Rate a course
-export const rateCourseApi = async (courseId: number, rating: number) => {
+export const rateCourseApi = async (
+  courseId: number,
+  rating: number,
+  text: string
+) => {
   const response = await axiosClient.post(`/course/${courseId}/rating`, {
     rating,
+    text,
   });
   return response.data;
 };

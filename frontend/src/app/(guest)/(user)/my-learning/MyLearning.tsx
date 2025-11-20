@@ -40,7 +40,7 @@ export default function MyLearningPage() {
     return result.trim() || "0 phút";
   };
 
-  const handleRateCourse = async (rating: number) => {
+  const handleRateCourse = async (rating: number, text: string) => {
     if (!selectedCourseId) {
       toast.error("Không tìm thấy khóa học để đánh giá.");
       return;
@@ -54,7 +54,7 @@ export default function MyLearningPage() {
     setIsRating(true);
 
     try {
-      const response = await rateCourseApi(selectedCourseId, rating);
+      const response = await rateCourseApi(selectedCourseId, rating, text);
 
       toast.success(response.data.message || "Đánh giá khóa học thành công!");
 
