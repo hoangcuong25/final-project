@@ -5,10 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import Image from "next/image";
 import Link from "next/link";
-import { fetchMyEnrollments } from "@/store/enrollmentsSlice";
+import { fetchMyEnrollments } from "@/store/slice/enrollmentsSlice";
 import { BookOpen, Layers, Eye, Star } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
-import { rateCourseApi } from "@/api/courses.api";
+import { rateCourseApi } from "@/store/api/courses.api";
 import { toast } from "sonner";
 import { RateDialog } from "@/components/course/RateDialog";
 

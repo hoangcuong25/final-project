@@ -8,7 +8,7 @@ import {
   getCoursesByInstructorApi,
   getCourseDetailApi,
   getCourseDetailWithAuthApi,
-} from "@/api/courses.api";
+} from "@/store/api/courses.api";
 
 // 🧱 State
 interface CourseState {

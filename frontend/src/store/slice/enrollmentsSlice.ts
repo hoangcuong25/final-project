@@ -5,7 +5,7 @@ import {
   getMyEnrollmentsApi,
   createEnrollmentApi,
   cancelEnrollmentApi,
-} from "@/api/enrollments.api";
+} from "@/store/api/enrollments.api";
 
 // 🧱 Kiểu state
 interface EnrollmentState {

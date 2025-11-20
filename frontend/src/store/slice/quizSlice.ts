@@ -6,7 +6,7 @@ import {
   getInstructorQuizzesApi,
   getQuizByIdApi,
   updateQuizApi,
-} from "@/api/quiz.api";
+} from "@/store/api/quiz.api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 interface QuizState {

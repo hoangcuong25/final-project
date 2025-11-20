@@ -4,7 +4,7 @@ import {
   addCourseToCartApi,
   removeCourseFromCartApi,
   clearCartApi,
-} from "@/api/cart.api";
+} from "@/store/api/cart.api";
 
 interface CartState {
   items: CartItemType[];

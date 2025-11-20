@@ -6,7 +6,7 @@ import {
   approveInstructorApi,
   rejectInstructorApi,
   ApplyInstructorPayload,
-} from "@/api/instructor.api";
+} from "@/store/api/instructor.api";
 
 // 🧱 State
 interface InstructorState {

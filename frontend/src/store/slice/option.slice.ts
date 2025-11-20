@@ -6,7 +6,7 @@ import {
   createManyOptionsApi,
   updateOptionApi,
   deleteOptionApi,
-} from "@/api/option.api";
+} from "@/store/api/option.api";
 
 interface OptionState {
   options: OptionType[];

@@ -6,7 +6,7 @@ import {
   markAsReadApi,
   deleteNotificationApi,
   FindNotificationsParams,
-} from "@/api/notifications.api";
+} from "@/store/api/notifications.api";
 
 // 🧱 Types (Bạn có thể tách ra file types riêng nếu cần)
 export interface NotificationType {
@@ -89,7 +89,7 @@ export const markAsRead = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await markAsReadApi(id);
-      return { ...response, id }; // Trả về thêm id để update state
+      return { ...response, id }; 
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi xử lý thông báo");
     }

@@ -5,7 +5,7 @@ import {
   createLessonApi,
   updateLessonApi,
   deleteLessonApi,
-} from "@/api/lesson.api";
+} from "@/store/api/lesson.api";
 
 interface LessonState {
   lessons: LessonType[];

@@ -6,7 +6,7 @@ import {
   updateDiscountApi,
   deleteDiscountApi,
   toggleDiscountStatusApi,
-} from "@/api/discount.api";
+} from "@/store/api/discount.api";
 
 // 🧩 Interface State
 

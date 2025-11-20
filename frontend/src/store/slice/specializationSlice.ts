@@ -6,7 +6,7 @@ import {
   updateSpecializationApi,
   deleteSpecializationApi,
   getSpecializationsByInstructorIdApi,
-} from "@/api/specialization.api";
+} from "@/store/api/specialization.api";
 
 // 🧱 State
 interface SpecializationState {

@@ -6,7 +6,7 @@ import {
   updateQuestionApi,
   deleteQuestionApi,
   saveQuestionApi,
-} from "@/api/question.api";
+} from "@/store/api/question.api";
 
 interface QuestionState {
   questions: QuestionType[];

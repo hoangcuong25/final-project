@@ -1,7 +1,7 @@
 // src/store/userSlice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getUser } from "@/api/user.api";
-import { LogoutApi } from "@/api/auth.api";
+import { getUser } from "@/store/api/user.api";
+import { LogoutApi } from "@/store/api/auth.api";
 import { setLoggingOut } from "@/lib/axiosClient";
 import axios from "axios";
 

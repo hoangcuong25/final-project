@@ -6,7 +6,7 @@ import CourseCard from "@/components/course/CourseCard";
 import CoursesFilter from "@/components/course/CoursesFilter";
 import { Pagination } from "@/components/ui/pagination";
 import LoadingScreen from "@/components/LoadingScreen";
-import { getAllCoursesApi } from "@/api/courses.api";
+import { getAllCoursesApi } from "@/store/api/courses.api";
 
 interface Props {
   initialCourses: any[];

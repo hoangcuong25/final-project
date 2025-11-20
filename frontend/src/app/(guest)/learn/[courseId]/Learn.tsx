@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchCourseDetailWithAuth } from "@/store/coursesSlice";
+import { fetchCourseDetailWithAuth } from "@/store/slice/coursesSlice";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import SidebarLessons from "@/components/learn/SidebarLessons";
 import LoadingScreen from "@/components/LoadingScreen";
-import { increaseCourseViewApi } from "@/api/courses.api";
-import { markLessonCompletedApi } from "@/api/lesson.api";
+import { increaseCourseViewApi } from "@/store/api/courses.api";
+import { markLessonCompletedApi } from "@/store/api/lesson.api";
 
 const Learn = () => {
   const router = useRouter();

@@ -5,7 +5,7 @@ import { io, Socket } from "socket.io-client";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { toast } from "sonner";
-import { addNewNotification } from "@/store/notificationsSlice";
+import { addNewNotification } from "@/store/slice/notificationsSlice";
 import axiosClient from "@/lib/axiosClient";
 
 interface RealtimeNotification {

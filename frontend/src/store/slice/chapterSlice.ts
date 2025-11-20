@@ -5,7 +5,7 @@ import {
   createChapterApi,
   updateChapterApi,
   deleteChapterApi,
-} from "@/api/chapter.api";
+} from "@/store/api/chapter.api";
 
 interface ChapterState {
   chapters: ChapterType[];

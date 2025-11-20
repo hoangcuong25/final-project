@@ -8,7 +8,7 @@ import {
   updateCouponApi,
   createCouponDiscountByAdminApi,
   getCourseCouponsApi,
-} from "@/api/coupon.api";
+} from "@/store/api/coupon.api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 interface CouponState {
