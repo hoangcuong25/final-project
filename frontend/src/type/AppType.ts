@@ -313,4 +313,14 @@ declare global {
     answers: AnswerType[];
     createdAt: string;
   };
+
+  type NotificationType = {
+    id: number;
+    title: string;
+    message: string;
+    isRead: boolean;
+    createdAt: string;
+    userId: number;
+    link?: string;
+};
 }

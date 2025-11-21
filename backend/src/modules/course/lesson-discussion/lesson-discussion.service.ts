@@ -1,6 +1,14 @@
-import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from "@nestjs/common";
 import { PrismaService } from "src/core/prisma/prisma.service";
-import { CreateAnswerDto, CreateQuestionDto, CreateReplyDto } from "./dto/create-lesson-discussion.dto";
+import {
+  CreateAnswerDto,
+  CreateQuestionDto,
+  CreateReplyDto,
+} from "./dto/create-lesson-discussion.dto";
 import { NotificationService } from "src/modules/notification/notification.service";
 import { NotificationType } from "@prisma/client";
 
@@ -84,7 +92,7 @@ export class LessonDiscussionService {
       await this.notificationService.createNotification({
         userId: question.userId,
         title: "Câu hỏi của bạn có câu trả lời mới",
-        type:NotificationType.LESSON_DISCUSSION,
+        type: NotificationType.LESSON_DISCUSSION,
         body: `${answer.user.fullname} đã trả lời câu hỏi của bạn.`,
         link: `/learn/${question.lesson.chapter.courseId}`,
         actorId: userId,
@@ -118,7 +126,7 @@ export class LessonDiscussionService {
     if (parent.userId !== userId) {
       await this.notificationService.createNotification({
         userId: parent.userId,
-        type:NotificationType.LESSON_DISCUSSION,
+        type: NotificationType.LESSON_DISCUSSION,
         title: "Câu trả lời của bạn có phản hồi mới",
         body: `${reply.user.fullname} đã phản hồi câu trả lời của bạn.`,
         link: `/learn/${parent.question.lesson.chapter.courseId}`,
@@ -164,7 +172,9 @@ export class LessonDiscussionService {
     const answer = await this.prisma.lessonAnswer.findUnique({ where: { id } });
     if (!answer) throw new NotFoundException("Câu trả lời không tồn tại");
     if (answer.userId !== userId) {
-      throw new ForbiddenException("Bạn chỉ có thể xóa câu trả lời của chính mình");
+      throw new ForbiddenException(
+        "Bạn chỉ có thể xóa câu trả lời của chính mình"
+      );
     }
 
     return this.prisma.lessonAnswer.delete({ where: { id } });
