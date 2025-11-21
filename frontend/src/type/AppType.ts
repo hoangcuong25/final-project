@@ -290,4 +290,27 @@ declare global {
     course: CourseType;
     quantity?: number;
   };
+
+  type ReplyType = {
+    id: number;
+    content: string;
+    user: UserType;
+    createdAt: string;
+  };
+
+  type AnswerType = {
+    id: number;
+    content: string;
+    user: UserType;
+    replies: ReplyType[];
+    createdAt: string;
+  };
+
+  type DiscussionQuestionType = {
+    id: number;
+    content: string;
+    user: UserType;
+    answers: AnswerType[];
+    createdAt: string;
+  };
 }
