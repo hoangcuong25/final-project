@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { io, Socket, ManagerOptions, SocketOptions } from "socket.io-client";
 import { toast } from "sonner";
 import axiosClient from "@/lib/axiosClient";
@@ -22,7 +22,6 @@ const refreshAccessTokenForSocket = async (): Promise<string | null> => {
     }
     return null;
   } catch (refreshError) {
-    console.error("Token refresh failed via Socket handler");
     localStorage.removeItem("access_token");
     toast.error("Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
     window.location.href = "/login";
@@ -32,23 +31,14 @@ const refreshAccessTokenForSocket = async (): Promise<string | null> => {
 
 const useBaseSocket = (namespace: string): Socket | null => {
   const socketRef = useRef<Socket | null>(null);
+  const [socketState, setSocketState] = useState<Socket | null>(null);
 
   const attemptReconnect = useCallback(
     async (socket: Socket) => {
-      console.log(
-        `Attempting to refresh token and reconnect to ${namespace}...`
-      );
-
       const newAccessToken = await refreshAccessTokenForSocket();
-
       if (newAccessToken) {
-        console.log("Token refreshed successfully. Reconnecting Socket...");
         socket.io.opts.query = { token: newAccessToken };
         socket.connect();
-      } else {
-        console.log(
-          `Critical: Cannot reconnect ${namespace}, Refresh Token expired.`
-        );
       }
     },
     [namespace]
@@ -58,46 +48,29 @@ const useBaseSocket = (namespace: string): Socket | null => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
 
-    const options: Partial<ManagerOptions & SocketOptions> = {
+    const socket = io(`${SOCKET_SERVER_URL}${namespace}`, {
       path: "/socket.io",
-      query: { token: token },
+      query: { token },
       transports: ["websocket"],
       reconnection: false,
-    };
-
-    const socket = io(`${SOCKET_SERVER_URL}${namespace}`, options);
-    socketRef.current = socket;
-
-    socket.on("connect", () => {
-      console.log(`Socket connected to ${namespace}:`, socket.id);
     });
-    const handleConnectError = (err: any) => {
-      console.log(`Socket Connection Error on ${namespace}:`, err.message);
 
+    socketRef.current = socket;
+    setSocketState(socket);
+
+    socket.on("connect_error", (err) => {
       if (err.message === "TokenExpired") {
-        console.log(
-          `Access Token expired on ${namespace}. Initiating refresh sequence...`
-        );
         socket.disconnect();
         attemptReconnect(socket);
-      } else if (err.message.includes("Unauthorized")) {
-        localStorage.removeItem("access_token");
-        toast.error("Unauthorized connection. Please log in.");
-        socket.disconnect();
       }
-    };
-
-    socket.on("connect_error", handleConnectError);
+    });
 
     return () => {
-      console.log(`Socket ${namespace} disconnecting...`);
-      socket.off("connect_error", handleConnectError);
       socket.disconnect();
-      socketRef.current = null;
     };
   }, [namespace, attemptReconnect]);
 
-  return socketRef.current;
+  return socketState;
 };
 
 export default useBaseSocket;

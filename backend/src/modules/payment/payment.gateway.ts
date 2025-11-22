@@ -25,7 +25,6 @@ export class PaymentGateway implements OnGatewayConnection {
 
   afterInit(server: Server) {
     server.use(SocketAuthMiddleware(this.jwtService));
-    console.log("Payment Gateway Initialized with Auth Middleware");
   }
 
   handleConnection(client: AuthenticatedSocket) {
@@ -36,21 +35,14 @@ export class PaymentGateway implements OnGatewayConnection {
 
     const email = client.user.email.toString();
     client.join(`payment-${email}`);
-    console.log(
-      `Payment Client ${client.id} connected & joined room: ${email}`
-    );
   }
 
   handleDisconnect(client: AuthenticatedSocket) {
     const email = client.user.email.toString();
     client.leave(`payment-${email}`);
-    console.log(
-      `Payment Client ${client.id} disconnected & left room: ${email}`
-    );
   }
 
   sendPaymentSuccess(email: string, payload: any) {
-    console.log("run 12");
     this.server.to(`payment-${email}`).emit("paymentSuccess", payload);
   }
 }

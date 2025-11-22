@@ -33,7 +33,6 @@ const DepositWatcher: React.FC<DepositWatcherProps> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   const handlePaymentSuccess = useCallback(() => {
-    console.log("run 2");
     toast.success("Nạp tiền thành công! Số dư đã được cập nhật.");
     const token = localStorage.getItem("access_token");
     if (token) {
@@ -49,12 +48,9 @@ const DepositWatcher: React.FC<DepositWatcherProps> = ({
     const transactionId = depositInfo.id;
 
     socket.emit("joinPaymentStatus", transactionId);
-    console.log(`Payment Socket: Attempting to join room ${transactionId}`);
-
     socket.on("paymentSuccess", handlePaymentSuccess);
 
     return () => {
-      console.log(`Payment Socket: Leaving room ${transactionId}`);
       socket.off("paymentSuccess", handlePaymentSuccess);
       socket.emit("leavePaymentStatus", transactionId);
     };

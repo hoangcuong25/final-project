@@ -25,7 +25,6 @@ const useNotificationSocket = () => {
 
     // 2. Định nghĩa hàm xử lý sự kiện
     const handleNewNotification = (data: RealtimeNotification) => {
-      console.log("Received new notification:", data);
 
       const notification = {
         ...data,
@@ -40,7 +39,6 @@ const useNotificationSocket = () => {
 
     // 4. Cleanup listener cụ thể
     return () => {
-      console.log("Cleaning up newNotification listener...");
       socket.off("newNotification", handleNewNotification);
     };
   }, [socket, dispatch]);

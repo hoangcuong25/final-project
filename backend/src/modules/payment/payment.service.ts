@@ -114,7 +114,6 @@ export class PaymentService {
     const extractedContent = this.extractContent(content);
 
     if (!extractedContent) {
-      console.warn("Không thể extract content từ webhook:", content);
       return "Invalid content format";
     }
 
@@ -124,7 +123,6 @@ export class PaymentService {
     });
 
     if (!payment) {
-      console.warn("Payment not found for content:", extractedContent);
       return "Payment not found";
     }
 
@@ -157,8 +155,6 @@ export class PaymentService {
       }),
     ]);
 
-    console.log("Payment processed successfully:", payment);
-
     // Lấy thông tin user để gửi socket
     const user = await this.prisma.user.findUnique({
       where: { id: payment.userId },
@@ -166,7 +162,6 @@ export class PaymentService {
     });
 
     if (user && user.email) {
-      console.log("run socket");
       this.paymentGateway.sendPaymentSuccess(user.email, {
         status: "success",
         amount,
@@ -174,8 +169,6 @@ export class PaymentService {
         transactionId: payment.id,
       });
     }
-
-    console.log("Payment processed successfully:", payment);
 
     return "OK";
   }
