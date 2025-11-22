@@ -51,7 +51,7 @@ export class NotificationGateway implements OnGatewayConnection {
     console.log(client.user);
     const email = client.user.email.toString(); // Lấy email đã được gắn từ Middleware
 
-    client.join(email);
+    client.join(`notification-${email}`);
 
     console.log(`Client ${client.id} connected & joined room: ${email}`);
   }
@@ -60,6 +60,6 @@ export class NotificationGateway implements OnGatewayConnection {
    * Hàm này được gọi bởi NotificationService để đẩy thông báo
    */
   sendNotificationToUser(email: string, payload: Notification) {
-    this.server.to(email).emit("newNotification", payload);
+    this.server.to(`notification-${email}`).emit("newNotification", payload);
   }
 }
