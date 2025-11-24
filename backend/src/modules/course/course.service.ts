@@ -291,8 +291,11 @@ export class CourseService {
     if (updateCourseDto.title) updateData.title = updateCourseDto.title;
     if (updateCourseDto.description)
       updateData.description = updateCourseDto.description;
-    if (updateCourseDto.isPublished !== undefined)
-      updateData.isPublished = updateCourseDto.isPublished;
+    if (updateCourseDto.isPublished !== undefined) {
+      const isPublished =
+        String(updateCourseDto.isPublished) === "true" ? true : false;
+      updateData.isPublished = isPublished;
+    }
     if (updateCourseDto.type) updateData.type = updateCourseDto.type;
 
     // Nếu là khóa học miễn phí → giá = 0

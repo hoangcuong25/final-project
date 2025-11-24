@@ -55,7 +55,9 @@ export default function UpdateCourse({ course }: Props) {
   const [courseType, setCourseType] = useState<"FREE" | "PAID">(
     course.type || "FREE"
   );
-  const [selectPublic, setSelectPublic] = useState(course.isPublished || false);
+  const [selectPublic, setSelectPublic] = useState(
+    (course.isPublished || false).toString()
+  );
 
   const {
     register,
@@ -123,7 +125,7 @@ export default function UpdateCourse({ course }: Props) {
       formData.append("title", data.title);
       formData.append("description", data.description);
       formData.append("type", courseType);
-      formData.append("isPublished", String(selectPublic ?? false));
+      formData.append("isPublished", selectPublic);
       formData.append(
         "price",
         courseType === "PAID" ? data.price?.toString() ?? "0" : "0"
@@ -227,18 +229,16 @@ export default function UpdateCourse({ course }: Props) {
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="radio"
-                  value="true"
-                  checked={selectPublic === true}
-                  onChange={() => setSelectPublic(true)}
+                  checked={selectPublic === "true"}
+                  onChange={() => setSelectPublic("true")}
                 />
                 Công khai
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="radio"
-                  value="false"
-                  checked={selectPublic === false}
-                  onChange={() => setSelectPublic(false)}
+                  checked={selectPublic === "false"}
+                  onChange={() => setSelectPublic("false")}
                 />
                 Bản nháp
               </label>
