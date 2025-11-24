@@ -22,7 +22,6 @@ import {
   updateCourse,
   fetchCoursesByInstructor,
 } from "@/store/slice/coursesSlice";
-import { fetchSpecializationsByInstructorId } from "@/store/slice/specializationSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import RichTextEditor from "@/components/RichTextEditor";
 
@@ -41,9 +40,6 @@ interface CourseFormData {
 
 export default function UpdateCourse({ course }: Props) {
   const dispatch = useDispatch<AppDispatch>();
-  const { user, loading: userLoading } = useSelector(
-    (state: RootState) => state.user
-  );
   const { instructorSpecializaions, loading: specializationLoading } =
     useSelector((state: RootState) => state.specialization);
 
@@ -77,12 +73,6 @@ export default function UpdateCourse({ course }: Props) {
         course.specializations?.map((s: any) => s.specializationId) || [],
     },
   });
-
-  useEffect(() => {
-    if (user) {
-      dispatch(fetchSpecializationsByInstructorId(Number(user.id)));
-    }
-  }, [dispatch, user]);
 
   const toggleSelect = (id: number) => {
     const updated = selectedSpecs.includes(id)
@@ -157,7 +147,7 @@ export default function UpdateCourse({ course }: Props) {
     }
   };
 
-  if (userLoading || specializationLoading) return <LoadingScreen />;
+  if (specializationLoading) return <LoadingScreen />;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
