@@ -388,6 +388,19 @@ export class CourseService {
     });
   }
 
+  async getPopularCourses(limit: number = 6) {
+    return this.prisma.course.findMany({
+      where: { isPublished: true },
+      orderBy: { viewCount: "desc" },
+      take: limit,
+      include: {
+        instructor: {
+          select: { fullname: true, avatar: true },
+        },
+      },
+    });
+  }
+
   // 🧩 Đánh giá khóa học
   async rateCourse(id: number, rating: number, text: string, userId: number) {
     // 1. Kiểm tra khóa học có tồn tại không
