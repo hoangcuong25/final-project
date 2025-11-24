@@ -104,13 +104,13 @@ const InstructorCoursesPage = () => {
 
                     <span className="flex items-center gap-1">
                       <DollarSign className="w-4 h-4" />
-                      {course.price} LearnCoin
+                      {course.price.toLocaleString()} LearnCoin
                     </span>
                   </div>
 
                   {/* Trạng thái */}
                   <Badge
-                    variant={course.isPublished ? "default" : "secondary"}
+                    variant={course.isPublished ? "success" : "secondary"}
                     className="capitalize"
                   >
                     {course.isPublished ? "Đã xuất bản" : "Bản nháp"}

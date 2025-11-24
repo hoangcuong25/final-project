@@ -374,7 +374,11 @@ export default function UpdateCourse({ course }: Props) {
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Đang lưu..." : "Cập nhật"}
             </Button>
           </DialogFooter>
