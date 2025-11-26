@@ -21,11 +21,7 @@ export class LessonService {
   ) {}
 
   // 🧩 Tạo bài học mới
-  async create(
-    dto: CreateLessonDto,
-    instructorId?: number,
-    video?: Express.Multer.File
-  ) {
+  async create(dto: CreateLessonDto, instructorId?: number) {
     // 🧩 Kiểm tra chapter tồn tại và thuộc khóa học của giảng viên
     const chapter = await this.prisma.chapter.findUnique({
       where: { id: dto.chapterId },
@@ -55,24 +51,14 @@ export class LessonService {
     }
 
     // 🧩 Kiểm tra có video không
-    if (!video) throw new NotFoundException("Cần phải có file video");
-
-    // 🧩 Upload video lên Cloudinary
-    let videoUrl: string | null = null;
-
-    const uploaded = await this.cloudinaryService.uploadFile(
-      video,
-      "lessons",
-      "video"
-    );
-    videoUrl = uploaded.secure_url;
+    if (!dto.videoUrl) throw new NotFoundException("Cần phải có video url");
 
     // 🧩 Tạo bài học
     return this.prisma.lesson.create({
       data: {
         title: dto.title,
         content: dto.content,
-        videoUrl,
+        videoUrl: dto.videoUrl,
         orderIndex: dto.orderIndex ?? 0,
         chapterId: dto.chapterId,
       },

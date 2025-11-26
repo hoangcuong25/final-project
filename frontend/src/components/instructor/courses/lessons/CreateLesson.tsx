@@ -23,6 +23,7 @@ import { fetchCourseById } from "@/store/slice/coursesSlice";
 
 import { lessonSchema, LessonFormData } from "@/hook/zod-schema/LessonSchema";
 import RichTextEditor from "@/components/RichTextEditor";
+import { uploadVideo } from "@/store/api/cloudinary.api";
 
 const CreateLesson = ({
   courseId,
@@ -53,23 +54,28 @@ const CreateLesson = ({
 
   const onSubmit = async (data: LessonFormData) => {
     try {
-      const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("content", data.content);
-      formData.append("orderIndex", String(data.orderIndex ?? "0"));
-      formData.append("chapterId", String(chapterId));
+      let videoUrl = "";
 
-      // ✅ Lấy video
+      // 1. Upload video lên Cloudinary
       if (data.video instanceof FileList && data.video.length > 0) {
-        formData.append("video", data.video[0]);
-      } else if (data.video instanceof File) {
-        formData.append("video", data.video);
+        const file = data.video[0];
+        const uploaded = await uploadVideo(file);
+        videoUrl = uploaded.secure_url;
       } else {
         toast.error("Vui lòng chọn file video.");
         return;
       }
 
-      await dispatch(createLesson(formData)).unwrap();
+      // 2. Gửi formData lên NestJS 
+      const payload = {
+        title: data.title,
+        content: data.content,
+        orderIndex: data.orderIndex ?? 0,
+        chapterId,
+        videoUrl: videoUrl,
+      };
+
+      await dispatch(createLesson(payload)).unwrap();
       await dispatch(fetchCourseById(courseId)).unwrap();
 
       reset();
