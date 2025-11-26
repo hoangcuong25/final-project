@@ -110,12 +110,7 @@ export class LessonService {
   }
 
   // 🧩 Cập nhật bài học
-  async update(
-    id: number,
-    dto: UpdateLessonDto,
-    instructorId: number,
-    video?: Express.Multer.File
-  ) {
+  async update(id: number, dto: UpdateLessonDto, instructorId: number) {
     const existing = await this.prisma.lesson.findUnique({
       where: { id },
       include: { chapter: { include: { course: true } } },
@@ -147,16 +142,8 @@ export class LessonService {
 
     // 🧩 Upload video mới (nếu có)
     let videoUrl = existing.videoUrl;
-    if (video) {
-      // Nếu muốn xóa video cũ, có thể thực hiện ở đây
-      // if (existing.videoUrl) await this.cloudinaryService.deleteFile(existing.videoUrl);
-
-      const uploaded = await this.cloudinaryService.uploadFile(
-        video,
-        "lessons",
-        "video"
-      );
-      videoUrl = uploaded.secure_url;
+    if (dto.videoUrl) {
+      videoUrl = dto.videoUrl;
     }
 
     // 🧩 Cập nhật bài học

@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { lessonSchema, LessonFormData } from "@/hook/zod-schema/LessonSchema";
 import { fetchCourseById } from "@/store/slice/coursesSlice";
 import RichTextEditor from "@/components/RichTextEditor";
+import { uploadVideo } from "@/store/api/cloudinary.api";
 
 const UpdateLesson = ({
   lesson,
@@ -39,7 +40,7 @@ const UpdateLesson = ({
     formState: { errors, isSubmitting },
     reset,
     watch,
-    setValue, // ✅ cần để set content khi onChange editor
+    setValue,
   } = useForm<LessonFormData>({
     resolver: zodResolver(lessonSchema),
     defaultValues: {
@@ -51,25 +52,38 @@ const UpdateLesson = ({
   });
 
   const onSubmit = async (data: LessonFormData) => {
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("content", data.content); // ✅ HTML từ TipTap
-    formData.append("orderIndex", String(data.orderIndex ?? "0"));
-
-    if (data.video instanceof FileList && data.video.length > 0) {
-      formData.append("video", data.video[0]);
-    } else if (data.video instanceof File) {
-      formData.append("video", data.video);
-    } else {
-      formData.append("videoUrl", lesson.videoUrl || "");
-    }
-
     try {
+      let videoUrl = lesson.videoUrl || "";
+
+      // 1. Upload video mới lên Cloudinary nếu có file mới được chọn
+      if (data.video instanceof FileList && data.video.length > 0) {
+        const file = data.video[0];
+        const uploaded = await uploadVideo(file);
+        videoUrl = uploaded.secure_url; // Cập nhật videoUrl mới
+      } else if (data.video instanceof File) {
+        const uploaded = await uploadVideo(data.video);
+        videoUrl = uploaded.secure_url;
+      }
+
+      // 2. Gửi payload lên NestJS
+      const payload = {
+        title: data.title,
+        content: data.content,
+        orderIndex: data.orderIndex ?? 0,
+        videoUrl: videoUrl,
+      };
+
       await dispatch(
-        updateLesson({ id: lesson.id, payload: formData })
+        updateLesson({ id: lesson.id, payload: payload })
       ).unwrap();
       await dispatch(fetchCourseById(courseId)).unwrap();
-      reset();
+
+      reset({
+        title: data.title,
+        content: data.content,
+        orderIndex: data.orderIndex,
+        video: undefined,
+      });
       setOpen(false);
       toast.success("Cập nhật bài học thành công!");
     } catch (err: any) {
@@ -150,7 +164,8 @@ const UpdateLesson = ({
             <Input type="file" accept="video/*" {...register("video")} />
             {selectedFileName ? (
               <p className="text-sm text-gray-500 mt-1">
-                Đã chọn: {selectedFileName}
+                Đã chọn video mới: **{selectedFileName}** (Video cũ sẽ bị thay
+                thế)
               </p>
             ) : lesson.videoUrl ? (
               <p className="text-sm text-gray-500 mt-1">
@@ -159,11 +174,14 @@ const UpdateLesson = ({
                   href={lesson.videoUrl}
                   target="_blank"
                   className="text-blue-600 underline"
+                  rel="noopener noreferrer"
                 >
                   Xem video
                 </a>
               </p>
-            ) : null}
+            ) : (
+              <p className="text-sm text-gray-500 mt-1">Chưa có video.</p>
+            )}
           </div>
 
           {/* Nút lưu */}

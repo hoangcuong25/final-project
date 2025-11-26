@@ -39,18 +39,15 @@ export class LessonController {
 
   @Patch(":id")
   @Roles("INSTRUCTOR")
-  @ApiConsumes("multipart/form-data")
   @ApiOperation({ summary: "Update lesson by ID" })
   @ResponseMessage("Lesson updated successfully")
-  @UseInterceptors(FileInterceptor("video"))
   @ApiBearerAuth()
   update(
     @Param("id") id: string,
     @Body() dto: UpdateLessonDto,
-    @Req() req: any,
-    @UploadedFile() video?: Express.Multer.File
+    @Req() req: any
   ) {
-    return this.lessonService.update(+id, dto, req.user.id, video);
+    return this.lessonService.update(+id, dto, req.user.id);
   }
 
   @Get()

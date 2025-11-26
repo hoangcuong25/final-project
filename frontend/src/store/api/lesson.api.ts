@@ -20,11 +20,7 @@ export const createLessonApi = async (payload: any) => {
 
 // 🧩 4. Cập nhật bài học
 export const updateLessonApi = async (id: number, payload: any) => {
-  const response = await axiosClient.patch(`/lesson/${id}`, payload, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  const response = await axiosClient.patch(`/lesson/${id}`, payload);
   return response.data;
 };
 
