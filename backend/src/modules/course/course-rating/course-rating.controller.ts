@@ -35,7 +35,7 @@ export class RatingController {
   })
   @ResponseMessage("Get all ratings")
   findAll(
-    @Query("courseId") courseId: string, 
+    @Query("courseId") courseId: string,
     @Query("page") page = 1,
     @Query("limit") limit = 10
   ) {
@@ -44,7 +44,7 @@ export class RatingController {
   }
 
   @Get(":id")
-  @Public() 
+  @Public()
   @ApiOperation({ summary: "Get rating detail by ID" })
   @ResponseMessage("Get rating detail")
   findOne(@Param("id") id: string) {
@@ -55,16 +55,15 @@ export class RatingController {
   @ApiOperation({ summary: "Update a rating by ID" })
   @ResponseMessage("Update rating successfully")
   @ApiBearerAuth()
-  update(@Param("id") id: string, @Body() dto: UpdateRatingDto) {
-    return this.ratingService.update(+id, dto);
+  update(@Param("id") id: string, @Body() dto: UpdateRatingDto, @Req() req) {
+    return this.ratingService.update(+id, dto, req.user.id);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete a rating by ID" })
   @ResponseMessage("Delete rating successfully")
   @ApiBearerAuth()
-  remove(@Param("id") id: string) {
-    return this.ratingService.remove(+id);
+  remove(@Param("id") id: string, @Req() req) {
+    return this.ratingService.remove(+id, req.user.id);
   }
-  
 }

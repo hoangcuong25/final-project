@@ -6,7 +6,11 @@ import {
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CreateRatingDto } from "./dto/create-course-rating.dto";
 import { UpdateRatingDto } from "./dto/update-course-rating.dto";
-import { buildOrderBy, buildPaginationParams, buildPaginationResponse } from "src/core/helpers/pagination.util";
+import {
+  buildOrderBy,
+  buildPaginationParams,
+  buildPaginationResponse,
+} from "src/core/helpers/pagination.util";
 
 @Injectable()
 export class RatingService {
@@ -17,8 +21,21 @@ export class RatingService {
 
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
+      include: {
+        enrollments: {
+          where: { userId },
+          select: { id: true },
+        },
+      },
     });
     if (!course) throw new NotFoundException("Course not found");
+
+    // Check if user is enrolled in the course
+    if (course.enrollments.length === 0) {
+      throw new BadRequestException(
+        "You must be enrolled in this course to rate it"
+      );
+    }
 
     if (rating < 1 || rating > 5)
       throw new BadRequestException("Rating must be between 1–5");
@@ -72,23 +89,22 @@ export class RatingService {
 
     const [items, total] = await this.prisma.$transaction([
       this.prisma.courseRating.findMany({
-        where: baseWhere, 
+        where: baseWhere,
         include: {
           user: { select: { id: true, fullname: true, avatar: true } },
         },
-        orderBy: orderByParams, 
-        skip: paginationParams.skip, 
-        take: paginationParams.take, 
+        orderBy: orderByParams,
+        skip: paginationParams.skip,
+        take: paginationParams.take,
       }),
       this.prisma.courseRating.count({ where: baseWhere }),
     ]);
 
-
     return buildPaginationResponse(
       items,
       total,
-      paginationParams.page, 
-      paginationParams.limit 
+      paginationParams.page,
+      paginationParams.limit
     );
   }
 
@@ -98,7 +114,38 @@ export class RatingService {
     return rating;
   }
 
-  async update(id: number, dto: UpdateRatingDto) {
+  async update(id: number, dto: UpdateRatingDto, userId: number) {
+    // Find the rating and verify ownership
+    const existingRating = await this.prisma.courseRating.findUnique({
+      where: { id },
+      include: {
+        course: {
+          include: {
+            enrollments: {
+              where: { userId },
+              select: { id: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!existingRating) {
+      throw new NotFoundException("Rating not found");
+    }
+
+    // Check if the user owns this rating
+    if (existingRating.userId !== userId) {
+      throw new BadRequestException("You can only update your own ratings");
+    }
+
+    // Check if user is still enrolled
+    if (existingRating.course.enrollments.length === 0) {
+      throw new BadRequestException(
+        "You must be enrolled in this course to update the rating"
+      );
+    }
+
     const rating = await this.prisma.courseRating.update({
       where: { id },
       data: dto,
@@ -106,7 +153,21 @@ export class RatingService {
     return rating;
   }
 
-  async remove(id: number) {
+  async remove(id: number, userId: number) {
+    // Find the rating and verify ownership
+    const existingRating = await this.prisma.courseRating.findUnique({
+      where: { id },
+    });
+
+    if (!existingRating) {
+      throw new NotFoundException("Rating not found");
+    }
+
+    // Check if the user owns this rating
+    if (existingRating.userId !== userId) {
+      throw new BadRequestException("You can only delete your own ratings");
+    }
+
     await this.prisma.courseRating.delete({ where: { id } });
     return { message: "Rating deleted" };
   }
