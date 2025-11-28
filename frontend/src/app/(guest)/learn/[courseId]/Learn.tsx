@@ -220,15 +220,6 @@ const Learn = () => {
               </div>
             </div>
 
-            {/* Tabs */}
-            <LessonContentTabs
-              currentLesson={currentLesson}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              totalRating={currentCourse?.totalRating}
-              averageRating={currentCourse?.averageRating}
-            />
-
             {/* Quiz */}
             <div
               id="quiz-section"
@@ -272,6 +263,15 @@ const Learn = () => {
                 </p>
               )}
             </div>
+
+            {/* Tabs */}
+            <LessonContentTabs
+              currentLesson={currentLesson}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              totalRating={currentCourse?.totalRating}
+              averageRating={currentCourse?.averageRating}
+            />
           </div>
         </div>
       </main>

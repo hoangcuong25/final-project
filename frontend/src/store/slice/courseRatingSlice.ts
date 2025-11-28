@@ -109,8 +109,8 @@ const courseRatingSlice = createSlice({
       })
       .addCase(fetchCourseRatings.fulfilled, (state, action) => {
         state.loading = false;
-        state.ratings = action.payload.data || action.payload;
-        state.pagination = action.payload.meta || null; 
+        state.ratings = action.payload.data?.data || [];
+        state.pagination = action.payload.data?.pagination || null;
       })
       .addCase(fetchCourseRatings.rejected, (state, action) => {
         state.loading = false;
