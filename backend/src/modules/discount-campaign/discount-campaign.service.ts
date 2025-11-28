@@ -15,7 +15,7 @@ import {
 } from "src/core/helpers/pagination.util";
 
 @Injectable()
-export class DiscountService {
+export class DiscountCampaignService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateDiscountDto, createdById: number) {

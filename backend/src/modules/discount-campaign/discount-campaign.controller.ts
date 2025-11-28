@@ -9,17 +9,19 @@ import {
   Req,
   Query,
 } from "@nestjs/common";
-import { DiscountService } from "./discount.service";
 import { CreateDiscountDto } from "./dto/create-discount.dto";
 import { UpdateDiscountDto } from "./dto/update-discount.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Roles, Public, ResponseMessage } from "src/core/decorator/customize";
 import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
+import { DiscountCampaignService } from "./discount-campaign.service";
 
 @ApiTags("Discount Campaign")
 @Controller("discount")
-export class DiscountController {
-  constructor(private readonly discountService: DiscountService) {}
+export class DiscountCampaignController {
+  constructor(
+    private readonly discountCampaignService: DiscountCampaignService
+  ) {}
 
   @Post()
   @Roles("ADMIN")
@@ -27,7 +29,7 @@ export class DiscountController {
   @ApiOperation({ summary: "Create new discount campaign" })
   @ResponseMessage("Create discount campaign")
   create(@Body() dto: CreateDiscountDto, @Req() req) {
-    return this.discountService.create(dto, req.user.id);
+    return this.discountCampaignService.create(dto, req.user.id);
   }
 
   @Get()
@@ -37,7 +39,7 @@ export class DiscountController {
   })
   @ResponseMessage("Get all discount campaigns")
   findAll(@Query() query: PaginationQueryDto) {
-    return this.discountService.findAll(query);
+    return this.discountCampaignService.findAll(query);
   }
 
   @Get(":id")
@@ -45,7 +47,7 @@ export class DiscountController {
   @ApiOperation({ summary: "Get discount campaign detail by ID" })
   @ResponseMessage("Get discount campaign detail")
   findOne(@Param("id") id: string) {
-    return this.discountService.findOne(+id);
+    return this.discountCampaignService.findOne(+id);
   }
 
   @Patch(":id")
@@ -54,7 +56,7 @@ export class DiscountController {
   @ApiOperation({ summary: "Update a discount campaign" })
   @ResponseMessage("Update discount campaign")
   update(@Param("id") id: string, @Body() dto: UpdateDiscountDto, @Req() req) {
-    return this.discountService.update(+id, dto, req.user.id);
+    return this.discountCampaignService.update(+id, dto, req.user.id);
   }
 
   @Delete(":id")
@@ -63,7 +65,7 @@ export class DiscountController {
   @ApiOperation({ summary: "Delete a discount campaign" })
   @ResponseMessage("Delete discount campaign")
   remove(@Param("id") id: string) {
-    return this.discountService.remove(+id);
+    return this.discountCampaignService.remove(+id);
   }
 
   @Patch(":id/toggle")
@@ -72,6 +74,6 @@ export class DiscountController {
   @ApiOperation({ summary: "Toggle active status of discount campaign" })
   @ResponseMessage("Toggle discount campaign status")
   toggleStatus(@Param("id") id: string) {
-    return this.discountService.toggleStatus(+id);
+    return this.discountCampaignService.toggleStatus(+id);
   }
 }
