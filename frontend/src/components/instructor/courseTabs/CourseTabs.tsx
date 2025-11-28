@@ -60,7 +60,13 @@ const CourseTabs = ({ currentCourse }: CourseTabsProps) => {
 
         {activeTab === "qna" && <QAndATabs />}
 
-        {activeTab === "reviews" && <RatingTabs />}
+        {activeTab === "reviews" && (
+          <RatingTabs
+            courseId={currentCourse.id}
+            averageRating={currentCourse.averageRating}
+            totalRating={currentCourse.totalRating}
+          />
+        )}
       </div>
     </div>
   );
