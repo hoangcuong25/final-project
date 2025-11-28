@@ -4,12 +4,14 @@ import React, { useEffect, useState } from "react";
 import { MessageCircle, Star } from "lucide-react";
 import { RateDialog } from "../course/RateDialog";
 import { toast } from "sonner";
-import { rateCourseApi } from "@/store/api/courses.api";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { fetchMyEnrollments } from "@/store/slice/enrollmentsSlice";
 import { useParams } from "next/navigation";
-import { fetchCourseRatings } from "@/store/slice/coursesSlice";
+import {
+  fetchCourseRatings,
+  createRating,
+} from "@/store/slice/courseRatingSlice";
 import LessonDiscussion from "./LessonDiscussion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -35,8 +37,8 @@ const LessonContentTabs: React.FC<LessonContentTabsProps> = ({
   totalRating,
   averageRating,
 }) => {
-  const { courseRatings, loading } = useSelector(
-    (state: RootState) => state.courses
+  const { ratings: courseRatings, loading } = useSelector(
+    (state: RootState) => state.courseRating
   );
 
   const params = useParams();
@@ -61,14 +63,16 @@ const LessonContentTabs: React.FC<LessonContentTabsProps> = ({
     setIsRating(true);
 
     try {
-      const response = await rateCourseApi(courseId, rating, text);
+      await dispatch(createRating({ courseId, rating, text })).unwrap();
 
       toast.success("Đánh giá khóa học thành công!");
 
       dispatch(fetchMyEnrollments());
+      dispatch(
+        fetchCourseRatings({ courseId, params: { page: 1, limit: 10 } })
+      );
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.message || "Đã xảy ra lỗi khi đánh giá.";
+      const errorMessage = err || "Đã xảy ra lỗi khi đánh giá.";
       toast.error(errorMessage);
     } finally {
       setIsRating(false);

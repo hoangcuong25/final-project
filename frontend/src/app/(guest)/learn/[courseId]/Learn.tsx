@@ -4,10 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import {
-  fetchCourseDetailWithAuth,
-  fetchCourseRatings,
-} from "@/store/slice/coursesSlice";
+import { fetchCourseDetailWithAuth } from "@/store/slice/coursesSlice";
+import { fetchCourseRatings } from "@/store/slice/courseRatingSlice";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
