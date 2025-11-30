@@ -1,34 +1,63 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { InstructorAnalyticsService } from './instructor-analytics.service';
-import { CreateInstructorAnalyticDto } from './dto/create-instructor-analytic.dto';
-import { UpdateInstructorAnalyticDto } from './dto/update-instructor-analytic.dto';
+import { Controller, Get, Query, Req } from "@nestjs/common";
+import { InstructorAnalyticsService } from "./instructor-analytics.service";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { GetDailyStatsDto } from "./dto/get-daily-stats.dto";
+import { GetEarningsDto } from "./dto/get-earnings.dto";
 
-@Controller('instructor-analytics')
+@ApiTags("Instructor Analytics")
+@Controller("instructor-analytics")
 export class InstructorAnalyticsController {
-  constructor(private readonly instructorAnalyticsService: InstructorAnalyticsService) {}
+  constructor(
+    private readonly instructorAnalyticsService: InstructorAnalyticsService
+  ) {}
 
-  @Post()
-  create(@Body() createInstructorAnalyticDto: CreateInstructorAnalyticDto) {
-    return this.instructorAnalyticsService.create(createInstructorAnalyticDto);
+  @Get("overview")
+  @Roles("INSTRUCTOR")
+  @ApiOperation({ summary: "Get instructor overview statistics" })
+  @ResponseMessage("Get instructor overview statistics")
+  @ApiBearerAuth()
+  getOverview(@Req() req) {
+    const instructorId = req.user.id;
+    return this.instructorAnalyticsService.getOverview(instructorId);
   }
 
-  @Get()
-  findAll() {
-    return this.instructorAnalyticsService.findAll();
+  @Get("daily-stats")
+  @Roles("INSTRUCTOR")
+  @ApiOperation({ summary: "Get instructor daily statistics" })
+  @ResponseMessage("Get instructor daily statistics")
+  @ApiBearerAuth()
+  getDailyStats(@Query() dto: GetDailyStatsDto, @Req() req) {
+    const instructorId = req.user.id;
+    const startDate = dto.startDate ? new Date(dto.startDate) : undefined;
+    const endDate = dto.endDate ? new Date(dto.endDate) : undefined;
+    return this.instructorAnalyticsService.getDailyStats(
+      instructorId,
+      startDate,
+      endDate
+    );
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.instructorAnalyticsService.findOne(+id);
+  @Get("courses")
+  @Roles("INSTRUCTOR")
+  @ApiOperation({ summary: "Get analytics for all instructor courses" })
+  @ResponseMessage("Get course analytics")
+  @ApiBearerAuth()
+  getCourseAnalytics(@Req() req) {
+    const instructorId = req.user.id;
+    return this.instructorAnalyticsService.getCourseAnalytics(instructorId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateInstructorAnalyticDto: UpdateInstructorAnalyticDto) {
-    return this.instructorAnalyticsService.update(+id, updateInstructorAnalyticDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.instructorAnalyticsService.remove(+id);
+  @Get("earnings")
+  @Roles("INSTRUCTOR")
+  @ApiOperation({ summary: "Get instructor earnings history" })
+  @ResponseMessage("Get earnings history")
+  @ApiBearerAuth()
+  getEarningsHistory(@Query() dto: GetEarningsDto, @Req() req) {
+    const instructorId = req.user.id;
+    return this.instructorAnalyticsService.getEarningsHistory(
+      instructorId,
+      dto
+    );
   }
 }
