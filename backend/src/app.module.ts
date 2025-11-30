@@ -25,6 +25,7 @@ import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { THROTTLER_CONFIG } from "./core/rate-limit/rate-limit";
 import { APP_GUARD } from "@nestjs/core";
 import { DiscountCampaignModule } from "./modules/discount-campaign/discount-campaign.module";
+import { InstructorAnalyticsModule } from './modules/instructor-analytics/instructor-analytics.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { DiscountCampaignModule } from "./modules/discount-campaign/discount-cam
     EnrollmentModule,
     CartModule,
     NotificationModule,
+    InstructorAnalyticsModule,
   ],
   controllers: [AppController],
   providers: [
