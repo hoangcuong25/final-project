@@ -156,10 +156,10 @@ export class InstructorAnalyticsService {
     // Build sort
     const orderBy = buildOrderBy(dto);
 
-    // Build search (nếu bạn muốn cho phép tìm kiếm theo note hoặc type)
+    // Build search 
     const searchFilter = buildSearchFilter<Prisma.InstructorEarningWhereInput>(
       dto,
-      ["type"] // bạn có thể thêm ["type", "transaction.note"] nếu muốn search nested
+      ["type"] 
     );
 
     const where: Prisma.InstructorEarningWhereInput = {
