@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { PrismaService } from "src/core/prisma/prisma.service";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 
 @Injectable()
 export class CronService {
@@ -9,22 +9,10 @@ export class CronService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  // async handleDailyStats() {
-  //   this.logger.log("Running daily stats cron job...");
-  //   // Run for yesterday
-  //   const yesterday = dayjs().subtract(1, "day").toDate();
-  //   await this.updateCourseDailyStats(yesterday);
-  //   this.logger.log("Daily stats cron job completed.");
-  // }
-
-  @Cron(
-    process.env.NODE_ENV === "development"
-      ? CronExpression.EVERY_10_SECONDS
-      : CronExpression.EVERY_DAY_AT_MIDNIGHT
-  )
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleDailyStats() {
     this.logger.log("Running daily stats cron job...");
+    // Run for yesterday
     const yesterday = dayjs().subtract(1, "day").toDate();
     await this.updateCourseDailyStats(yesterday);
     this.logger.log("Daily stats cron job completed.");
