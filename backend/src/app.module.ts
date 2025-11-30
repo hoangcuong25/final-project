@@ -25,8 +25,9 @@ import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { THROTTLER_CONFIG } from "./core/rate-limit/rate-limit";
 import { APP_GUARD } from "@nestjs/core";
 import { DiscountCampaignModule } from "./modules/discount-campaign/discount-campaign.module";
-import { InstructorAnalyticsModule } from './modules/instructor-analytics/instructor-analytics.module';
-import { CronModule } from './modules/cron/cron.module';
+import { InstructorAnalyticsModule } from "./modules/instructor-analytics/instructor-analytics.module";
+import { CronModule } from "./modules/cron/cron.module";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { CronModule } from './modules/cron/cron.module';
     NotificationModule,
     InstructorAnalyticsModule,
     CronModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [
