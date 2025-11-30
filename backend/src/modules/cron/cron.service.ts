@@ -15,6 +15,7 @@ export class CronService {
     // Run for yesterday
     const yesterday = dayjs().subtract(1, "day").toDate();
     await this.updateCourseDailyStats(yesterday);
+    await this.updateInstructorDailyStats(yesterday);
     this.logger.log("Daily stats cron job completed.");
   }
 
@@ -98,5 +99,84 @@ export class CronService {
         });
       }
     }
+  }
+
+  async updateInstructorDailyStats(date: Date = new Date()) {
+    const startOfDay = dayjs(date).startOf("day").toDate();
+
+    this.logger.log(
+      `Updating instructor daily stats for ${startOfDay.toISOString()}`
+    );
+
+    // 1. Get all instructors (users with role INSTRUCTOR)
+    const instructors = await this.prisma.user.findMany({
+      where: { role: "INSTRUCTOR" },
+      select: { id: true },
+    });
+
+    for (const instructor of instructors) {
+      // 2. Get all courses for this instructor
+      const instructorCourses = await this.prisma.course.findMany({
+        where: { instructorId: instructor.id },
+        select: { id: true },
+      });
+
+      const courseIds = instructorCourses.map((c) => c.id);
+
+      if (courseIds.length === 0) {
+        // Skip instructors with no courses
+        continue;
+      }
+
+      // 3. Aggregate stats from CourseDailyStats for this instructor's courses
+      const stats = await this.prisma.courseDailyStats.aggregate({
+        where: {
+          courseId: { in: courseIds },
+          date: startOfDay,
+        },
+        _sum: {
+          views: true,
+          enrollments: true,
+          revenue: true,
+        },
+      });
+
+      const totalViews = stats._sum.views || 0;
+      const totalEnrollments = stats._sum.enrollments || 0;
+      const totalRevenue = stats._sum.revenue || 0;
+
+      // 4. Upsert InstructorDailyStats
+      const existingStat = await this.prisma.instructorDailyStats.findFirst({
+        where: {
+          instructorId: instructor.id,
+          date: startOfDay,
+        },
+      });
+
+      if (existingStat) {
+        await this.prisma.instructorDailyStats.update({
+          where: { id: existingStat.id },
+          data: {
+            totalViews,
+            totalEnrollments,
+            totalRevenue,
+          },
+        });
+      } else {
+        await this.prisma.instructorDailyStats.create({
+          data: {
+            instructorId: instructor.id,
+            date: startOfDay,
+            totalViews,
+            totalEnrollments,
+            totalRevenue,
+          },
+        });
+      }
+    }
+
+    this.logger.log(
+      `Instructor daily stats updated for ${instructors.length} instructors`
+    );
   }
 }
