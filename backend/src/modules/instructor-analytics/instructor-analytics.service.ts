@@ -193,4 +193,68 @@ export class InstructorAnalyticsService {
 
     return buildPaginationResponse(earnings, total, page, limit);
   }
+
+  async getEnrollmentStats(instructorId: number) {
+    const instructorCourses = await this.prisma.course.findMany({
+      where: { instructorId },
+      select: { id: true },
+    });
+
+    const courseIds = instructorCourses.map((c) => c.id);
+
+    if (courseIds.length === 0) {
+      return {
+        totalStudents: 0,
+        totalEnrollments: 0,
+        averageProgress: 0,
+        completedEnrollmentsCount: 0,
+      };
+    }
+
+    const [enrollmentStats, uniqueStudents, completedCount] = await Promise.all(
+      [
+        // 1. Tính tổng số Enrollment và tổng Progress (để tính trung bình)
+        this.prisma.enrollment.aggregate({
+          where: { courseId: { in: courseIds } },
+          _sum: {
+            progress: true,
+          },
+          _count: {
+            id: true,
+          },
+        }),
+
+        // 2. Tính số lượng Học viên duy nhất (Total Students)
+        this.prisma.enrollment.groupBy({
+          by: ["userId"],
+          where: { courseId: { in: courseIds } },
+          _count: { userId: true },
+        }),
+
+        // 3. Tính số lần Enrollment đã hoàn thành (Completed)
+        this.prisma.enrollment.count({
+          where: {
+            courseId: { in: courseIds },
+            progress: { gte: 100 }, // Giả định tiến độ 100% là hoàn thành
+          },
+        }),
+      ]
+    );
+
+    const totalEnrollments = enrollmentStats._count.id || 0;
+    const totalProgressSum = enrollmentStats._sum.progress || 0;
+
+    // Tính tiến độ trung bình
+    const averageProgress =
+      totalEnrollments > 0
+        ? parseFloat((totalProgressSum / totalEnrollments).toFixed(2))
+        : 0;
+
+    return {
+      totalStudents: uniqueStudents.length,
+      totalEnrollments,
+      averageProgress,
+      completedEnrollmentsCount: completedCount,
+    };
+  }
 }

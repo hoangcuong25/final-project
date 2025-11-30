@@ -60,4 +60,19 @@ export class InstructorAnalyticsController {
       dto
     );
   }
+
+  @Get("enrollment-stats")
+  @Roles("INSTRUCTOR")
+  @ApiOperation({
+    summary: "Get enrollment statistics for all instructor courses",
+  })
+  @ResponseMessage("Get enrollment statistics")
+  @ApiBearerAuth()
+  getEnrollmentStats(
+    // @Query() dto: GetCourseAnalyticsDto,
+    @Req() req
+  ) {
+    const instructorId = req.user.id;
+    return this.instructorAnalyticsService.getEnrollmentStats(instructorId);
+  }
 }
