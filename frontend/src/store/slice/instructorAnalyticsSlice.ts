@@ -4,7 +4,15 @@ import {
   getDailyStatsApi,
   getCourseAnalyticsApi,
   getEarningsHistoryApi,
+  getEnrollmentStatsApi,
 } from "../api/instructorAnalytics.api";
+
+interface EnrollmentStats {
+  totalStudents: number;
+  totalEnrollments: number;
+  averageProgress: number;
+  completedEnrollmentsCount: number;
+}
 
 interface InstructorAnalyticsState {
   overview: {
@@ -25,6 +33,7 @@ interface InstructorAnalyticsState {
       pageSize: number;
     };
   } | null;
+  enrollmentStats: EnrollmentStats | null;
   loading: boolean;
   error: string | null;
 }
@@ -34,6 +43,7 @@ const initialState: InstructorAnalyticsState = {
   dailyStats: [],
   courseAnalytics: [],
   earnings: null,
+  enrollmentStats: null,
   loading: false,
   error: null,
 };
@@ -101,6 +111,20 @@ export const fetchEarningsHistory = createAsyncThunk(
   }
 );
 
+export const fetchEnrollmentStats = createAsyncThunk(
+  "instructorAnalytics/fetchEnrollmentStats",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getEnrollmentStatsApi();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch enrollment stats"
+      );
+    }
+  }
+);
+
 const instructorAnalyticsSlice = createSlice({
   name: "instructorAnalytics",
   initialState,
@@ -160,6 +184,19 @@ const instructorAnalyticsSlice = createSlice({
         state.earnings = action.payload;
       })
       .addCase(fetchEarningsHistory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // Enrollment Stats
+      .addCase(fetchEnrollmentStats.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEnrollmentStats.fulfilled, (state, action) => {
+        state.loading = false;
+        state.enrollmentStats = action.payload;
+      })
+      .addCase(fetchEnrollmentStats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

@@ -33,3 +33,11 @@ export const getEarningsHistoryApi = async (params?: {
   });
   return response.data;
 };
+
+// 5. Get enrollment statistics
+export const getEnrollmentStatsApi = async () => {
+  const response = await axiosClient.get(
+    "/instructor-analytics/enrollment-stats"
+  );
+  return response.data;
+};

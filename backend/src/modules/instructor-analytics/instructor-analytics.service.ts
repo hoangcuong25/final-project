@@ -235,7 +235,7 @@ export class InstructorAnalyticsService {
         this.prisma.enrollment.count({
           where: {
             courseId: { in: courseIds },
-            progress: { gte: 100 }, // Giả định tiến độ 100% là hoàn thành
+            progress: { gte: 100 },
           },
         }),
       ]
