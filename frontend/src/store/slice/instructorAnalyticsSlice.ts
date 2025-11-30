@@ -14,6 +14,28 @@ interface EnrollmentStats {
   completedEnrollmentsCount: number;
 }
 
+interface InstructorEarning {
+  id: number;
+  courseId: number;
+  amount: number;
+  type: string;
+  createdAt: string;
+  transaction: {
+    id: number;
+    note: string | null;
+  } | null;
+}
+
+interface EarningsResponse {
+  data: InstructorEarning[];
+  pagination: {
+    total: number;
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+  };
+}
+
 interface InstructorAnalyticsState {
   overview: {
     totalRevenue: number;
@@ -24,15 +46,7 @@ interface InstructorAnalyticsState {
   } | null;
   dailyStats: any[];
   courseAnalytics: any[];
-  earnings: {
-    data: any[];
-    pagination: {
-      total: number;
-      totalPages: number;
-      currentPage: number;
-      pageSize: number;
-    };
-  } | null;
+  earnings: EarningsResponse | null;
   enrollmentStats: EnrollmentStats | null;
   loading: boolean;
   error: string | null;

@@ -122,7 +122,7 @@ export class EnrollmentService {
       });
 
       // 3. Tính chiết khấu 20% cho giảng viên
-      const instructorEarningAmount = finalPrice * 0.2;
+      const instructorEarningAmount = finalPrice * 0.8;
 
       // 4. Cộng tiền vào ví giảng viên
       await tx.user.update({
@@ -136,7 +136,7 @@ export class EnrollmentService {
           userId: course.instructorId,
           amount: instructorEarningAmount,
           type: "COURSE_PURCHASE",
-          note: `Thu nhập từ khóa học #${courseId} (20% chiết khấu)`,
+          note: `Thu nhập từ khóa học #${courseId} (20% phí)`,
         },
       });
 
@@ -186,7 +186,7 @@ export class EnrollmentService {
     await this.notificationService.createNotification({
       userId: course.instructorId,
       title: "Thu nhập mới từ khóa học!",
-      body: `Bạn đã nhận được ${instructorEarningAmount.toLocaleString()} VND (20% chiết khấu) từ khóa học **${course.title}**.`,
+      body: `Bạn đã nhận được ${instructorEarningAmount.toLocaleString()} VND (20% phí) từ khóa học **${course.title}**.`,
       type: "WALLET",
       link: `/instructor/earnings`,
     });

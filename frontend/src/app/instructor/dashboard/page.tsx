@@ -48,7 +48,7 @@ export default function InstructorDashboard() {
       color: "text-blue-600",
     },
     {
-      title: "Học viên",
+      title: "Tổng số đăng ký",
       value: overview?.totalEnrollments || 0,
       icon: Users,
       color: "text-green-600",
