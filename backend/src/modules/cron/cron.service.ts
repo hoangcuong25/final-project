@@ -71,33 +71,26 @@ export class CronService {
       const revenue = earnings._sum.amount || 0;
 
       // 5. Upsert CourseDailyStats
-      const existingStat = await this.prisma.courseDailyStats.findFirst({
+      await this.prisma.courseDailyStats.upsert({
         where: {
-          courseId: course.id,
-          date: startOfDay,
-        },
-      });
-
-      if (existingStat) {
-        await this.prisma.courseDailyStats.update({
-          where: { id: existingStat.id },
-          data: {
-            views,
-            enrollments,
-            revenue,
-          },
-        });
-      } else {
-        await this.prisma.courseDailyStats.create({
-          data: {
+          courseId_date: {
             courseId: course.id,
             date: startOfDay,
-            views,
-            enrollments,
-            revenue,
           },
-        });
-      }
+        },
+        update: {
+          views,
+          enrollments,
+          revenue,
+        },
+        create: {
+          courseId: course.id,
+          date: startOfDay,
+          views,
+          enrollments,
+          revenue,
+        },
+      });
     }
   }
 
@@ -146,33 +139,26 @@ export class CronService {
       const totalRevenue = stats._sum.revenue || 0;
 
       // 4. Upsert InstructorDailyStats
-      const existingStat = await this.prisma.instructorDailyStats.findFirst({
+      await this.prisma.instructorDailyStats.upsert({
         where: {
-          instructorId: instructor.id,
-          date: startOfDay,
-        },
-      });
-
-      if (existingStat) {
-        await this.prisma.instructorDailyStats.update({
-          where: { id: existingStat.id },
-          data: {
-            totalViews,
-            totalEnrollments,
-            totalRevenue,
-          },
-        });
-      } else {
-        await this.prisma.instructorDailyStats.create({
-          data: {
+          instructorId_date: {
             instructorId: instructor.id,
             date: startOfDay,
-            totalViews,
-            totalEnrollments,
-            totalRevenue,
           },
-        });
-      }
+        },
+        update: {
+          totalViews,
+          totalEnrollments,
+          totalRevenue,
+        },
+        create: {
+          instructorId: instructor.id,
+          date: startOfDay,
+          totalViews,
+          totalEnrollments,
+          totalRevenue,
+        },
+      });
     }
 
     this.logger.log(

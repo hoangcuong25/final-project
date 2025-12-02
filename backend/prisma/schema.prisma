@@ -580,6 +580,8 @@ model Notification {
     revenue       Float
 
     course        Course    @relation(fields: [courseId], references: [id])
+
+    @@unique([courseId, date])
   }
 
   model InstructorDailyStats {
@@ -592,4 +594,6 @@ model Notification {
     totalRevenue     Float
 
     instructor User @relation(fields: [instructorId], references: [id])
+    
+    @@unique([instructorId, date])
   }
