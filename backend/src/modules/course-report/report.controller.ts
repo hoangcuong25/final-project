@@ -15,8 +15,8 @@ import { UpdateReportDto } from "./dto/update-report.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Roles, Public, ResponseMessage } from "src/core/decorator/customize";
 
-@ApiTags("Report")
-@Controller("report")
+@ApiTags("Course Report")
+@Controller("course-report")
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
