@@ -28,7 +28,7 @@ import { DiscountCampaignModule } from "./modules/discount-campaign/discount-cam
 import { InstructorAnalyticsModule } from "./modules/instructor-analytics/instructor-analytics.module";
 import { CronModule } from "./modules/cron/cron.module";
 import { ScheduleModule } from "@nestjs/schedule";
-import { ReportModule } from './modules/report/report.module';
+import { ReportModule } from './modules/course-report/report.module';
 
 @Module({
   imports: [

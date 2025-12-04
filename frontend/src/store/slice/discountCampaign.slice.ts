@@ -6,11 +6,11 @@ import {
   updateDiscountApi,
   deleteDiscountApi,
   toggleDiscountStatusApi,
-} from "@/store/api/discount.api";
+} from "@/store/api/discountCampaign.api";
 
 // 🧩 Interface State
 
-interface DiscountState {
+interface DiscountCampaignState {
   discounts: DiscountCampaignType[];
   currentDiscount: DiscountCampaignType | null;
   loading: boolean;
@@ -22,7 +22,7 @@ interface DiscountState {
   itemsPerPage: number;
 }
 
-const initialState: DiscountState = {
+const initialState: DiscountCampaignState = {
   discounts: [],
   currentDiscount: null,
   loading: false,
@@ -37,7 +37,7 @@ const initialState: DiscountState = {
 
 // 🧾 Lấy tất cả discount campaigns
 export const fetchAllDiscounts = createAsyncThunk(
-  "discount/fetchAll",
+  "discount-campaign/fetchAll",
   async (params?: any) => {
     const response = await getAllDiscountsApi(params);
     return response.data;
@@ -46,7 +46,7 @@ export const fetchAllDiscounts = createAsyncThunk(
 
 // 🔍 Lấy chi tiết discount
 export const fetchDiscountById = createAsyncThunk(
-  "discount/fetchById",
+  "discount-campaign/fetchById",
   async (id: number) => {
     const response = await getDiscountByIdApi(id);
     return response.data;
@@ -55,7 +55,7 @@ export const fetchDiscountById = createAsyncThunk(
 
 // ➕ Tạo mới
 export const createDiscount = createAsyncThunk(
-  "discount/create",
+  "discount-campaign/create",
   async (payload: any, { rejectWithValue }) => {
     try {
       const response = await createDiscountApi(payload);
@@ -72,7 +72,7 @@ export const createDiscount = createAsyncThunk(
 
 // ✏️ Cập nhật
 export const updateDiscount = createAsyncThunk(
-  "discount/update",
+  "discount-campaign/update",
   async (data: { id: number; payload: any }) => {
     const response = await updateDiscountApi(data.id, data.payload);
     return response;
@@ -81,7 +81,7 @@ export const updateDiscount = createAsyncThunk(
 
 // 🗑️ Xóa
 export const deleteDiscount = createAsyncThunk(
-  "discount/delete",
+  "discount-campaign/delete",
   async (id: number) => {
     const response = await deleteDiscountApi(id);
     return response;
@@ -90,7 +90,7 @@ export const deleteDiscount = createAsyncThunk(
 
 // 🔄 Toggle trạng thái
 export const toggleDiscountStatus = createAsyncThunk(
-  "discount/toggleStatus",
+  "discount-campaign/toggleStatus",
   async (id: number) => {
     const response = await toggleDiscountStatusApi(id);
     return response;
@@ -98,11 +98,11 @@ export const toggleDiscountStatus = createAsyncThunk(
 );
 
 // 🧩 Slice
-const discountSlice = createSlice({
-  name: "discount",
+const discountCampaignSlice = createSlice({
+  name: "discount-campaign",
   initialState,
   reducers: {
-    clearDiscountState: (state) => {
+    clearDiscountCampaignState: (state) => {
       state.error = null;
       state.successMessage = null;
     },
@@ -209,5 +209,5 @@ const discountSlice = createSlice({
   },
 });
 
-export const { clearDiscountState } = discountSlice.actions;
-export default discountSlice.reducer;
+export const { clearDiscountCampaignState } = discountCampaignSlice.actions;
+export default discountCampaignSlice.reducer;
