@@ -15,6 +15,7 @@ import {
   buildSearchFilter,
   buildPaginationResponse,
 } from "src/core/helpers/pagination.util";
+import { UserPaginationQueryDto } from "./dto/user-pagination.dto";
 
 @Injectable()
 export class UserService {
@@ -156,11 +157,7 @@ export class UserService {
     return { id: savedUser.id };
   }
 
-  async findAll() {
-    return await this.prisma.user.findMany();
-  }
-
-  async findAllStudentForAdmin(paginationDto: any) {
+  async findAll(paginationDto: UserPaginationQueryDto) {
     const { skip, take, page, limit } = buildPaginationParams(paginationDto);
     const orderBy = buildOrderBy(paginationDto);
     const searchFilter = buildSearchFilter(paginationDto, [
@@ -168,10 +165,13 @@ export class UserService {
       "email",
     ]);
 
-    const where = {
-      role: "USER" as const,
+    const where: any = {
       ...(searchFilter || {}),
     };
+
+    if (paginationDto.role) {
+      where.role = paginationDto.role;
+    }
 
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
@@ -192,6 +192,7 @@ export class UserService {
           walletBalance: true,
           createdAt: true,
           updatedAt: true,
+          role: true,
         },
       }),
       this.prisma.user.count({ where }),

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getUser, findAllStudentForAdmin } from "@/store/api/user.api";
+import { getUser, getAllUsers } from "@/store/api/user.api";
 import { LogoutApi } from "@/store/api/auth.api";
 import { setLoggingOut } from "@/lib/axiosClient";
 import axios from "axios";
@@ -9,7 +9,7 @@ interface UserState {
   user: UserType | null;
   loading: boolean;
   error: string | null;
-  students: {
+  users: {
     data: UserType[];
     pagination: {
       total: number;
@@ -24,7 +24,7 @@ const initialState: UserState = {
   user: null,
   loading: false,
   error: null,
-  students: null,
+  users: null,
 };
 
 // 🪄 Async action: Fetch user
@@ -45,11 +45,11 @@ export const logoutUser = createAsyncThunk("user/logoutUser", async () => {
   }
 });
 
-// 👨‍🎓 Async action: Fetch all students (Admin)
-export const fetchAllStudents = createAsyncThunk(
-  "user/fetchAllStudents",
+// 👨‍🎓 Async action: Fetch all users (Admin)
+export const fetchAllUsers = createAsyncThunk(
+  "user/fetchAllUsers",
   async (params: any) => {
-    const response = await findAllStudentForAdmin(params);
+    const response = await getAllUsers(params);
     return response;
   }
 );
@@ -79,19 +79,19 @@ const userSlice = createSlice({
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
-        state.students = null;
+        state.users = null;
       })
-      .addCase(fetchAllStudents.pending, (state) => {
+      .addCase(fetchAllUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchAllStudents.fulfilled, (state, action) => {
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.students = action.payload;
+        state.users = action.payload;
       })
-      .addCase(fetchAllStudents.rejected, (state, action) => {
+      .addCase(fetchAllUsers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message ?? "Error fetching students";
+        state.error = action.error.message ?? "Error fetching users";
       });
   },
 });

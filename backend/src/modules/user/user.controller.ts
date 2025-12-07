@@ -25,7 +25,7 @@ import { UserRole } from "@prisma/client";
 import { ApplyInstructorDto } from "../instructor/dto/apply-instructor.dto";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
-import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
+import { UserPaginationQueryDto } from "./dto/user-pagination.dto";
 
 @ApiBearerAuth()
 @ApiTags("User")
@@ -48,20 +48,8 @@ export class UserController {
   @ResponseMessage("get all user")
   @ApiResponse({ status: 200, description: "Users retrieved successfully" })
   @Roles("ADMIN")
-  findAll() {
-    return this.userService.findAll();
-  }
-
-  @Get("students")
-  @ResponseMessage("get all students with pagination")
-  @ApiOperation({ summary: "Get all students with USER role (admin only)" })
-  @ApiResponse({
-    status: 200,
-    description: "Students retrieved successfully with pagination",
-  })
-  @Roles("ADMIN")
-  findAllStudentForAdmin(@Query() paginationDto: PaginationQueryDto) {
-    return this.userService.findAllStudentForAdmin(paginationDto);
+  findAll(@Query() query: UserPaginationQueryDto) {
+    return this.userService.findAll(query);
   }
 
   @Get("@me")

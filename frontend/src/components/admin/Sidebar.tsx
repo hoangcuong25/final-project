@@ -42,7 +42,7 @@ const SidebarAdmin = () => {
     },
     {
       href: "/admin/course-reports",
-      label: "Báo cáo khóa học",
+      label: "Báo cáo",
       icon: Flag,
     },
   ];

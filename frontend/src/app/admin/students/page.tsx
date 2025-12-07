@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchAllStudents } from "@/store/slice/userSlice";
+import { fetchAllUsers } from "@/store/slice/userSlice";
 import {
   Table,
   TableBody,
@@ -29,11 +29,11 @@ const formatCurrency = (amount: number) => {
 
 const StudentPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { students, loading } = useSelector((state: RootState) => state.user);
+  const { users, loading } = useSelector((state: RootState) => state.user);
 
   // Unwrap students data correctly based on the slice structure
-  const studentList = students?.data || [];
-  const pagination = students?.pagination;
+  const studentList = users?.data || [];
+  const pagination = users?.pagination;
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,10 +53,11 @@ const StudentPage = () => {
 
   useEffect(() => {
     dispatch(
-      fetchAllStudents({
+      fetchAllUsers({
         page: currentPage,
         limit: pageSize,
         search: debouncedSearch,
+        role: "USER",
       })
     );
   }, [dispatch, currentPage, pageSize, debouncedSearch]);

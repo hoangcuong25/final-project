@@ -35,9 +35,9 @@ export const changePassword = async (data: {
   }
 };
 
-export const findAllStudentForAdmin = async (params: any) => {
+export const getAllUsers = async (params: any) => {
   try {
-    const response = await axiosClient.get("/user/students", { params });
+    const response = await axiosClient.get("/user/get-all-user", { params });
     return response.data.data;
   } catch (error) {
     throw error;
