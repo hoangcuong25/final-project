@@ -132,6 +132,15 @@ export class InstructorService {
       data: { role: UserRole.INSTRUCTOR },
     });
 
+    // Tạo Instructor Profile
+    await this.prisma.instructorProfile.create({
+      data: {
+        userId,
+        bio: application.bio,
+        experience: application.experience,
+      },
+    });
+
     // Gửi email thông báo phê duyệt
     await this.mailerService.sendMail({
       to: user.email,

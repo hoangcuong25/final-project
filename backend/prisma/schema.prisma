@@ -137,7 +137,6 @@
     userId           Int      @unique // Quan hệ 1-1 với User
     bio              String?  @db.Text    // Tiểu sử chính thức
     experience       String?  @db.Text    // Kinh nghiệm làm việc/giảng dạy
-    // Thêm các trường khác nếu cần (vd: social links, website, v.v.)
 
     // Relations
     user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
