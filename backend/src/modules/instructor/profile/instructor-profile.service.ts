@@ -8,6 +8,16 @@ export class InstructorProfileService {
   async getProfile(userId: number) {
     const profile = await this.prisma.instructorProfile.findUnique({
       where: { userId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullname: true,
+            email: true,
+            avatar: true,
+          },
+        },
+      },
     });
 
     if (!profile) {
@@ -36,9 +46,18 @@ export class InstructorProfileService {
   }
 
   async getProfileByInstructorId(id: number) {
-    // This might be redundant if userId is the main identifier, but good for public view if needed
     const profile = await this.prisma.instructorProfile.findUnique({
-      where: { userId: id }, // Assuming id passed is userId based on typical pattern, or adjust if it's profileId
+      where: { userId: id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullname: true,
+            email: true,
+            avatar: true,
+          },
+        },
+      },
     });
     if (!profile) {
       throw new NotFoundException("Instructor profile not found");
