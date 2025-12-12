@@ -8,7 +8,7 @@ import {
   Delete,
   Req,
 } from "@nestjs/common";
-import { InstructorService } from "./instructor.service";
+import { InstructorService } from "./instructor-application.service";
 import { ApplyInstructorDto } from "./dto/apply-instructor.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { UserRole } from "@prisma/client";
