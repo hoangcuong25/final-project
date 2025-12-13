@@ -28,6 +28,7 @@ import { CronModule } from "./modules/cron/cron.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ReportModule } from "./modules/course-report/report.module";
 import { InstructorModule } from "./modules/instructor/instructor.module";
+import { AdminAnalyticsModule } from './modules/admin-analytics/admin-analytics.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { InstructorModule } from "./modules/instructor/instructor.module";
     CronModule,
     ScheduleModule.forRoot(),
     ReportModule,
+    AdminAnalyticsModule,
   ],
   controllers: [AppController],
   providers: [
