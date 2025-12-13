@@ -61,6 +61,7 @@ const UpdateLesson = ({
     try {
       let videoUrl = lesson.videoUrl || "";
       let isNewVideo = false;
+      let videoDuration = lesson.duration || 0;
 
       // 1. Upload video mới lên Cloudinary nếu có file mới được chọn
       if (data.video instanceof FileList && data.video.length > 0) {
@@ -73,6 +74,9 @@ const UpdateLesson = ({
         const file = data.video[0];
         const uploaded = await uploadVideo(file);
         videoUrl = uploaded.secure_url; // Cập nhật videoUrl mới
+
+        // Lấy thời lượng video từ Cloudinary response
+        videoDuration = Math.round(uploaded.duration || 0);
       } else if (data.video instanceof File) {
         setProcessState("uploading_video");
         isNewVideo = true;
@@ -82,6 +86,9 @@ const UpdateLesson = ({
 
         const uploaded = await uploadVideo(data.video);
         videoUrl = uploaded.secure_url;
+
+        // Lấy thời lượng video từ Cloudinary response
+        videoDuration = Math.round(uploaded.duration || 0);
       }
 
       // Chuyển sang bước cập nhật bài học sau khi upload (nếu có upload)
@@ -99,6 +106,7 @@ const UpdateLesson = ({
         content: data.content,
         orderIndex: data.orderIndex ?? 0,
         videoUrl: videoUrl,
+        duration: videoDuration,
       };
 
       await dispatch(

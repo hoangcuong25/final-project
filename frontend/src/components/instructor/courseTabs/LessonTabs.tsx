@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { formatDuration } from "@/lib/helpers";
 
 interface LessonTabsProps {
   currentCourse: any;
@@ -23,7 +24,11 @@ interface LessonTabsProps {
 
 const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
   const router = useRouter();
+
   const [selectedLesson, setSelectedLesson] = useState<any | null>(null);
+  const [selectedLessonDetail, setSelectedLessonDetail] = useState<any | null>(
+    null
+  );
   const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
   const [selectedLessonForQuestions, setSelectedLessonForQuestions] = useState<
     any | null
@@ -41,8 +46,8 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
       <Card className="shadow-sm border border-gray-200">
         <CardHeader className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <BookOpen size={20} /> Danh sách chương (
-            {currentCourse?.chapter?.length || 0})
+            <BookOpen size={20} />
+            Danh sách chương ({currentCourse?.chapter?.length || 0})
           </CardTitle>
           <CreateChapter courseId={currentCourse.id} />
         </CardHeader>
@@ -53,10 +58,10 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
               {currentCourse.chapter.map((chapter: any) => (
                 <Card
                   key={chapter.id}
-                  className="border border-gray-100 hover:shadow-md transition bg-white"
+                  className="border border-gray-100 bg-white"
                 >
                   {/* Header chương */}
-                  <CardHeader className="flex justify-between items-center bg-gray-50 rounded-t-lg">
+                  <CardHeader className="flex justify-between bg-gray-50">
                     <div>
                       <h3 className="font-semibold text-blue-700 text-lg">
                         {chapter.orderIndex}. {chapter.title}
@@ -68,36 +73,26 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                       )}
                     </div>
 
-                    {/* Nút thêm bài học */}
                     <CreateLesson
                       courseId={currentCourse.id}
                       chapterId={chapter.id}
                     />
                   </CardHeader>
 
-                  {/* Danh sách bài học */}
+                  {/* Danh sách lesson */}
                   <CardContent className="pt-4 space-y-3">
-                    {chapter.lessons && chapter.lessons.length > 0 ? (
+                    {chapter.lessons?.length ? (
                       chapter.lessons.map((lesson: any) => (
                         <div
                           key={lesson.id}
-                          className="flex flex-col border rounded-lg px-4 py-3 hover:bg-blue-50 transition"
+                          className="border rounded-lg px-4 py-3 hover:bg-blue-50 transition"
                         >
-                          {/* Hàng đầu: Thông tin & hành động */}
                           <div className="flex justify-between items-center">
-                            {/* Thông tin bài học */}
-                            <div
-                              className="cursor-pointer"
-                              onClick={() =>
-                                router.push(
-                                  `/instructor/courses/${currentCourse.id}/lesson/${lesson.id}`
-                                )
-                              }
-                            >
+                            <div>
                               <p className="font-medium text-gray-800">
                                 {lesson.orderIndex}. {lesson.title}
                               </p>
-                              <p className="text-xs text-gray-500 mt-0.5">
+                              <p className="text-xs text-gray-500">
                                 Cập nhật:{" "}
                                 {new Date(lesson.updatedAt).toLocaleDateString(
                                   "vi-VN"
@@ -105,30 +100,20 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                               </p>
                             </div>
 
-                            {/* Các nút hành động */}
                             <div className="flex items-center gap-2">
-                              {/* Nút xem video */}
-                              {lesson.videoUrl ? (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="text-green-600 border-green-600 hover:border-green-700 hover:text-green-700"
-                                  onClick={() => setSelectedLesson(lesson)}
-                                >
-                                  <Video size={14} className="mr-1" />
-                                  Video
-                                </Button>
-                              ) : (
-                                <span className="text-xs text-gray-400 italic">
-                                  Không có video
-                                </span>
-                              )}
-
-                              {/* Nút xem câu hỏi */}
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="text-orange-600 border-orange-600 hover:border-orange-700 hover:text-orange-700"
+                                className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:text-blue-600"
+                                onClick={() => setSelectedLessonDetail(lesson)}
+                              >
+                                Chi tiết
+                              </Button>
+
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-orange-600 border-orange-600 hover:bg-orange-50 hover:text-orange-600"
                                 onClick={() =>
                                   setSelectedLessonForQuestions(lesson)
                                 }
@@ -137,7 +122,6 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                                 Câu hỏi
                               </Button>
 
-                              {/* Sửa / Xóa */}
                               <UpdateLesson
                                 lesson={lesson}
                                 courseId={currentCourse.id}
@@ -150,41 +134,33 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                             </div>
                           </div>
 
-                          {/* 🔹 Hiển thị quiz của bài học (nếu có) */}
-                          {lesson.quizzes && lesson.quizzes.length > 0 && (
-                            <div className="mt-3 ml-6 border-t border-gray-200 pt-2">
-                              <p className="text-sm font-semibold text-gray-700">
-                                Quiz:
-                              </p>
-                              <ul className="list-disc list-inside text-gray-600 text-sm space-y-2">
+                          {/* Quiz */}
+                          {lesson.quizzes?.length > 0 && (
+                            <div className="mt-3 ml-6 border-t pt-2">
+                              <p className="text-sm font-semibold">Quiz:</p>
+                              <ul className="space-y-2 text-sm">
                                 {lesson.quizzes.map((quiz: any) => (
                                   <li
                                     key={quiz.id}
-                                    className="flex justify-between items-center bg-gray-50 border rounded-md px-3 py-2 hover:bg-blue-50 transition"
+                                    className="flex justify-between bg-gray-50 border rounded px-3 py-2"
                                   >
-                                    {/* Tên quiz có thể click để xem nhanh */}
                                     <span
-                                      className="cursor-pointer hover:text-blue-600 transition font-medium"
+                                      className="cursor-pointer hover:text-blue-600"
                                       onClick={() => setSelectedQuiz(quiz)}
                                     >
                                       {quiz.title}
                                     </span>
-
-                                    {/* Nút mở chi tiết quiz */}
-                                    <div className="flex items-center gap-2">
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="text-blue-600 border-blue-600 hover:text-blue-700 hover:border-blue-600"
-                                        onClick={() =>
-                                          router.push(
-                                            `/instructor/quizzes/${quiz.id}`
-                                          )
-                                        }
-                                      >
-                                        Chi tiết
-                                      </Button>
-                                    </div>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() =>
+                                        router.push(
+                                          `/instructor/quizzes/${quiz.id}`
+                                        )
+                                      }
+                                    >
+                                      Chi tiết
+                                    </Button>
                                   </li>
                                 ))}
                               </ul>
@@ -193,131 +169,105 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                         </div>
                       ))
                     ) : (
-                      <p className="text-gray-400 italic text-sm">
-                        Chưa có bài học nào trong chương này.
+                      <p className="text-gray-400 italic">
+                        Chưa có bài học nào.
                       </p>
                     )}
-
-                    {/* 🧩 Dialog hiển thị chi tiết quiz */}
-                    <Dialog
-                      open={!!selectedQuiz}
-                      onOpenChange={() => setSelectedQuiz(null)}
-                    >
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>{selectedQuiz?.title}</DialogTitle>
-                        </DialogHeader>
-
-                        <div className="space-y-4 max-h-[70vh] overflow-y-auto">
-                          {selectedQuiz?.questions?.map(
-                            (q: any, qIndex: number) => (
-                              <div
-                                key={q.id}
-                                className="border rounded-lg p-3 bg-gray-50 shadow-sm"
-                              >
-                                <p className="font-medium text-gray-800 mb-1">
-                                  Câu {qIndex + 1}: {q.questionText}
-                                </p>
-                                <ul className="list-disc list-inside text-gray-600 text-sm ml-3">
-                                  {q.options?.map((opt: any) => (
-                                    <li
-                                      key={opt.id}
-                                      className={`${
-                                        opt.isCorrect
-                                          ? "text-green-600 font-medium"
-                                          : ""
-                                      }`}
-                                    >
-                                      {opt.text}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )
-                          )}
-
-                          {!selectedQuiz?.questions?.length && (
-                            <p className="text-gray-500 italic">
-                              Quiz này chưa có câu hỏi nào.
-                            </p>
-                          )}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-
-                    {/* 🎬 Dialog xem video bài học */}
-                    <Dialog
-                      open={!!selectedLesson}
-                      onOpenChange={() => setSelectedLesson(null)}
-                    >
-                      <DialogContent className="max-w-3xl">
-                        <DialogHeader>
-                          <DialogTitle>{selectedLesson?.title}</DialogTitle>
-                        </DialogHeader>
-                        <div className="mt-2">
-                          {selectedLesson?.videoUrl ? (
-                            <video
-                              controls
-                              className="w-full rounded-lg"
-                              src={selectedLesson.videoUrl}
-                            />
-                          ) : (
-                            <p className="text-gray-500">
-                              Không có video cho bài học này.
-                            </p>
-                          )}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-
-                    {/* 💬 Dialog hiển thị câu hỏi bài học */}
-                    <LessonDiscussDialog
-                      open={!!selectedLessonForQuestions}
-                      onOpenChange={() => setSelectedLessonForQuestions(null)}
-                      lesson={selectedLessonForQuestions}
-                    />
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
             <p className="text-gray-500 italic text-center py-8">
-              Chưa có chương nào cho khóa học này.
+              Chưa có chương nào.
             </p>
           )}
         </CardContent>
       </Card>
 
-      {/* Modal Video (Global for this component) */}
+      {/* ===== Dialog Chi tiết Lesson ===== */}
       <Dialog
-        open={!!selectedLesson}
-        onOpenChange={() => setSelectedLesson(null)}
+        open={!!selectedLessonDetail}
+        onOpenChange={() => setSelectedLessonDetail(null)}
       >
         <DialogContent className="max-w-3xl">
-          <DialogHeader className="flex justify-between items-center">
-            <DialogTitle>{selectedLesson?.title}</DialogTitle>
+          <DialogHeader>
+            <DialogTitle>
+              {selectedLessonDetail?.orderIndex}. {selectedLessonDetail?.title}
+            </DialogTitle>
           </DialogHeader>
 
-          <div className="mt-4">
-            {selectedLesson?.videoUrl ? (
-              <div className="aspect-video rounded-lg overflow-hidden bg-black">
-                <video
-                  src={selectedLesson.videoUrl}
-                  poster={
-                    getCloudinaryThumbnail(selectedLesson.videoUrl) ?? undefined
-                  }
-                  controls
-                  className="w-full h-full object-contain"
-                  preload="metadata"
-                >
-                  Trình duyệt của bạn không hỗ trợ phát video.
-                </video>
-              </div>
-            ) : (
-              <p className="text-center text-gray-500 italic py-10">
-                Bài học này chưa có video.
+          <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="grid grid-cols-2 text-sm text-gray-600">
+              <p>
+                <strong>Thời lượng:</strong>{" "}
+                {formatDuration(selectedLessonDetail?.duration || 0)}
               </p>
+              <p>
+                <strong>Cập nhật:</strong>{" "}
+                {new Date(selectedLessonDetail?.updatedAt).toLocaleString(
+                  "vi-VN"
+                )}
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-1">Nội dung</h4>
+              <div
+                className="prose prose-sm border rounded p-3 bg-gray-50 max-w-none"
+                dangerouslySetInnerHTML={{
+                  __html:
+                    selectedLessonDetail?.content || "<i>Chưa có nội dung</i>",
+                }}
+              />
+            </div>
+
+            {selectedLessonDetail?.videoUrl && (
+              <div>
+                <h4 className="font-semibold mb-1">Video</h4>
+                <video
+                  src={selectedLessonDetail.videoUrl}
+                  controls
+                  className="w-full rounded-lg"
+                />
+              </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Dialog Câu hỏi ===== */}
+      <LessonDiscussDialog
+        open={!!selectedLessonForQuestions}
+        onOpenChange={() => setSelectedLessonForQuestions(null)}
+        lesson={selectedLessonForQuestions}
+      />
+
+      {/* ===== Dialog Quiz ===== */}
+      <Dialog open={!!selectedQuiz} onOpenChange={() => setSelectedQuiz(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedQuiz?.title}</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            {selectedQuiz?.questions?.map((q: any, i: number) => (
+              <div key={q.id} className="border rounded p-3 bg-gray-50">
+                <p className="font-medium">
+                  Câu {i + 1}: {q.questionText}
+                </p>
+                <ul className="list-disc ml-5 text-sm">
+                  {q.options?.map((opt: any) => (
+                    <li
+                      key={opt.id}
+                      className={opt.isCorrect ? "text-green-600" : ""}
+                    >
+                      {opt.text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </DialogContent>
       </Dialog>
