@@ -120,11 +120,7 @@ export default function DiscountDetailPage() {
     <div className="p-8 bg-gradient-to-br from-indigo-50 via-white to-blue-50 rounded-lg shadow-sm min-h-[90vh]">
       {/* Header actions */}
       <div className="flex justify-between items-center mb-8">
-        <Button
-          variant="outline"
-          onClick={() => router.back()}
-          className="text-indigo-700 border-indigo-300 hover:bg-indigo-100"
-        >
+        <Button variant="ghost" onClick={() => router.back()} className="mb-4">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Quay lại
         </Button>
