@@ -46,7 +46,7 @@ import { useRouter } from "next/navigation";
 
 const CourseReportsPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter(); 
+  const router = useRouter();
   const { reports, pagination, loading, error, successMessage } = useSelector(
     (state: RootState) => state.report
   );
@@ -134,188 +134,352 @@ const CourseReportsPage = () => {
               <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
             </div>
           ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-gray-50">
-                    <TableHead className="w-[80px]">ID</TableHead>
-                    <TableHead>Tiêu đề</TableHead>
-                    <TableHead>Loại báo cáo</TableHead>
-                    <TableHead>Khóa học bị báo cáo</TableHead>
-                    <TableHead>Người báo cáo</TableHead>
-                    <TableHead>Ngày tạo</TableHead>
-                    <TableHead className="text-right">Hành động</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {reports.length > 0 ? (
-                    reports.map((report) => (
-                      <TableRow key={report.id}>
-                        <TableCell className="font-medium">
-                          {report.id}
-                        </TableCell>
-                        <TableCell>
-                          <div
-                            className="font-medium text-gray-900 truncate max-w-[200px]"
-                            title={report.title}
-                          >
-                            {report.title}
+            <>
+              {/* Desktop View: Table */}
+              <div className="hidden lg:block rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="w-[80px]">ID</TableHead>
+                      <TableHead>Tiêu đề</TableHead>
+                      <TableHead>Loại báo cáo</TableHead>
+                      <TableHead>Khóa học bị báo cáo</TableHead>
+                      <TableHead>Người báo cáo</TableHead>
+                      <TableHead>Ngày tạo</TableHead>
+                      <TableHead className="text-right">Hành động</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {reports.length > 0 ? (
+                      reports.map((report) => (
+                        <TableRow key={report.id}>
+                          <TableCell className="font-medium">
+                            {report.id}
+                          </TableCell>
+                          <TableCell>
+                            <div
+                              className="font-medium text-gray-900 truncate max-w-[200px]"
+                              title={report.title}
+                            >
+                              {report.title}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className="bg-orange-50 text-orange-700 border-orange-200"
+                            >
+                              {report.type || "Khác"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm text-blue-600 hover:underline cursor-pointer">
+                              {report.course?.title ||
+                                `Course #${report.courseId}`}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              {report.user?.fullname ||
+                                report.user?.email ||
+                                `User #${report.userId}`}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-sm text-gray-500">
+                              {report.createdAt
+                                ? new Date(report.createdAt).toLocaleDateString(
+                                    "vi-VN",
+                                    {
+                                      year: "numeric",
+                                      month: "2-digit",
+                                      day: "2-digit",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    }
+                                  )
+                                : "N/A"}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              {/* View Details Dialog */}
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setSelectedReport(report)}
+                                    className="h-8 w-8 p-0 border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                                    title="Xem chi tiết"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-md">
+                                  <DialogHeader>
+                                    <DialogTitle>
+                                      Chi tiết báo cáo #{report.id}
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                      Thông tin chi tiết về nội dung báo cáo
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="space-y-4 mt-2">
+                                    <div>
+                                      <h4 className="text-sm font-semibold text-gray-700">
+                                        Tiêu đề
+                                      </h4>
+                                      <p className="text-sm text-gray-900 border p-2 rounded bg-gray-50">
+                                        {report.title}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <h4 className="text-sm font-semibold text-gray-700">
+                                        Nội dung
+                                      </h4>
+                                      <div className="text-sm text-gray-900 border p-2 rounded bg-gray-50 min-h-[100px] whitespace-pre-wrap">
+                                        {report.description ||
+                                          "Không có nội dung chi tiết"}
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                        <h4 className="text-sm font-semibold text-gray-700">
+                                          Người báo cáo
+                                        </h4>
+                                        <p className="text-sm">
+                                          {report.user?.fullname || "Ẩn danh"}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <h4 className="text-sm font-semibold text-gray-700">
+                                          Khóa học
+                                        </h4>
+                                        <p className="text-sm">
+                                          {report.course?.title || "N/A"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+
+                              {/* Delete Alert */}
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-colors"
+                                    title="Xóa"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      Bạn có chắc chắn muốn xóa?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Hành động này không thể hoàn tác. Báo cáo
+                                      #{report.id} sẽ bị xóa vĩnh viễn.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDelete(report.id)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Xóa
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={7}
+                          className="text-center py-10 text-gray-500"
+                        >
+                          <div className="flex flex-col items-center justify-center gap-2">
+                            <FileText className="w-8 h-8 text-gray-300" />
+                            <p>Không tìm thấy báo cáo nào</p>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className="bg-orange-50 text-orange-700 border-orange-200"
-                          >
-                            {report.type || "Khác"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm text-blue-600 hover:underline cursor-pointer">
-                            {report.course?.title ||
-                              `Course #${report.courseId}`}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {report.user?.fullname ||
-                              report.user?.email ||
-                              `User #${report.userId}`}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm text-gray-500">
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile View: Cards */}
+              <div className="lg:hidden space-y-4">
+                {reports.length > 0 ? (
+                  reports.map((report) => (
+                    <Card key={report.id} className="p-4 shadow-sm">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <p className="text-xs text-gray-400">
+                            #{report.id} •{" "}
                             {report.createdAt
                               ? new Date(report.createdAt).toLocaleDateString(
                                   "vi-VN",
                                   {
-                                    year: "numeric",
-                                    month: "2-digit",
                                     day: "2-digit",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
                                   }
                                 )
                               : "N/A"}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            {/* View Details Dialog */}
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setSelectedReport(report)}
-                                  className="h-8 w-8 p-0 border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                                  title="Xem chi tiết"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-md">
-                                <DialogHeader>
-                                  <DialogTitle>
-                                    Chi tiết báo cáo #{report.id}
-                                  </DialogTitle>
-                                  <DialogDescription>
-                                    Thông tin chi tiết về nội dung báo cáo
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-4 mt-2">
-                                  <div>
-                                    <h4 className="text-sm font-semibold text-gray-700">
-                                      Tiêu đề
-                                    </h4>
-                                    <p className="text-sm text-gray-900 border p-2 rounded bg-gray-50">
-                                      {report.title}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <h4 className="text-sm font-semibold text-gray-700">
-                                      Nội dung
-                                    </h4>
-                                    <div className="text-sm text-gray-900 border p-2 rounded bg-gray-50 min-h-[100px] whitespace-pre-wrap">
-                                      {report.description ||
-                                        "Không có nội dung chi tiết"}
-                                    </div>
-                                  </div>
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                      <h4 className="text-sm font-semibold text-gray-700">
-                                        Người báo cáo
-                                      </h4>
-                                      <p className="text-sm">
-                                        {report.user?.fullname || "Ẩn danh"}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <h4 className="text-sm font-semibold text-gray-700">
-                                        Khóa học
-                                      </h4>
-                                      <p className="text-sm">
-                                        {report.course?.title || "N/A"}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-
-                            {/* Delete Alert */}
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 w-8 p-0 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-colors"
-                                  title="Xóa"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Bạn có chắc chắn muốn xóa?
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Hành động này không thể hoàn tác. Báo cáo #
-                                    {report.id} sẽ bị xóa vĩnh viễn.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Hủy</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDelete(report.id)}
-                                    className="bg-red-600 hover:bg-red-700"
-                                  >
-                                    Xóa
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={7}
-                        className="text-center py-10 text-gray-500"
-                      >
-                        <div className="flex flex-col items-center justify-center gap-2">
-                          <FileText className="w-8 h-8 text-gray-300" />
-                          <p>Không tìm thấy báo cáo nào</p>
+                          </p>
+                          <h3 className="font-semibold mt-1">{report.title}</h3>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                        <Badge
+                          variant="outline"
+                          className="bg-orange-50 text-orange-700 border-orange-200 text-xs whitespace-nowrap"
+                        >
+                          {report.type || "Khác"}
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-2 text-sm text-gray-600 mb-4">
+                        <div className="flex gap-2">
+                          <span className="font-medium min-w-[70px]">
+                            Users:
+                          </span>
+                          <span className="text-gray-900 truncate">
+                            {report.user?.fullname ||
+                              report.user?.email ||
+                              `User #${report.userId}`}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="font-medium min-w-[70px]">
+                            Course:
+                          </span>
+                          <span className="text-blue-600 truncate">
+                            {report.course?.title ||
+                              `Course #${report.courseId}`}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end gap-2 border-t pt-3">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedReport(report)}
+                              className=" text-blue-600 border-blue-200 hover:bg-blue-50"
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              Chi tiết
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-md w-[95vw] rounded-lg">
+                            <DialogHeader>
+                              <DialogTitle>
+                                Chi tiết báo cáo #{report.id}
+                              </DialogTitle>
+                              <DialogDescription>
+                                Thông tin chi tiết về nội dung báo cáo
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 mt-2">
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-700">
+                                  Tiêu đề
+                                </h4>
+                                <p className="text-sm text-gray-900 border p-2 rounded bg-gray-50">
+                                  {report.title}
+                                </p>
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-700">
+                                  Nội dung
+                                </h4>
+                                <div className="text-sm text-gray-900 border p-2 rounded bg-gray-50 min-h-[100px] whitespace-pre-wrap">
+                                  {report.description ||
+                                    "Không có nội dung chi tiết"}
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                  <h4 className="text-sm font-semibold text-gray-700">
+                                    Người báo cáo
+                                  </h4>
+                                  <p className="text-sm">
+                                    {report.user?.fullname || "Ẩn danh"}
+                                  </p>
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-semibold text-gray-700">
+                                    Khóa học
+                                  </h4>
+                                  <p className="text-sm">
+                                    {report.course?.title || "N/A"}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 border-red-200 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" />
+                              Xóa
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="w-[95vw] rounded-lg">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Bạn có chắc chắn muốn xóa?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Hành động này không thể hoàn tác. Báo cáo #
+                                {report.id} sẽ bị xóa vĩnh viễn.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter className="gap-2">
+                              <AlertDialogCancel className="mt-0">
+                                Hủy
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(report.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Xóa
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="text-center py-10 text-gray-500 border rounded-md bg-white">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <FileText className="w-8 h-8 text-gray-300" />
+                      <p>Không tìm thấy báo cáo nào</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
           )}
 
           {/* Pagination */}

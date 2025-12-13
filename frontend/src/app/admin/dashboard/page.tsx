@@ -8,14 +8,19 @@ import { Button } from "@/components/ui/button";
 
 const DashboardPage = () => {
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-blue-50 via-white to-indigo-100">
+    <div className="min-h-screen flex bg-gray-50">
       {/* Main content */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-6 overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-indigo-700">
-            👋 Chào mừng, Admin
-          </h2>
+          <div>
+            <h2 className="text-3xl font-bold text-gray-800">
+              👋 Chào mừng, Admin
+            </h2>
+            <p className="text-gray-500 mt-1">
+              Tổng quan về hoạt động của hệ thống
+            </p>
+          </div>
           <Button className="bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white rounded-lg">
             + Thêm khóa học
           </Button>
@@ -31,7 +36,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-indigo-600">128</p>
+                <p className="text-3xl font-bold text-gray-900">128</p>
                 <BookOpen className="w-8 h-8 text-indigo-500" />
               </CardContent>
             </Card>
@@ -45,7 +50,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-indigo-600">1,240</p>
+                <p className="text-3xl font-bold text-gray-900">1,240</p>
                 <Users className="w-8 h-8 text-indigo-500" />
               </CardContent>
             </Card>
@@ -59,7 +64,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-indigo-600">$12,340</p>
+                <p className="text-3xl font-bold text-gray-900">$12,340</p>
                 <DollarSign className="w-8 h-8 text-indigo-500" />
               </CardContent>
             </Card>
@@ -73,7 +78,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-indigo-600">+12%</p>
+                <p className="text-3xl font-bold text-gray-900">+12%</p>
                 <TrendingUp className="w-8 h-8 text-indigo-500" />
               </CardContent>
             </Card>

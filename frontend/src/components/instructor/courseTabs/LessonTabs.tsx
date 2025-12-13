@@ -182,7 +182,6 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                                           )
                                         }
                                       >
-                                        <BookOpen size={14} className="mr-1" />
                                         Chi tiết
                                       </Button>
                                     </div>

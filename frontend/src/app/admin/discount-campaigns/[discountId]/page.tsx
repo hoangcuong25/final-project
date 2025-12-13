@@ -224,6 +224,18 @@ export default function DiscountDetailPage() {
                 </span>
               </div>
 
+              <div className="flex items-center gap-2">
+                {isActive ? (
+                  <span className="inline-flex items-center text-green-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-1" /> Đang hoạt động
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center text-gray-500">
+                    <XCircle className="w-4 h-4 mr-1" /> Không hoạt động
+                  </span>
+                )}
+              </div>
+
               <div className="flex items-center gap-2 text-gray-600">
                 <Calendar className="w-4 h-4 text-blue-500" />
                 <span>
@@ -242,18 +254,6 @@ export default function DiscountDetailPage() {
                     ? new Date(endsAt).toLocaleDateString("vi-VN")
                     : "Chưa có"}
                 </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {isActive ? (
-                  <span className="inline-flex items-center text-green-600 font-medium">
-                    <CheckCircle className="w-4 h-4 mr-1" /> Đang hoạt động
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center text-gray-500">
-                    <XCircle className="w-4 h-4 mr-1" /> Không hoạt động
-                  </span>
-                )}
               </div>
             </div>
 
@@ -295,7 +295,6 @@ export default function DiscountDetailPage() {
           </div>
 
           {/* Danh sách coupon */}
-          {/* Danh sách coupon */}
           <div className="pt-6 border-t">
             <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
               <Tag className="w-5 h-5 text-blue-500" />
@@ -314,19 +313,10 @@ export default function DiscountDetailPage() {
                         <span className="font-semibold text-indigo-700 uppercase">
                           {coupon.code}
                         </span>
-                        {coupon.isActive ? (
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                            Đang hoạt động
-                          </span>
-                        ) : (
-                          <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                            Tạm tắt
-                          </span>
-                        )}
                       </div>
                     </CardHeader>
 
-                    <CardContent className="p-3 space-y-2 text-sm text-gray-700">
+                    <CardContent className="p-3 pt-0 space-y-2 text-sm text-gray-700">
                       <div className="flex items-center gap-2">
                         <Percent className="w-4 h-4 text-blue-500" />
                         <span>Giảm {coupon.percentage}%</span>
@@ -346,13 +336,24 @@ export default function DiscountDetailPage() {
                         </div>
                       )}
 
-                      {coupon.expiresAt && (
+                      {(coupon.startsAt || coupon.endsAt) && (
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-blue-500" />
-                          <span>
-                            Hết hạn:{" "}
-                            {new Date(coupon.expiresAt).toLocaleDateString(
-                              "vi-VN"
+                          <span className="text-xs">
+                            {coupon.startsAt && (
+                              <span>
+                                {new Date(coupon.startsAt).toLocaleDateString(
+                                  "vi-VN"
+                                )}
+                              </span>
+                            )}
+                            {coupon.startsAt && coupon.endsAt && " - "}
+                            {coupon.endsAt && (
+                              <span>
+                                {new Date(coupon.endsAt).toLocaleDateString(
+                                  "vi-VN"
+                                )}
+                              </span>
                             )}
                           </span>
                         </div>

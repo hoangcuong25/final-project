@@ -9,6 +9,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import Link from "next/link";
@@ -20,6 +21,7 @@ import { toast } from "sonner";
 import LoadingScreen from "../LoadingScreen";
 import { fetchUnreadCount } from "@/store/slice/notificationsSlice";
 import NotificationBell from "./NotificationBell";
+import { VisuallyHidden } from "../ui/visually-hidden";
 
 const NavbarUser = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -120,6 +122,9 @@ const NavbarUser = () => {
 
         <SheetContent side="left" className="w-72 px-2.5">
           <SheetHeader className="flex flex-col items-start gap-4 mb-6">
+            <VisuallyHidden>
+              <SheetTitle>Menu</SheetTitle>
+            </VisuallyHidden>
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="flex items-center gap-3 cursor-pointer"
@@ -163,7 +168,7 @@ const NavbarUser = () => {
             <motion.div whileHover={{ scale: 1.05 }}>
               <div
                 onClick={handleClickInstructor}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-blue-300 bg-blue-50 hover:bg-blue-100 transition cursor-pointer"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-blue-300 bg-blue-50 hover:bg-blue-100 transition cursor-pointer md:flex hidden"
               >
                 <span className="text-sm font-semibold text-blue-700">
                   Giảng dạy trên EduSmart
@@ -175,9 +180,6 @@ const NavbarUser = () => {
             {user && (
               <div className="flex items-center gap-2 px-2 py-1">
                 <NotificationBell />
-                <span className="text-sm text-gray-600 font-medium">
-                  Thông báo
-                </span>
               </div>
             )}
 
@@ -186,6 +188,7 @@ const NavbarUser = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-full hover:bg-blue-100 transition duration-200"
+                onClick={() => router.push("/profile")}
               >
                 <Image
                   src={user.avatar || "/default-avatar.png"}

@@ -417,11 +417,13 @@
     percentage  Float     @default(0)
     maxUsage    Int?
     usedCount   Int       @default(0)
-    expiresAt   DateTime?
     isActive    Boolean   @default(true)
     target      CouponTarget  @default(ALL) // ALL, COURSE, SPECIALIZATION
     createdById Int
     createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+    startsAt    DateTime?
+    endsAt      DateTime?
 
     courseId    Int?
     course      Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)

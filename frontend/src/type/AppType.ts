@@ -192,7 +192,8 @@ declare global {
     percentage: number; // % giảm giá
     maxUsage?: number | null; // Giới hạn số lần dùng
     usedCount: number; // Số lần đã dùng
-    expiresAt?: string | null; // Hạn sử dụng
+    startsAt?: string | null; // Ngày bắt đầu
+    endsAt?: string | null; // Ngày kết thúc
     isActive: boolean;
     target: CouponTargetEnum;
 
@@ -258,7 +259,7 @@ declare global {
     couponId?: number | null;
     coupon?: Pick<
       CouponType,
-      "id" | "code" | "percentage" | "isActive" | "expiresAt"
+      "id" | "code" | "percentage" | "isActive" | "startsAt" | "endsAt"
     > | null;
 
     // Thông tin quan hệ
@@ -323,5 +324,5 @@ declare global {
     createdAt: string;
     userId: number;
     link?: string;
-};
+  };
 }

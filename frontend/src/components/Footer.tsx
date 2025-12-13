@@ -15,11 +15,11 @@ import logo from "@public/logo.png";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#0f172a] text-white py-12 px-6 md:px-20 rounded-2xl mt-10">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+    <footer className="bg-[#0f172a] text-white py-8 px-4 md:py-12 md:px-20 rounded-2xl mt-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 text-center md:text-left">
         {/* Logo & Description */}
         <div>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
             <Image
               src={logo}
               alt="E-Learning Logo"
@@ -58,11 +58,11 @@ const Footer = () => {
         <address className="not-italic">
           <h3 className="text-lg font-semibold mb-4">Liên hệ</h3>
           <ul className="space-y-3 text-blue-100">
-            <li className="flex items-center gap-2">
+            <li className="flex items-center justify-center md:justify-start gap-2">
               <MapPin className="w-4 h-4 shrink-0" />
               <span>456 Đường Trí Thức, TP. Hồ Chí Minh</span>
             </li>
-            <li className="flex items-center gap-2">
+            <li className="flex items-center justify-center md:justify-start gap-2">
               <Phone className="w-4 h-4 shrink-0" />
               <a
                 href="tel:0987654321"
@@ -71,7 +71,7 @@ const Footer = () => {
                 0987 654 321
               </a>
             </li>
-            <li className="flex items-center gap-2">
+            <li className="flex items-center justify-center md:justify-start gap-2">
               <Mail className="w-4 h-4 shrink-0" />
               <a
                 href="mailto:support@elearning.vn"
@@ -86,7 +86,7 @@ const Footer = () => {
         {/* Social Media */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Kết nối với chúng tôi</h3>
-          <div className="flex gap-4">
+          <div className="flex justify-center md:justify-start gap-4">
             {[
               { icon: <Facebook />, href: "#" },
               { icon: <Instagram />, href: "#" },
